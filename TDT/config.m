@@ -47,6 +47,9 @@ else
 %      50, 500,2,400, 20, 1,0;...
 %      zeros(8,7)];
 
+% Optional support programs to be launched automatically.
+% Comment out the ones you don't use or add new ones.
+% If you comment out the TDT line you must have OpenWorkbench already running when you start Neuroblinks
 winopen(sprintf('%s\\TDT\\private\\TDTFiles\\simultaneous opto- microstim and recording.wsp',basedir));
 winopen('C:\Program Files (x86)\DinoCapture 2.0\DinoCapture.exe');
 winopen('C:\Program Files\Sublime Text 2\sublime_text.exe');
