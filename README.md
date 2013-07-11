@@ -1,11 +1,15 @@
-Neuroblinks - A program for doing eyeblink classical conditioning using Matlab and either Tucker Davis (TDT) or Arduino hardware
+Neuroblinks 
+===========
+
+A program for doing eyeblink classical conditioning using Matlab and either Tucker Davis (TDT) or Arduino hardware. The TDT version also supports control of neurophysiological and optogenetic experiments. 
 
 Authors: Shane Heiney and Shogo Ohmae, University of Pennsylvania
 
-Copyright (c) 2013
+Copyright &copy; 2013
 
 
 Instructions
+------------
 
 1. Make sure your system meets the following requirements:
 
@@ -21,7 +25,7 @@ Instructions
 4. Modify "neuroblinks.m" to call the right "Launch" m-file based on whether you're using Arduino or TDT.
 
 5. Create a session directory, e.g.
-    <data root>\<animalID>\<sessionID>
+    `<data root>\<animalID>\<sessionID>`
 
     and make this your current directory in Matlab.
 

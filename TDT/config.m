@@ -2,7 +2,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % basedir='D:\shane\matlab\neuroblinks v 1.1';
-basedir='D:\shane\matlab\neuroblinks v 1.3';
 tank='optoelectrophys'; % The tank should be registered using TankMon
 
 % ------ Letter for mouse -----
@@ -23,7 +22,7 @@ ghandles.pos_lfpwin=[470 50];    ghandles.size_lfpwin=[600 380];
 
 % Search for per-mouse config file and load it if it exists, otherwise default to the paramtable below
 
-mousedir=regexp(pwd,['[CD]:\\.*\\', metadata.mouse],'once','match');
+mousedir=regexp(pwd,['[A-Z]:\\.*\\', metadata.mouse],'once','match');
 condfile=fullfile(mousedir,'condparams.csv');
 
 if exist(condfile)
