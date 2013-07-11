@@ -13,10 +13,10 @@ Instructions
 
 1. Make sure your system meets the following requirements:
 
-- Modern Windows computer (tested on Win7) with lots of RAM and multi-core processor (e.g. 8-16 GB RAM, Intel i7).
-- Matlab v 2010b or later with the Image Acquisition and Image Processing toolboxes.
-- A video camera supported by the Image Acquisition toolbox, for instance the Allied Vision Technologies Prosilica GE680.
-- Arduino microprocessor or Tucker Davis Technologies RZ5 Bioamplifier (required to use neurophysiology features).
+	- Modern Windows computer (tested on Win7) with lots of RAM and multi-core processor (e.g. 8-16 GB RAM, Intel i7).
+	- Matlab v 2010b or later with the Image Acquisition and Image Processing toolboxes.
+	- A video camera supported by the Image Acquisition toolbox, for instance the Allied Vision Technologies Prosilica GE680.
+	- Arduino microprocessor or Tucker Davis Technologies RZ5 Bioamplifier (required to use neurophysiology features).
 
 2. Download or clone "neuroblinks" project to your computer and add the main directory of the project to your Matlab path.
 
