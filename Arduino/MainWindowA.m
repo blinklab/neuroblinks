@@ -87,7 +87,7 @@ setappdata(0,'trials',trials);
 h=ParamsWindow;
 waitfor(h);
 
-pushbutton_StartStopPreview_Callback(handles.pushbutton_StartStopPreview, [], handles)
+% pushbutton_StartStopPreview_Callback(handles.pushbutton_StartStopPreview, [], handles)
 
 % --- init table ----
 if isappdata(0,'paramtable')

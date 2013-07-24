@@ -1,4 +1,4 @@
-clear
+function Launch(basedir)
 
 config;
 

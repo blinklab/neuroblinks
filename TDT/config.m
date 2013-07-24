@@ -51,7 +51,9 @@ else
 % If you comment out the TDT line you must have OpenWorkbench already running when you start Neuroblinks
 winopen(sprintf('%s\\TDT\\private\\TDTFiles\\simultaneous opto- microstim and recording.wsp',basedir));
 winopen('C:\Program Files (x86)\DinoCapture 2.0\DinoCapture.exe');
-winopen('C:\Program Files\Sublime Text 2\sublime_text.exe');
+if isdir('C:\Program Files\Sublime Text 2')
+    winopen('C:\Program Files\Sublime Text 2\sublime_text.exe');
+end
 
 
 pause(1);

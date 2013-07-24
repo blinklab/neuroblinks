@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % basedir='D:\shane\matlab\neuroblinks v 1.1';
-basedir='D:\neuroblinks v 1.3\Arduino';
+% basedir='D:\neuroblinks v 1.3\Arduino';
 metadata.cam.recdurA=1000;
 
 % ------ Letter for mouse -----
@@ -17,7 +17,13 @@ ghandles.pos_oneanawin=[0 45];    ghandles.size_oneanawin=[560 380];
 ghandles.pos_lfpwin= [570 45];    ghandles.size_lfpwin=[600 380];
 
 % ------ Initial value of the conditioning table ----
-paramtable.data=...
+mousedir=regexp(pwd,['[A-Z]:\\.*\\', metadata.mouse],'once','match');
+condfile=fullfile(mousedir,'condparams.csv');
+
+if exist(condfile)
+	paramtable.data=csvread(condfile);
+else
+    paramtable.data=...
     [3,  500,1,200, 10,1,10;...
      1,  500,1,200, 0, 1,0;...
      0,  500,6,200, 0, 2,1;...
@@ -26,6 +32,7 @@ paramtable.data=...
      3,  500,1,200, 10,6,100;...
      1,  500,1,200, 0, 6,0;...
      zeros(3,7)];
+end
  
 comport={'COM5' 'COM5'};
 
