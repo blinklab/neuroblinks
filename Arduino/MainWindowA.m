@@ -138,7 +138,7 @@ end
 delete(handles.CamFig)
 button=questdlg('Do you want to compress the videos from this session?');
 if strcmpi(button,'Yes')
-    makeCompressedVideos(metadata.folder);
+    makeCompressedVideos(metadata.folder,1);
 end
 
 % --- Outputs from this function are returned to the command line.
