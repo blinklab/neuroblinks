@@ -22,9 +22,10 @@ t0=clock;
 videoname=sprintf('%s\\%s_%03d',metadata.folder,metadata.TDTblockname,metadata.cam.trialnum);
 if trials.savematadata
     save(videoname,'metadata')
-    pause(2.0-metadata.stim.totaltime/1000) % wait for serial buffer of TDT
+    pause(0.3-metadata.stim.totaltime/1000) % wait for serial buffer of TDT
 else
-    save(videoname,'data','metadata')
+%     save(videoname,'data','metadata')
+    save(videoname,'data','metadata','-v6')
     pause(0.3-metadata.stim.totaltime/1000) % wait for serial buffer of TDT
 end
 

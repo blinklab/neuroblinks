@@ -6,6 +6,10 @@ tank='optoelectrophys'; % The tank should be registered using TankMon
 % ------ Letter for mouse -----
 path1=pwd;   ind1=find(path1=='\');   metadata.mouse=path1(ind1(end-1)+1:ind1(end)-1);
 
+% --- camera settings ----
+metadata.cam.init_ExposureTime=1900;
+metadata.cam.init_AllGainRaw=9;
+
 % -- specify the location of bottomleft corner of MainWindow & AnalysisWindow  --
 ghandles.pos_mainwin=[8,450];     ghandles.size_mainwin=[840 720]; 
 ghandles.pos_anawin=[470 50];     ghandles.size_anawin=[1030 840]; 

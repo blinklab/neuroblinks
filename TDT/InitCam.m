@@ -1,15 +1,16 @@
 function InitCam(ch)
-
 % First delete any existing image acquisition objects
 
 imaqreset
+metadata=getappdata(0,'metadata');
+
 
 % vidobj = videoinput('avtmatlabadaptor64_r2009b', 1, 'Mono8_640x480_Binning_1x1');
 vidobj = videoinput('gige', ch, 'Mono8');
 src = getselectedsource(vidobj);
-src.ExposureTimeAbs = 4900;
+src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
 % src.AllGainRaw=7;
-src.AllGainRaw=12;
+src.AllGainRaw=metadata.cam.init_AllGainRaw;
 % src.NetworkPacketSize = '9014';
 src.PacketSize = '9014';
 vidobj.LoggingMode = 'memory'; vidobj.FramesPerTrigger=1;

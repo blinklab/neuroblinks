@@ -7,8 +7,9 @@ disp('creating video object ...')
 vidobj = videoinput('gige', ch, 'Mono8');
 disp('video settings ....')
 
+metadata=getappdata(0,'metadata');
 src = getselectedsource(vidobj);
-src.ExposureTimeAbs = 4900;
+src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
 % src.AllGainRaw=12;
 
 src.PacketSize = '9014';

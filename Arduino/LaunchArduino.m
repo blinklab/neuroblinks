@@ -23,7 +23,7 @@ setappdata(0,'arduino',arduino);
 %% Open GUI
 ghandles.maingui=MainWindowA;
 set(ghandles.maingui,'units','pixels')
-% set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
+set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
 
 % Save handles to root app data
 setappdata(0,'ghandles',ghandles)

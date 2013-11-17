@@ -225,6 +225,37 @@ fwrite(arduino,1,'int8');
 setappdata(0,'metadata',metadata);
 
 
+% --- Executes on button press in togglebutton_tgframerate.
+function togglebutton_tgframerate_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton_tgframerate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of togglebutton_tgframerate
+
+vidobj=getappdata(0,'vidobj');
+src=getappdata(0,'src');
+metadata=getappdata(0,'metadata');
+
+if get(hObject,'Value')
+    % Turn on high frame rate mode
+%     vidobj.ROIposition=metadata.cam.winpos;
+%     metadata.cam.fps=500;
+    src.ExposureTimeAbs = 1900;
+%     src.AllGainRaw=round(12*4900/1900);
+else
+    % Turn off high frame rate mode
+%     vidobj.ROIposition=metadata.cam.roi;
+%     metadata.cam.fps=200;
+    src.ExposureTimeAbs = 4900;
+%     src.AllGainRaw=12;
+end
+
+setappdata(0,'vidobj',vidobj);
+setappdata(0,'src',src);
+setappdata(0,'metadata',metadata);
+
+
+
 function checkbox_record_Callback(hObject, eventdata, handles)
 if get(hObject,'Value')
     set(handles.checkbox_record,'BackgroundColor',[0 1 0]); % green
@@ -314,7 +345,10 @@ setappdata(0,'paramtable',paramtable);
 
 ghandles=getappdata(0,'ghandles');
 trialtablegui=TrialTable;
-movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 200])
+movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
+
+
+
 
 
 
@@ -452,11 +486,18 @@ t1=clock-10;
 t0=clock;
 
 eyedata=NaN*ones(500,2);  
-plt_range=-2000;
+plt_range=-2100;
 
-% set(0,'currentfigure',ghandles.maingui)
-% set(ghandles.maingui,'CurrentAxes',handles.axes_eye)
-% set(gca,'color',[240 240 240]/255,'YAxisLocation','right');
+if get(handles.togglebutton_stream,'Value')
+    set(0,'currentfigure',ghandles.maingui)
+    set(ghandles.maingui,'CurrentAxes',handles.axes_eye)
+    cla
+    pl1=plot([plt_range 0],[1 1]*0,'k-'); hold on
+    set(gca,'color',[240 240 240]/255,'YAxisLocation','right');
+    set(gca,'xlim',[plt_range 0],'ylim',[-0.1 1.1])
+    set(gca,'xtick',[-3000:500:0],'box','off')
+    set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
+end
 
 try
     while get(handles.togglebutton_stream,'Value') == 1
@@ -473,10 +514,7 @@ try
         eyedata(end,1)=etime0;
         eyedata(end,2)=(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale; % eyelid pos
         
-        set(0,'currentfigure',ghandles.maingui)
-        set(ghandles.maingui,'CurrentAxes',handles.axes_eye)
-        plot(eyedata(:,1)-etime0,eyedata(:,2),'k')
-        set(gca,'xlim',[plt_range 0],'ylim',[-0.1 1.1])
+        set(pl1,'XData',eyedata(:,1)-etime0,'YData',eyedata(:,2))
         
         % --- Trigger ----
         if get(handles.toggle_continuous,'Value') == 1
@@ -596,16 +634,6 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in togglebutton_tgframerate.
-function togglebutton_tgframerate_Callback(hObject, eventdata, handles)
-% hObject    handle to togglebutton_tgframerate (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of togglebutton_tgframerate
-
-
 
 
 

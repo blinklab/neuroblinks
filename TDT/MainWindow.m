@@ -893,14 +893,14 @@ if get(hObject,'Value')
 %     src.AcquisitionFrameRateAbs=300;
     metadata.cam.fps=500;
     src.ExposureTimeAbs = 1900;
-    src.AllGainRaw=24;
+    src.AllGainRaw=round(metadata.cam.init_AllGainRaw*metadata.cam.init_ExposureTime/src.ExposureTimeAbs);
 else
     % Turn off high frame rate mode
     vidobj.ROIposition=metadata.cam.roi;
 %     src.AcquisitionFrameRateAbs=200;
     metadata.cam.fps=200;
-    src.ExposureTimeAbs = 4900;
-    src.AllGainRaw=12;
+    src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
+    src.AllGainRaw=metadata.cam.init_AllGainRaw;
 end
 
 setappdata(0,'vidobj',vidobj);
@@ -1048,8 +1048,7 @@ setappdata(0,'paramtable',paramtable);
 
 ghandles=getappdata(0,'ghandles');
 trialtablegui=TrialTable;
-movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 200])
-
+movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
 
 
 

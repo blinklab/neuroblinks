@@ -6,8 +6,11 @@ metadata.cam.recdurA=1000;
 % ------ Letter for mouse -----
 path1=pwd;   ind1=find(path1=='\');   metadata.mouse=path1(ind1(end-1)+1:ind1(end)-1);
 
+% --- camera settings ----
+metadata.cam.init_ExposureTime=1900;
+
 % -- specify the location of bottomleft corner of MainWindow & AnalysisWindow  --
-ghandles.pos_mainwin=[0,450];     ghandles.size_mainwin=[840 720]; 
+ghandles.pos_mainwin=[0,50];     ghandles.size_mainwin=[840 600]; 
 ghandles.pos_anawin= [570 45];    ghandles.size_anawin=[1030 840]; 
 ghandles.pos_oneanawin=[0 45];    ghandles.size_oneanawin=[560 380];   
 ghandles.pos_lfpwin= [570 45];    ghandles.size_lfpwin=[600 380];
