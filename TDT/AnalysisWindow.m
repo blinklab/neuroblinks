@@ -151,6 +151,7 @@ handles.time1=t0;
 guidata(hObject, handles);
 
 if etime1<0.5,  return,  end
+update_basicdata(handles);
 
 drawEyelid(handles);
 units=get(handles.popupmenu_units,'String');
@@ -162,6 +163,9 @@ if strcmpi(selectedunit,'N'),
     end
 end
 plotNeuronData(handles)
+plotGroupSpd(handles)
+plotScatter(handles)
+plotGroup(handles)
 
 
 function edit_updateinterval_Callback(hObject, eventdata, handles)
@@ -363,6 +367,7 @@ printFilterSet(handles);
 function analysisUpdateTimer(obj,event,handles)
 
 disp(sprintf('Instant period of update timer=%3.2f',get(obj,'InstantPeriod')));
+update_basicdata(handles);
 plotNeuronData(handles);
 
 
@@ -528,11 +533,118 @@ end
 
 setappdata(0,'filterSet',filterSet)
 
+
 function clearFilterSet()
 filterSet=getappdata(0,'filterSet');
 filterSet=containers.Map(); % Just create a new hash table and overwrite the previous one
-
 setappdata(0,'filterSet',filterSet)
+
+
+function update_basicdata(handles)
+trials=getappdata(0,'trials');
+ghandles=getappdata(0,'ghandles');
+
+% --- load TrlN ----
+TTX=getappdata(0,'ttx');
+[trials.TrlN.times, trials.TrlN.values]=TDTgetEventData(TTX,'TrlN',0,0,'ALL');
+% --- Call filtered_trigger ----
+flttrg=filtered_trigger(handles);
+ts_flttrg=flttrg.ts_trigs(flttrg.idx_flt);
+if isnan(ts_flttrg), ts_flttrg=[]; end
+trials.ts_flttrg=ts_flttrg;
+
+% --- checking updated data ----
+if ghandles.flttrgnum==length(ts_flttrg),  disp('No data which has not yet been drawn.'), return, end
+% to reflesh ghandles.flttrgnum, press any (e.g. TDT connect) button.
+if isempty(ts_flttrg), ghandles.flttrgnum=0;  setappdata(0,'ghandles',ghandles);  return, end
+
+% --- CR amp -----
+twin_CR=[0 200];
+trials.eye_CR_amp=NaN*ones(length(trials.TrlN.times),1);
+eye_mat=[];
+TrlNs=find(trials.TrlN.values>0);
+for trN=TrlNs(:)',
+    trC=trials.TrlN.values(trN);
+    if trC>length(trials.eye), continue, end
+    % --- detect CR amp ----
+    if isempty(trials.eye(trC).trace), continue, end
+    if isnan(trials.eye(trC).isi),
+        tind1=find(trials.eye(trC).time>twin_CR(1) & trials.eye(trC).time<twin_CR(2));
+    else
+        tind1=find(trials.eye(trC).time>0 & trials.eye(trC).time<trials.eye(trC).isi);
+    end
+    tind2=(trials.eye(trC).time<50);
+    eye_stab=max(trials.eye(trC).trace(tind2))-min(trials.eye(trC).trace(tind2)); 
+    if (trials.eye(trC).trace(tind1(end))-trials.eye(trC).trace(tind1(1)) >-0.1) & (eye_stab < 0.2)
+        trials.eye_CR_amp(trN)=max(trials.eye(trC).trace(tind1))-min(trials.eye(trC).trace(tind1));
+    end
+    % ---- eye data matrix ---
+    if ~isfield(eye_mat,'time')
+        eye_mat.time=trials.eye(trC).time;
+        eye_mat.eyepos=NaN*ones(length(eye_mat.time),length(trials.TrlN.times));
+    end
+    eye_mat.eyepos(:,trN)=interp1(trials.eye(trC).time,trials.eye(trC).trace,eye_mat.time);
+end
+
+% -- Get spike data based on selected unit number (every 500 ms) ---
+sttime=str2double(get(handles.edit_stime,'String'));
+endtime=str2double(get(handles.edit_etime,'String'));
+% [spiketimes,spikeshapes,sortcodes]=TDTgetSpikeData(TTX,'Snip',sttime,endtime,'FILTERED');
+endtime1=trials.TrlN.times(end); 
+if sttime<0, sttime=0; end
+if endtime>endtime1 | endtime==0, endtime=endtime1+5; end
+rep=floor((endtime-sttime)/500);
+spiketimes=[]; spikeshapes=[];  sortcodes=[];
+for i=1:(rep+1)
+    sttime2=sttime+500*(i-1);  endtime2=sttime+500*i;
+    [tm1,shape1,code1]=TDTgetSpikeData(TTX,'Snip',sttime2,endtime2,'FILTERED');
+    spiketimes=[spiketimes tm1];
+    spikeshapes=[spikeshapes shape1];
+    sortcodes=[sortcodes code1];
+    pause(0.01)
+end
+trials.raster.times=spiketimes;  trials.raster.shapes=spikeshapes;  trials.raster.codes=sortcodes;
+% --- sort code ---
+sortcodes1=get(handles.listbox_snips,'String');
+sortcodevalues=get(handles.listbox_snips,'Value');
+selectedsortcodes=str2double(sortcodes1(sortcodevalues));
+sortedspiketimes=spiketimes(ismember(sortcodes,selectedsortcodes));
+
+% --- raster and hist ---
+binsz=0.005;  pretm=0.2;  posttm=0.6;
+[histdata,rasterdata,countdata]=fpsth(sortedspiketimes, ts_flttrg, binsz, pretm, posttm, 'rect', 0.01);
+trials.raster.histdata=histdata;  trials.raster.rasterdata=rasterdata;  
+trials.raster.bin_pre_post=[binsz pretm posttm];
+
+% --- corr ---
+anawin=[100 350]/1000;
+rasterbins=rasterdata(size(rasterdata,1),:);
+twind1=(rasterbins>anawin(1) & rasterbins<anawin(2));
+trials.corr.spk_filt=nansum(rasterdata(1:end-1,twind1),2)/diff(anawin);
+[ind1, dist1] = nearestpoint(trials.ts_flttrg, trials.TrlN.times);
+trials.corr.CR_amp=trials.eye_CR_amp(ind1);
+ind2=~isnan(trials.corr.CR_amp+trials.corr.spk_filt);
+[r,p]=corrcoef(trials.corr.CR_amp(ind2), trials.corr.spk_filt(ind2));
+trials.corr.rp=[r(1,2) p(1,2)];
+
+% --- grouping -----
+gr_num=3;
+trials.gr=grouping(gr_num, [], 'descend', trials.corr.CR_amp);
+trials.gr.eyetime=eye_mat.time;
+trials.gr.eye=NaN*ones(length(eye_mat.time),gr_num);
+trials.gr.histdata=NaN*ones(size(histdata,2),gr_num);
+trials.gr.h_bins=NaN*ones(size(histdata,2),1);
+for j=1:gr_num
+    if length(trials.gr.gr_tr{j})<=2, continue, end
+    [histdata,rasterdata,countdata]=fpsth(sortedspiketimes, ts_flttrg(sort(trials.gr.gr_tr{j})), binsz, pretm, posttm, 'rect', 0.03);
+    trials.gr.histdata(:,j)=histdata(1,:)/binsz;
+    trials.gr.h_bins=histdata(2,:)'*1000;
+    trials.gr.eye(:,j)=nanmean(eye_mat.eyepos(:,ind1(trials.gr.gr_tr{j})),2);
+end
+
+% -- output --
+setappdata(0,'trials',trials)
+
 
 
 function plotNeuronData(handles)
@@ -551,25 +663,14 @@ subpanels={
 
 TTX=getappdata(0,'ttx');
 ghandles=getappdata(0,'ghandles');
-% Figure out what we're plotting and grab data
+trials=getappdata(0,'trials');
 
-% --- sort code ---
-sortcodes=get(handles.listbox_snips,'String');
-sortcodevalues=get(handles.listbox_snips,'Value');
-selectedsortcodes=str2double(sortcodes(sortcodevalues));
-
-% --- Call filtered_trigger ----
-flttrg=filtered_trigger(handles);
-ts_flttrg=flttrg.ts_trigs(flttrg.idx_flt);
-if isempty(ts_flttrg), return, elseif isnan(ts_flttrg), return, end
-if ghandles.flttrgnum==length(ts_flttrg), 
-    disp('No data which has not yet been drawn.'), return,  end
-% to reflesh ghandles.flttrgnum, press any (e.g. TDT connect) button.
-ghandles.flttrgnum=length(ts_flttrg);
+% --- checking updated data ----
+if ghandles.flttrgnum==length(trials.ts_flttrg),   return,  end
+ghandles.flttrgnum=length(trials.ts_flttrg);
 setappdata(0,'ghandles',ghandles)
-pause(0.01)
-% ----- 
 
+% ----- 
 TTX.CreateEpocIndexing; % Do we have to run this each time?
 TTX.ResetFilters;
 
@@ -580,23 +681,23 @@ selectedunit=units(val);
 %     units={units};  % Make it a cell array like a list would be
 % end
 
-sttime=str2double(get(handles.edit_stime,'String'));
-endtime=str2double(get(handles.edit_etime,'String'));
+
 
 TTX.SetFilterWithDesc(sprintf('Unit=%s',selectedunit)); % e.g. 'Unit=1'
 
 pause(0.01)
-% Get spike data based on selected unit number
-% [spiketimes,spikeshapes,sortcodes]=TDTgetSpikeData(TTX,'Snip',0,0,'ALL');
-[spiketimes,spikeshapes,sortcodes]=TDTgetSpikeData(TTX,'Snip',sttime,endtime,'FILTERED');
 
-sortedspiketimes=spiketimes(ismember(sortcodes,selectedsortcodes));
+% [spiketimes,spikeshapes,sortcodes]=TDTgetSpikeData(TTX,'Snip',sttime,endtime,'FILTERED');
+spiketimes=trials.raster.times;  spikeshapes=trials.raster.shapes;  sortcodes=trials.raster.codes;
 
-binsz=0.005;
-pretm=0.2;
-posttm=0.6;
-
-[histdata,rasterdata,countdata]=fpsth(sortedspiketimes, ts_flttrg, binsz, pretm, posttm, 'rect', 0.01);
+% sortedspiketimes=spiketimes(ismember(sortcodes,selectedsortcodes));
+% 
+binsz=trials.raster.bin_pre_post(1);
+pretm=trials.raster.bin_pre_post(2);
+posttm=trials.raster.bin_pre_post(3);
+% 
+% [histdata,rasterdata,countdata]=fpsth(sortedspiketimes, ts_flttrg, binsz, pretm, posttm, 'rect', 0.01);
+histdata=trials.raster.histdata;  rasterdata=trials.raster.rasterdata;  
 hst=histdata(1,:)/binsz;
 bins=histdata(2,:);
 raster=rasterdata(1:size(rasterdata,1)-1,:);
@@ -692,45 +793,114 @@ flttrg.idx_flt=index;
 function drawEyelid(handles)
 trials=getappdata(0,'trials');
 ghandles=getappdata(0,'ghandles');
-% --- load TrlN ----
-TTX=getappdata(0,'ttx');
-[trln_ts,trln_values]=TDTgetEventData(TTX,'TrlN',0,0,'ALL');
+if ghandles.flttrgnum==length(trials.ts_flttrg),  return, end
 
-% --- Call filtered_trigger ----
-flttrg=filtered_trigger(handles);
-ts_flttrg=flttrg.ts_trigs(flttrg.idx_flt);
-if isempty(ts_flttrg), return, elseif isnan(ts_flttrg), return, end
-if ghandles.flttrgnum==length(ts_flttrg),  disp('No data which has not yet been drawn.'), return, end
-
-% --- calc corresponding trialnum (TrlN) ----
-trigevents=get(handles.popupmenu_events,'String');
-trigevent=trigevents{get(handles.popupmenu_events,'Value')};
-
-if ~strcmpi(trigevent,'N')
-    [ind1, dist1] = nearestpoint(ts_flttrg, trln_ts);
-    if ~isnan(ind1)
-        flttnum=trln_values(ind1);
-        flttnum=flttnum(flttnum>0);  % remove CalTrial
-    else
-        flttnum=1:length(trials.eye);
-    end
+[ind1, dist1] = nearestpoint(trials.ts_flttrg, trials.TrlN.times);
+if ~isnan(ind1)
+    flttnum=trials.TrlN.values(ind1);
+    flttnum=flttnum(flttnum>0);  % remove CalTrial
 else
     flttnum=1:length(trials.eye);
 end
 
 
-% ------- init fig -----
+% ------- init fig 1 -----
 subplot('position',[0.05 0.16 0.30 0.82], 'Parent', handles.uipanel_behavior)
 cla
 plot([-1 1]*1000, [0 0],'k:'),  hold on,   plot([-1 1]*1000, [1 1],'k:'), 
 set(gca,'ylim',[-0.15 1.20], 'ytick',[0:0.5:1], 'box', 'off','tickdir','out')
 
 for t_num=flttnum,
+    if isempty(trials.eye(t_num).time), continue, end
     plotOneEyelid(t_num);
 end
 set(gca,'xlim',[trials.eye(t_num).time(1) trials.eye(t_num).time(end)],'xtick',[-400:200:1000])
 set(gca,'color',[240 240 240]/255)
 xlabel('Time from trial oset (ms)')
+
+
+function plotScatter(handles)
+    
+trials=getappdata(0,'trials');
+subplot('position',[0.40 0.16 0.20 0.75], 'Parent', handles.uipanel_behavior)
+cla
+
+plot(trials.corr.CR_amp, trials.corr.spk_filt,'k.');
+title(sprintf('R = %4.3f',trials.corr.rp(1)))
+
+set(gca, 'xtick',[0:0.5:1], 'box', 'off','tickdir','out')
+set(gca,'color',[240 240 240]/255)
+xlabel('CR (blink) amp'),
+ylabel('SS (spk/s)')
+
+
+
+function plotGroup(handles)
+trials=getappdata(0,'trials');
+subplot('position',[0.70 0.16 0.24 0.75], 'Parent', handles.uipanel_behavior)
+cla
+fig1.col1{2}={[1 0 0] [0 0.5 1]};
+fig1.col1{3}={[1 0 0] [85 255 170]/255 [0 0.5 1]};
+fig1.col1{4}={[1 0 0] [1 0.5 0.3] [0 1 1] [0 0.5 1] [0 0 1] [0.5 0 1] [0.8 0.8 0.8]};
+for j=1:trials.gr.num
+    plot(trials.gr.eyetime, trials.gr.eye(:,j),'color',fig1.col1{trials.gr.num}{j})
+    hold on
+end
+
+set(gca, 'box', 'off','tickdir','out','color',[240 240 240]/255)
+set(gca, 'xlim', [-100 600])
+
+
+function plotGroupSpd(handles)
+trials=getappdata(0,'trials');
+subplot('position',[0.70 0.10 0.24 0.35], 'Parent',handles.uipanel_neuron)
+cla
+fig1.col1{2}={[1 0 0] [0 0.5 1]};
+fig1.col1{3}={[1 0 0] [85 255 170]/255 [0 0.5 1]};
+fig1.col1{4}={[1 0 0] [1 0.5 0.3] [0 1 1] [0 0.5 1] [0 0 1] [0.5 0 1] [0.8 0.8 0.8]};
+for j=1:trials.gr.num
+    plot(trials.gr.h_bins, trials.gr.histdata(:,j), 'color', fig1.col1{trials.gr.num}{j})
+    hold on
+end
+set(gca, 'box', 'off','tickdir','out','color',[240 240 240]/255)
+set(gca, 'xlim', [-100 600])
+
+
+
+
+function gr=grouping(gr_num, tr_set, order_str, sorting_param)
+% [input] gr_num: number of group to be divided
+%         tr_set: grouping will be done with in these trials.
+%                 if [], all trials will be used
+%         order_str: 'ascend' or 'descend'
+%         sorting_param:  according to this value, sorting will be done
+% 
+% [e.g.] 
+%  clear
+%  gr_num=2;
+%  tr_set=[];
+%  order_str='ascend';
+%  sorting_param=[10 4 2 7 9 1 3 11]
+
+% ------ sorting according to sorting_param --------
+if isempty(tr_set), tr_set=1:length(sorting_param); end
+valid=find(~isnan(sorting_param));
+tr_set=intersect(tr_set,valid);
+    
+gr.num=gr_num;
+lg_tr=length(tr_set);
+
+sorting_param2 = sorting_param(tr_set);
+[sorted_y, sorted_tr]=sort(sorting_param2(:),1,order_str);
+for i=1:gr.num,
+    ind_within=sorted_tr(floor(lg_tr*(i-1)/gr.num)+1:floor(lg_tr*i/gr.num));
+    gr.gr_tr{i}=tr_set(ind_within);
+    gr.gr_y{i}=sorting_param(tr_set(ind_within));
+    gr.gr_tnum(i)=length(gr.gr_tr{i});
+end
+
+
+
 
 
 

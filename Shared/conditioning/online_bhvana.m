@@ -3,7 +3,8 @@ function online_bhvana(data)
 
 metadata=getappdata(0,'metadata');
 trials=getappdata(0,'trials');
-if isfield(trials,'eye'), if length(trials.eye)>metadata.eye.trialnum2+2, trials.eye=[]; end, end
+if isfield(trials,'eye'), if length(trials.eye)>metadata.eye.trialnum2+1, trials.eye=[]; end, end
+if metadata.eye.trialnum2==1, trials.eye=[]; end
 
 % ------ eyelid trace, which will be saved to 'trials' ---- 
 [trace,time]=vid2eyetrace(data,metadata,metadata.cam.thresh);
@@ -12,6 +13,7 @@ trace=(trace-metadata.cam.calib_offset)/metadata.cam.calib_scale;
 trials.eye(metadata.eye.trialnum2).time=time*1e3;
 trials.eye(metadata.eye.trialnum2).trace=trace;
 trials.eye(metadata.eye.trialnum2).stimtype=lower(metadata.stim.type);
+trials.eye(metadata.eye.trialnum2).isi=NaN;
 
 switch lower(metadata.stim.type)
     case 'none'
@@ -33,6 +35,7 @@ switch lower(metadata.stim.type)
         trials.eye(metadata.eye.trialnum2).stimtime.st{2}=metadata.stim.c.isi;
         trials.eye(metadata.eye.trialnum2).stimtime.en{2}=metadata.stim.c.usdur; % for US
         trials.eye(metadata.eye.trialnum2).stimtime.cchan(2)=2;
+        trials.eye(metadata.eye.trialnum2).isi=metadata.stim.c.isi;
     case 'optical'      
         trials.eye(metadata.eye.trialnum2).stimtime.st{1}=metadata.stim.l.delay;
         trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.l.traindur;

@@ -1,7 +1,7 @@
 function refreshParams(hObject)
 
 % Load objects from root app data
-TDT=getappdata(0,'tdt');
+% TDT=getappdata(0,'tdt');
 metadata=getappdata(0,'metadata');
 handles=guidata(hObject);
 trials=getappdata(0,'trials');
@@ -48,7 +48,7 @@ metadata.stim.p.puffdur=str2double(get(handles.edit_puffdur,'String'));
 val=get(handles.popupmenu_stimtype,'Value');
 str=get(handles.popupmenu_stimtype,'String');
 metadata.stim.type=str{val};
-
+if metadata.cam.cal, metadata.stim.type='Puff'; end % for Cal
 stimmode=metadata.stim.type;
 
 switch lower(stimmode)
@@ -79,6 +79,6 @@ metadata.cam.time(3)=str2double(get(handles.edit_posttime,'String'));
 tnum=metadata.cam.trialnum;
 trials.params(tnum).depth=max(metadata.stim.e.depth,metadata.stim.l.depth);
 trials.params(tnum).psde=metadata.stim.p.side_value;
-    
+
 setappdata(0,'trials',trials);
 setappdata(0,'metadata',metadata);

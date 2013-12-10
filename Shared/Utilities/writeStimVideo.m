@@ -20,6 +20,9 @@ end
 
 % Make stim timing arrays
 
+box_size=round(m/20);
+box_x=round(m*420/480)+[1:box_size];
+box_y=round(n*580/640)+[1:box_size];
 
 switch lower(metadata.stim.type)
     case 'none'
@@ -29,33 +32,34 @@ switch lower(metadata.stim.type)
         stfrm=round(metadata.cam.time(1)./1000.*metadata.cam.fps);
         enfrm=round(metadata.stim.totaltime./1000.*metadata.cam.fps);
         stim=zeros(m,n,3,t,'uint8');
-        stim(400:449,450:499,2,stfrm:stfrm+enfrm)=255;
+        stim(box_x,box_y,2,stfrm:stfrm+enfrm)=255;
     case 'electrical'       
         stfrm=round((metadata.cam.time(1)+metadata.stim.e.delay)./1000.*metadata.cam.fps);
         enfrm=round(metadata.stim.e.traindur./1000.*metadata.cam.fps);
         stim=zeros(m,n,3,t,'uint8');
-        stim(400:449,500:549,1,stfrm:stfrm+enfrm)=255;       
+        stim(box_x,box_y,1,stfrm:stfrm+enfrm)=255;       
     case 'conditioning'
         stfrmc=round(metadata.cam.time(1)./1000.*metadata.cam.fps); % for CS
         enfrmc=round(metadata.stim.c.csdur./1000.*metadata.cam.fps);
         stfrmu=round((metadata.cam.time(1)+metadata.stim.c.isi)./1000.*metadata.cam.fps);
         enfrmu=round(metadata.stim.c.usdur/1000.*metadata.cam.fps); % for US
         stim=zeros(m,n,3,t,'uint8');
-        stim(400:449,500:549,3,stfrmc:stfrmc+enfrmc)=255;
-        stim(400:449,550:599,2,stfrmu:stfrmu+enfrmu)=255;
+        stim(box_x,box_y,3,stfrmc:stfrmc+enfrmc)=255;
+        stim(box_x,box_y,2,stfrmu:stfrmu+enfrmu)=255;
+        stim(box_x,box_y,3,stfrmu:stfrmu+enfrmu)=0;
     case 'optical'      
         stfrm=round((metadata.cam.time(1)+metadata.stim.l.delay)./1000.*metadata.cam.fps);
         enfrm=round(metadata.stim.l.traindur./1000.*metadata.cam.fps);
         stim=zeros(m,n,3,t,'uint8');
-        stim(400:449,550:599,3,stfrm:stfrm+enfrm)=255;
+        stim(box_x,box_y,3,stfrm:stfrm+enfrm)=255;
     case 'optoelectric'      
         stfrme=round((metadata.cam.time(1)+metadata.stim.e.delay)./1000.*metadata.cam.fps);
         enfrme=round(metadata.stim.e.traindur./1000.*metadata.cam.fps);      
         stfrml=round((metadata.cam.time(1)+metadata.stim.l.delay)./1000.*metadata.cam.fps);
         enfrml=round(metadata.stim.e.traindur./1000.*metadata.cam.fps);
         stim=zeros(m,n,3,t,'uint8');
-        stim(400:449,500:549,1,stfrme:stfrme+enfrme)=255;
-        stim(400:449,550:599,3,stfrml:stfrml+enfrml)=255;
+        stim(box_x,box_y,1,stfrme:stfrme+enfrme)=255;
+        stim(box_x,box_y,3,stfrml:stfrml+enfrml)=255;
 end
 
 

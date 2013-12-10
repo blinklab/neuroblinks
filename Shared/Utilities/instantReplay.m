@@ -74,11 +74,11 @@ end
 
 if exist('stfrm','var')
     % Do another loop; here we're trading execution time for memory
-    
+    box_size=round(m/20);
     for j=1:length(stfrm),
         for i=stfrm{j}:stfrm{j}+enfrm{j}
-            F(i).cdata(400:449,500:549,setdiff([1,2,3],cchan(j)))=0;
-            F(i).cdata(400:449,500:549,cchan(j))=255;
+            F(i).cdata(round(m*400/480)+[1:box_size],round(n*550/640)+[1:box_size],setdiff([1,2,3],cchan(j)))=0;
+            F(i).cdata(round(m*400/480)+[1:box_size],round(n*550/640)+[1:box_size],cchan(j))=255;
         end
     end
 end

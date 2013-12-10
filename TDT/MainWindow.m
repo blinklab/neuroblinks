@@ -75,6 +75,7 @@ metadata.stim.type=typestring{get(handles.popupmenu_stimtype,'Value')};
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(3)=str2double(get(handles.edit_posttime,'String'));
 
+metadata.cam.cal=0;
 metadata.cam.calib_offset=0;
 metadata.cam.calib_scale=1;
 % metadata.stim.c.table=get(handles.table_condition,'Data');
@@ -240,24 +241,32 @@ function pushbutton_StartStopPreview_Callback(hObject, eventdata, handles)
 
 vidobj=getappdata(0,'vidobj');
 metadata=getappdata(0,'metadata');
-% ROI=vidobj.ROIposition;
-%   if ROI(3)~=480 || ROI(4)~=640
-%      % Set ROI
-% %      SetRoi;
-%   end
-metadata.cam.roi = vidobj.ROIposition;
+
+if ~isfield(metadata.cam,'fullsize')
+    metadata.cam.fullsize = [0 0 640 480];
+end
+metadata.cam.vidobj_ROIposition=vidobj.ROIposition;
 
 % Start/Stop Camera
 if strcmp(get(handles.pushbutton_StartStopPreview,'String'),'Start Preview')
-% Camera is off. Change button string and start camera.
-set(handles.pushbutton_StartStopPreview,'String','Stop Preview')
-%Send camera preview to GUI
-handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-preview(vidobj,handles.pwin);
+    % Camera is off. Change button string and start camera.
+    set(handles.pushbutton_StartStopPreview,'String','Stop Preview')
+    %Send camera preview to GUI
+    imx=metadata.cam.vidobj_ROIposition(1)+[1:metadata.cam.vidobj_ROIposition(3)];
+    imy=metadata.cam.vidobj_ROIposition(2)+[1:metadata.cam.vidobj_ROIposition(4)];
+    handles.pwin=image(imx,imy,zeros(metadata.cam.vidobj_ROIposition([4 3])), 'Parent',handles.cameraAx);
+    
+    preview(vidobj,handles.pwin);
+    set(handles.cameraAx,'XLim', 0.5+metadata.cam.fullsize([1 3])),
+    set(handles.cameraAx,'YLim', 0.5+metadata.cam.fullsize([2 4])),
+    hp=findobj(handles.cameraAx,'Tag','roipatch');  delete(hp)
+    if isfield(handles,'XY')
+        handles.roipatch=patch(handles.XY(:,1),handles.XY(:,2),'g','FaceColor','none','EdgeColor','g','Tag','roipatch');
+    end
 else
-% Camera is on. Stop camera and change button string.
-set(handles.pushbutton_StartStopPreview,'String','Start Preview')
-closepreview(vidobj);
+    % Camera is on. Stop camera and change button string.
+    set(handles.pushbutton_StartStopPreview,'String','Start Preview')
+    closepreview(vidobj);
 end
 
 setappdata(0,'metadata',metadata);
@@ -289,11 +298,11 @@ function pushbutton_setROI_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Load objects from root app data
-% TDT=getappdata(0,'tdt');
-vidobj=getappdata(0,'vidobj');metadata=getappdata(0,'metadata');
+vidobj=getappdata(0,'vidobj');   metadata=getappdata(0,'metadata');
 
 if isfield(metadata.cam,'winpos')
     winpos=metadata.cam.winpos;
+    winpos(1:2)=winpos(1:2)+metadata.cam.vidobj_ROIposition(1:2);
 else
     winpos=[0 0 640 480];
 end
@@ -301,14 +310,15 @@ end
 % Place rectangle on vidobj
 % h=imrect(handles.cameraAx,winpos);
 h=imellipse(handles.cameraAx,winpos);
-% h=imellipse(handles.cameraAx,winpos);
+
 % fcn = makeConstrainToRectFcn('imrect',get(handles.cameraAx,'XLim'),get(handles.cameraAx,'YLim'));
 fcn = makeConstrainToRectFcn('imellipse',get(handles.cameraAx,'XLim'),get(handles.cameraAx,'YLim'));
 setPositionConstraintFcn(h,fcn);
 
 % metadata.cam.winpos=round(wait(h));
 XY=round(wait(h));  % only use for imellipse
-metadata.cam.winpos=getPosition(h);
+metadata.cam.winpos=round(getPosition(h));
+metadata.cam.winpos(1:2)=metadata.cam.winpos(1:2)-metadata.cam.vidobj_ROIposition(1:2);
 metadata.cam.mask=createMask(h);
 
 wholeframe=getsnapshot(vidobj);
@@ -316,24 +326,13 @@ binframe=im2bw(wholeframe,metadata.cam.thresh);
 eyeframe=binframe.*metadata.cam.mask;
 metadata.cam.pixelpeak=sum(sum(eyeframe));
 
-
-xmin=metadata.cam.winpos(1);
-ymin=metadata.cam.winpos(2);
-width=metadata.cam.winpos(3);
-height=metadata.cam.winpos(4);
-
-% Save indices that delineate border of ROI
-handles.x1=ceil(metadata.cam.winpos(1));
-handles.x2=floor(metadata.cam.winpos(1)+metadata.cam.winpos(3));
-handles.y1=ceil(metadata.cam.winpos(2));
-handles.y2=floor(metadata.cam.winpos(2)+metadata.cam.winpos(4));
-
 hp=findobj(handles.cameraAx,'Tag','roipatch');
 delete(hp)
 % handles.roipatch=patch([xmin,xmin+width,xmin+width,xmin],[ymin,ymin,ymin+height,ymin+height],'g','FaceColor','none','EdgeColor','g','Tag','roipatch');
 % XY=getVertices(h);
 delete(h);
 handles.roipatch=patch(XY(:,1),XY(:,2),'g','FaceColor','none','EdgeColor','g','Tag','roipatch');
+handles.XY=XY;
 
 setappdata(0,'metadata',metadata);
 guidata(hObject,handles)
@@ -357,49 +356,27 @@ function togglebutton_stream_Callback(hObject, eventdata, handles)
 streamEyelid(hObject, handles)
 
 
-% --- Executes on button press in pushbutton_setThresh.
-function pushbutton_setThresh_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_setThresh (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% % --- Executes on button press in pushbutton_setThresh.
+% function pushbutton_setThresh_Callback(hObject, eventdata, handles)
+% % hObject    handle to pushbutton_setThresh (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% % Hint: get(hObject,'Value') returns toggle state of pushbutton_setThresh
+% 
+% % Call new gui to deal with setting threshold
+% ghandles=getappdata(0,'ghandles');
+% 
+% ghandles.threshgui=ThreshWindow;
+% setappdata(0,'ghandles',ghandles);
+% 
+% % Have to do the following 3 lines because we can't call drawhist and
+% % drawbinary directly from the ThreshWindow opening function since the
+% % ghandles struct doesn't exist yet. 
+% threshguihandles=guidata(ghandles.threshgui);
+% ThreshWindow('drawhist',threshguihandles);
+% ThreshWindow('drawbinary',threshguihandles);
 
-% Hint: get(hObject,'Value') returns toggle state of pushbutton_setThresh
-
-% Call new gui to deal with setting threshold
-ghandles=getappdata(0,'ghandles');
-
-ghandles.threshgui=ThreshWindow;
-setappdata(0,'ghandles',ghandles);
-
-% Have to do the following 3 lines because we can't call drawhist and
-% drawbinary directly from the ThreshWindow opening function since the
-% ghandles struct doesn't exist yet. 
-threshguihandles=guidata(ghandles.threshgui);
-ThreshWindow('drawhist',threshguihandles);
-ThreshWindow('drawbinary',threshguihandles);
-
-% if get(hObject,'Value') == 1
-%     set(handles.text_eyelidThresh,'Visible','on')
-%     set(handles.edit_eyelidThresh,'Visible','on')
-%     
-%     % Create image object to hold binary image
-%     handles.binimage=image(zeros(480,640),'Parent',handles.cameraAx);
-%     guidata(hObject,handles)
-%     
-%     % Set up timer for redrawing binary image
-%     % First delete old instances
-%     t=timerfind('Name','thresdispTimer');
-%     delete(t)
-%     treshdispTimer=timer('Name','threshdispTimer','Period',0.05,'ExecutionMode','FixedRate','TimerFcn',{@threshupdate,handles},'BusyMode','drop');
-%     start(treshdispTimer)
-% else
-%     set(handles.text_eyelidThresh,'Visible','off')
-%     set(handles.edit_eyelidThresh,'Visible','off')
-%     t=timerfind('Name','thresdispTimer');
-%     delete(t)
-%     delete(handles.binimage)
-%     return
-% end
 
 
 function pushbutton_params_Callback(hObject, eventdata, handles)
@@ -870,11 +847,6 @@ end
 
 
 
-
-
-
-
-
 % --- Executes on button press in togglebutton_tgframerate.
 function togglebutton_tgframerate_Callback(hObject, eventdata, handles)
 % hObject    handle to togglebutton_tgframerate (see GCBO)
@@ -889,25 +861,49 @@ metadata=getappdata(0,'metadata');
 
 if get(hObject,'Value')
     % Turn on high frame rate mode
-    vidobj.ROIposition=metadata.cam.winpos;
-%     src.AcquisitionFrameRateAbs=300;
-    metadata.cam.fps=500;
-    src.ExposureTimeAbs = 1900;
-    src.AllGainRaw=round(metadata.cam.init_AllGainRaw*metadata.cam.init_ExposureTime/src.ExposureTimeAbs);
+    sug_extime=1900;
+    sug_gain=metadata.cam.init_AllGainRaw+round(20*log10(metadata.cam.init_ExposureTime/sug_extime));
+    dlgans=inputdlg({'Frame rate','Exposure Time','Gain (+20*log10)'},'Frame rate',1,{'500',num2str(sug_extime),num2str(sug_gain)});
+    if isempty(dlgans)
+        set(hObject,'Value',0);     return;
+    elseif isempty(dlgans{1})|isempty(dlgans{2})|isempty(dlgans{3})
+        set(hObject,'Value',0);     return;
+    elseif isnan(str2double(dlgans{1})+str2double(dlgans{2})+str2double(dlgans{3}))
+        set(hObject,'Value',0);     return;
+    else
+        metadata.cam.fps=str2double(dlgans{1});
+        src.ExposureTimeAbs = str2double(dlgans{2});
+        src.AllGainRaw=str2double(dlgans{3});
+    end
+    metadata.cam.vidobj_ROIposition=max(metadata.cam.winpos+[-15 0 30 0],[0 0 0 0]);
+    vidobj.ROIposition=metadata.cam.vidobj_ROIposition;
+    
+    % --- size fit for roi and mask ----
+    vidroi_x=metadata.cam.vidobj_ROIposition(1)+[1:metadata.cam.vidobj_ROIposition(3)];
+    vidroi_y=metadata.cam.vidobj_ROIposition(2)+[1:metadata.cam.vidobj_ROIposition(4)];
+    metadata.cam.mask = metadata.cam.mask(vidroi_y, vidroi_x);
+    metadata.cam.winpos(1:2)=metadata.cam.winpos(1:2)-metadata.cam.vidobj_ROIposition(1:2);
 else
     % Turn off high frame rate mode
-    vidobj.ROIposition=metadata.cam.roi;
-%     src.AcquisitionFrameRateAbs=200;
+    vidobj.ROIposition=metadata.cam.fullsize;
     metadata.cam.fps=200;
     src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
     src.AllGainRaw=metadata.cam.init_AllGainRaw;
+    % --- size fit for roi and mask ----
+    mask0=metadata.cam.mask; s_mask0=size(mask0);
+    metadata.cam.mask = false(metadata.cam.fullsize([4 3]));
+    metadata.cam.mask(metadata.cam.vidobj_ROIposition(2)+[1:s_mask0(1)], metadata.cam.vidobj_ROIposition(1)+[1:s_mask0(2)])=mask0;
+    metadata.cam.winpos(1:2)=metadata.cam.winpos(1:2)+metadata.cam.vidobj_ROIposition(1:2);
+    metadata.cam.vidobj_ROIposition=metadata.cam.fullsize;
 end
+
+pushbutton_StartStopPreview_Callback(handles.pushbutton_StartStopPreview, [], handles)
+pause(0.02)
+pushbutton_StartStopPreview_Callback(handles.pushbutton_StartStopPreview, [], handles)
 
 setappdata(0,'vidobj',vidobj);
 setappdata(0,'src',src);
 setappdata(0,'metadata',metadata);
-
-
 
 
 
@@ -947,6 +943,7 @@ setappdata(0,'ghandles',ghandles);
 set(ghandles.analysisgui,'units','pixels')
 set(ghandles.analysisgui,'position',[ghandles.pos_anawin ghandles.size_anawin])
 
+
 % --- Executes on button press in pushbutton_CalbEye.
 function pushbutton_CalbEye_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_CalbEye (see GCBO)
@@ -954,14 +951,17 @@ function pushbutton_CalbEye_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get stim params and pass to TDT
+
+metadata=getappdata(0,'metadata');
+metadata.cam.cal=1;
+setappdata(0,'metadata',metadata);
+
 refreshParams(hObject);
 sendParamsToTDT(hObject)
 
 TDT=getappdata(0,'tdt');
 vidobj=getappdata(0,'vidobj');
 metadata=getappdata(0,'metadata');
-
-metadata.stim.type='Puff';
 
 % Send TDT trial number of zero 
 TDT.SetTargetVal('ustim.CamTrial',0);
@@ -974,20 +974,13 @@ vidobj.StopFcn=@CalbEye;   % @nosavetrial
 flushdata(vidobj); % Remove any data from buffer before triggering
 start(vidobj)
 
+metadata.cam.cal=0;
 metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
 TDT.SetTargetVal('ustim.MatTime',metadata.ts(2));
 
 TDT.SetTargetVal('ustim.PuffManual',1);
-if get(handles.checkbox_RX6,'Value'),
-    TDT.SetTargetVal('ustim.StartCam',1);
-    TDT.SetTargetVal('Stim.PuffManual',1); 
-end
 pause(0.01);
 TDT.SetTargetVal('ustim.PuffManual',0);
-if get(handles.checkbox_RX6,'Value'),
-    TDT.SetTargetVal('Stim.PuffManual',0);
-    TDT.SetTargetVal('ustim.StartCam',0);
-end
 
 setappdata(0,'metadata',metadata);
 
@@ -1049,13 +1042,6 @@ setappdata(0,'paramtable',paramtable);
 ghandles=getappdata(0,'ghandles');
 trialtablegui=TrialTable;
 movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
-
-
-
-
-
-
-
 
 
 

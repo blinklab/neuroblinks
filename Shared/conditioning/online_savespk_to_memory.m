@@ -11,7 +11,8 @@ TTX=getappdata(0,'ttx');
 if isfield(trials,'spk'), length_trials_spk=length(trials.spk);
 else length_trials_spk=0;  end
 
-if length_trials_spk>metadata.eye.trialnum2+3, trials.spk=[]; end
+if length_trials_spk>metadata.eye.trialnum2+1, trials.spk=[]; end
+if metadata.eye.trialnum2==1, trials.spk=[]; end
 
 ok=TTX.SelectBlock(metadata.TDTblockname);
 if ~ok

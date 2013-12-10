@@ -22,7 +22,7 @@ function varargout = ThreshWindowWithPuff(varargin)
 
 % Edit the above text to modify the response to help ThreshWindowWithPuff
 
-% Last Modified by GUIDE v2.5 22-Jan-2013 16:24:52
+% Last Modified by GUIDE v2.5 09-Dec-2013 16:27:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,9 +57,9 @@ metadata=getappdata(0,'metadata');
 % Choose default command line output for ThreshWindowWithPuff
 handles.output = hObject;
 
-handles.x1=ceil(metadata.cam.winpos(1));
+handles.x1=floor(metadata.cam.winpos(1))+1;
 handles.x2=floor(metadata.cam.winpos(1)+metadata.cam.winpos(3));
-handles.y1=ceil(metadata.cam.winpos(2));
+handles.y1=floor(metadata.cam.winpos(2))+1;
 handles.y2=floor(metadata.cam.winpos(2)+metadata.cam.winpos(4));
 
 set(handles.edit_eyelidThresh,'String',num2str(round(metadata.cam.thresh*256)));
@@ -179,6 +179,16 @@ delete(handles.figure1);
 calc_calb;
 
 
+% --- Executes on button press in pushbutton_only_thresh.
+function pushbutton_only_thresh_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_only_thresh (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+metadata=getappdata(0,'metadata');
+fprintf('thresh = %d.\n', round(metadata.cam.thresh*256))
+delete(handles.figure1);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% user difined functions %%%%%%%%%%
@@ -245,11 +255,13 @@ metadata.cam.calib_offset=calib_offset;  metadata.cam.calib_scale=calib_scale;
 setappdata(0,'metadata',metadata);
 
 fprintf('calib_offset = %d.  calib_scale = %d.\n',calib_offset, calib_scale)
-fprintf('thres = %d.\n', round(metadata.cam.thresh*256))
+fprintf('thresh = %d.\n', round(metadata.cam.thresh*256))
 
 videoname=sprintf('%s\\%s_calib',metadata.folder,metadata.TDTblockname);
 save(videoname,'data','metadata')    
 
 fprintf('Data from calibration trial successfully written to disk.\n')
+
+
 
 
