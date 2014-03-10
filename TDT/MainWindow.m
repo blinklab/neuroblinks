@@ -263,6 +263,7 @@ if strcmp(get(handles.pushbutton_StartStopPreview,'String'),'Start Preview')
     if isfield(handles,'XY')
         handles.roipatch=patch(handles.XY(:,1),handles.XY(:,2),'g','FaceColor','none','EdgeColor','g','Tag','roipatch');
     end
+    set(handles.cameraAx,'YDir','reverse')
 else
     % Camera is on. Stop camera and change button string.
     set(handles.pushbutton_StartStopPreview,'String','Start Preview')
@@ -440,14 +441,14 @@ set(handles.uipanel_puff,'BackgroundColor',[240 240 240]/255);
 set(handles.uipanel_conditioning,'BackgroundColor',[240 240 240]/255);
 switch lower(metadata.stim.type)
     case 'puff'
-        set(handles.uipanel_puff,'BackgroundColor',[245 249 253]/255); % light blue
+        set(handles.uipanel_puff,'BackgroundColor',[225 237 248]/255); % light blue
     case 'conditioning'
-        set(handles.uipanel_conditioning,'BackgroundColor',[245 249 253]/255); % light blue
+        set(handles.uipanel_conditioning,'BackgroundColor',[225 237 248]/255); % light blue
     case {'electrical','optical','optoelectric'}
-        set(handles.uipanel_stim,'BackgroundColor',[245 249 253]/255); % light blue
+        set(handles.uipanel_stim,'BackgroundColor',[225 237 248]/255); % light blue
     case 'optocondition'
-        set(handles.uipanel_stim,'BackgroundColor',[245 249 253]/255); % light blue
-        set(handles.uipanel_puff,'BackgroundColor',[245 249 253]/255); % light blue
+        set(handles.uipanel_stim,'BackgroundColor',[225 237 248]/255); % light blue
+        set(handles.uipanel_puff,'BackgroundColor',[225 237 248]/255); % light blue
 end   
 resetStimTrials()
 refreshParams(hObject);

@@ -75,6 +75,7 @@ metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(2)=metadata.stim.totaltime;
 metadata.cam.time(3)=str2double(get(handles.edit_posttime,'String'));
 
+metadata.now=now;
 % --- saving params to memory for LFP online ana ---
 tnum=metadata.cam.trialnum;
 trials.params(tnum).depth=max(metadata.stim.e.depth,metadata.stim.l.depth);

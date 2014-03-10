@@ -573,8 +573,9 @@ for trN=TrlNs(:)',
     else
         tind1=find(trials.eye(trC).time>0 & trials.eye(trC).time<trials.eye(trC).isi);
     end
-    tind2=(trials.eye(trC).time<50);
-    eye_stab=max(trials.eye(trC).trace(tind2))-min(trials.eye(trC).trace(tind2)); 
+    tind2=find(trials.eye(trC).time<50);
+%     eye_stab=max(trials.eye(trC).trace(tind2))-min(trials.eye(trC).trace(tind2)); 
+    eye_stab=trials.eye(trC).trace(tind2(end))-min(trials.eye(trC).trace(tind2)); 
     if (trials.eye(trC).trace(tind1(end))-trials.eye(trC).trace(tind1(1)) >-0.1) & (eye_stab < 0.2)
         trials.eye_CR_amp(trN)=max(trials.eye(trC).trace(tind1))-min(trials.eye(trC).trace(tind1));
     end

@@ -400,6 +400,25 @@ end
 function pushbutton_stim_Callback(hObject, eventdata, handles)
 TriggerArduino(handles)
 
+function popupmenu_stimtype_Callback(hObject, eventdata, handles)
+% --- updating metadata ---
+metadata=getappdata(0,'metadata');
+val=get(hObject,'Value');
+str=get(hObject,'String');
+metadata.stim.type=str{val};
+setappdata(0,'metadata',metadata);
+
+% ------ highlight for uipanel -----
+set(handles.uipanel_puff,'BackgroundColor',[240 240 240]/255);
+set(handles.uipanel_conditioning,'BackgroundColor',[240 240 240]/255);
+switch lower(metadata.stim.type)
+    case 'puff'
+        set(handles.uipanel_puff,'BackgroundColor',[225 237 248]/255); % light blue
+    case 'conditioning'
+        set(handles.uipanel_conditioning,'BackgroundColor',[225 237 248]/255); % light blue
+end   
+
+
 function togglebutton_stream_Callback(hObject, eventdata, handles)
 stream(handles)
 
@@ -517,6 +536,8 @@ metadata.stim.c.ITI=str2double(get(handles.edit_ITI,'String'));
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(2)=metadata.stim.totaltime;
 metadata.cam.time(3)=metadata.cam.recdurA-sum(metadata.cam.time(1:2));
+
+metadata.now=now;
 
 setappdata(0,'metadata',metadata);
 setappdata(0,'trials',trials);
@@ -667,7 +688,8 @@ end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
-recenteye=eyedata(eyedata(:,1)>-1000*str2double(get(handles.edit_stabletime,'String')),2);
+eyedata(:,1)=eyedata(:,1)-eyedata(end,1);  
+recenteye=eyedata(eyedata(:,1)>-1000*str2double(get(handles.edit_stabletime,'String')), 2);
 eyestableok = ((max(recenteye)-min(recenteye))<str2double(get(handles.edit_stableeye,'String')));
 eyeok = eyethrok && eyestableok;
 
@@ -710,13 +732,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in popupmenu_stimtype.
-function popupmenu_stimtype_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu_stimtype (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_stimtype contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu_stimtype
 
 
 % --- Executes during object creation, after setting all properties.
