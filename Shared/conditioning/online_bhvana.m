@@ -28,7 +28,7 @@ switch lower(metadata.stim.type)
         trials.eye(metadata.eye.trialnum2).stimtime.st{1}=metadata.stim.e.delay;
         trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.e.traindur;
         trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=1;
-    case 'conditioning'
+    case {'conditioning','electrocondition'}
         trials.eye(metadata.eye.trialnum2).stimtime.st{1}=0; % for CS
         trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.c.csdur;
         trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=3;

@@ -33,7 +33,7 @@ else
      zeros(3,7)];
 end
  
-comport={'COM5' 'COM5'};
+comport={'COM6' 'COM6'};
 
 
 

@@ -38,7 +38,7 @@ switch lower(metadata.stim.type)
         enfrm=round(metadata.stim.e.traindur./1000.*metadata.cam.fps);
         stim=zeros(m,n,3,t,'uint8');
         stim(box_x,box_y,1,stfrm:stfrm+enfrm)=255;       
-    case 'conditioning'
+    case {'conditioning','electrocondition'}
         stfrmc=round(metadata.cam.time(1)./1000.*metadata.cam.fps); % for CS
         enfrmc=round(metadata.stim.c.csdur./1000.*metadata.cam.fps);
         stfrmu=round((metadata.cam.time(1)+metadata.stim.c.isi)./1000.*metadata.cam.fps);

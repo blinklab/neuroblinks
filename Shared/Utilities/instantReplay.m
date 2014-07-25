@@ -33,7 +33,7 @@ switch lower(metadata.stim.type)
 %         stim(400:449,500:549,1,stfrm:stfrm+enfrm)=255;
 %         stim(400:449,500:549,1,:)=255;
 
-    case 'conditioning'
+    case {'conditioning','electrocondition'}
         stfrm{1}=round(metadata.cam.time(1)./1000.*metadata.cam.fps); % for CS
         % enfrm{1}=round(metadata.stim.c.csdur./1000.*metadata.cam.fps);
         enfrm{1}=round((metadata.stim.c.isi+metadata.stim.c.usdur)./1000.*metadata.cam.fps);    % Had to change this bc was getting error if CS was longer than recorded trial time

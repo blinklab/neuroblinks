@@ -446,9 +446,9 @@ switch lower(metadata.stim.type)
         set(handles.uipanel_conditioning,'BackgroundColor',[225 237 248]/255); % light blue
     case {'electrical','optical','optoelectric'}
         set(handles.uipanel_stim,'BackgroundColor',[225 237 248]/255); % light blue
-    case 'optocondition'
+    case  {'optocondition','electrocondition'}
         set(handles.uipanel_stim,'BackgroundColor',[225 237 248]/255); % light blue
-        set(handles.uipanel_puff,'BackgroundColor',[225 237 248]/255); % light blue
+        set(handles.uipanel_conditioning,'BackgroundColor',[225 237 248]/255); % light blue
 end   
 resetStimTrials()
 refreshParams(hObject);
@@ -968,6 +968,10 @@ metadata=getappdata(0,'metadata');
 TDT.SetTargetVal('ustim.CamTrial',0);
 TDT.SetTargetVal('ustim.TrialNum',0);
 
+% --- stim type is puff ---
+TDT.SetTargetVal('ustim.TrialType',1);
+TDT.SetTargetVal('ustim.StimDevice',3);
+
 % Set up camera to record
 frames_per_trial=ceil(metadata.cam.fps.*(sum(metadata.cam.time))./1000);
 vidobj.TriggerRepeat = frames_per_trial-1;
@@ -979,9 +983,13 @@ metadata.cam.cal=0;
 metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
 TDT.SetTargetVal('ustim.MatTime',metadata.ts(2));
 
-TDT.SetTargetVal('ustim.PuffManual',1);
+% TDT.SetTargetVal('ustim.PuffManual',1);
+% pause(0.01);
+% TDT.SetTargetVal('ustim.PuffManual',0);
+
+TDT.SetTargetVal('ustim.StartCam',1);
 pause(0.01);
-TDT.SetTargetVal('ustim.PuffManual',0);
+TDT.SetTargetVal('ustim.StartCam',0);
 
 setappdata(0,'metadata',metadata);
 

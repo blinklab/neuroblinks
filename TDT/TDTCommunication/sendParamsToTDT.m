@@ -39,15 +39,16 @@ end
 % Have to subtract 1 b/c TDT is zero-referenced and Matlab is
 % one-referenced
 
-if get(handles.checkbox_RX6,'Value'),
-    TDT.SetTargetVal('Stim.PreStimTime',metadata.cam.time(1)); 
-    TDT.SetTargetVal('Stim.CsDur',metadata.stim.c.csdur);
-    TDT.SetTargetVal('Stim.ISI',metadata.stim.c.isi);
-    TDT.SetTargetVal('Stim.UsDur',metadata.stim.c.usdur);
-    TDT.SetTargetVal('Stim.PuffMDelay',metadata.stim.c.puffdelay);
-    TDT.SetTargetVal('Stim.PuffDurM',metadata.stim.c.puffdur);
-    TDT.SetTargetVal('Stim.PuffSide',metadata.stim.p.side_value);
-end
+% if get(handles.checkbox_RX6,'Value'),
+%     TDT.SetTargetVal('Stim.PreStimTime',metadata.cam.time(1)); 
+%     TDT.SetTargetVal('Stim.CsDur',metadata.stim.c.csdur);
+%     TDT.SetTargetVal('Stim.ISI',metadata.stim.c.isi);
+%     TDT.SetTargetVal('Stim.UsDur',metadata.stim.c.usdur);
+%     TDT.SetTargetVal('Stim.PuffMDelay',metadata.stim.c.puffdelay);
+%     TDT.SetTargetVal('Stim.PuffDurM',metadata.stim.c.puffdur);
+%     TDT.SetTargetVal('Stim.PuffSide',metadata.stim.p.side_value);
+% end
+
 % --- behavioral stim by RZ5 ---- 
 TDT.SetTargetVal('ustim.ITI',metadata.stim.c.ITI);
 TDT.SetTargetVal('ustim.CsDur',metadata.stim.c.csdur);
@@ -70,12 +71,23 @@ TDT.SetTargetVal('ustim.PuffDurM',metadata.stim.c.puffdur);
 TDT.SetTargetVal('ustim.PuffSide',metadata.stim.p.side_value);
 
 switch lower(metadata.stim.type)
-    case 'electrical'
+    case {'conditioning','electrocondition','optocondition'}
+        TDT.SetTargetVal('ustim.TrialType',0);
+    case {'puff'}
+        TDT.SetTargetVal('ustim.TrialType',1);
+    case {'none','electrical','optical','optoelectric'}
+        TDT.SetTargetVal('ustim.TrialType',3);
+end
+
+switch lower(metadata.stim.type)
+    case {'electrical'}
         TDT.SetTargetVal('ustim.StimDevice',0);
     case {'optical','optocondition'}
         TDT.SetTargetVal('ustim.StimDevice',1);
-    case 'optoelectric'
+    case {'optoelectric','electrocondition'}
         TDT.SetTargetVal('ustim.StimDevice',2);
+    case {'none','puff','conditioning'}
+        TDT.SetTargetVal('ustim.StimDevice',3);
 end
 
 if get(handles.togglebutton_ampblank,'Value')   % If amplifier blank is set

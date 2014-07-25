@@ -576,8 +576,11 @@ for trN=TrlNs(:)',
     tind2=find(trials.eye(trC).time<50);
 %     eye_stab=max(trials.eye(trC).trace(tind2))-min(trials.eye(trC).trace(tind2)); 
     eye_stab=trials.eye(trC).trace(tind2(end))-min(trials.eye(trC).trace(tind2)); 
+    if isempty(tind1),  trials.eye_CR_amp(trN)=NaN;
+    else
     if (trials.eye(trC).trace(tind1(end))-trials.eye(trC).trace(tind1(1)) >-0.1) & (eye_stab < 0.2)
         trials.eye_CR_amp(trN)=max(trials.eye(trC).trace(tind1))-min(trials.eye(trC).trace(tind1));
+    end
     end
     % ---- eye data matrix ---
     if ~isfield(eye_mat,'time')

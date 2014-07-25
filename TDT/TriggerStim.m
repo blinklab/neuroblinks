@@ -32,9 +32,9 @@ if get(handles.checkbox_record,'Value') == 1
     
     if get(handles.toggle_continuous,'Value') == 1,  % when continuous mode
         if TDT.GetSysMode < 3
-            disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'),
-            disp('%%%% TDT is not recording mode. Frame times will not saved. %%%%'),
-            disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+            disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'),
+            disp('%%%% TDT is not recording mode. Frame times will not be saved. %%%%'),
+            disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
         end
     else
         % Make sure user knows if TDT isn't recording b/c frame times won't be recorded
@@ -61,65 +61,71 @@ start(vidobj)
 
 metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
 TDT.SetTargetVal('ustim.MatTime',metadata.ts(2));
-    
-if strcmpi(stimmode,'none')
-    % If doing no stim or puff
-    % Emulate button press in OpenEx
-    TDT.SetTargetVal('ustim.StartCam',1);
-    pause(pre./1e3);
-    TDT.SetTargetVal('ustim.StartCam',0);
-end
 
-if strcmpi(stimmode,'puff')
-    TDT.SetTargetVal('ustim.PuffManual',1);
-    if get(handles.checkbox_RX6,'Value'),
-        TDT.SetTargetVal('Stim.PuffManual',1);
-        TDT.SetTargetVal('ustim.StartCam',1);
-    end
-    pause(0.01);
-    TDT.SetTargetVal('ustim.PuffManual',0);
-    if get(handles.checkbox_RX6,'Value'),
-        TDT.SetTargetVal('Stim.PuffManual',0);
-        TDT.SetTargetVal('ustim.StartCam',0);
-    end
-end
+%%%%%%%% trigger first to start camera (and second to start trial, within TDT) %%%%%%%%
+TDT.SetTargetVal('ustim.StartCam',1);
+pause(pre./1e3);
+TDT.SetTargetVal('ustim.StartCam',0);
 
-if strcmpi(stimmode,'conditioning')
-    TDT.SetTargetVal('ustim.TrigCond',1);
-    if get(handles.checkbox_RX6,'Value'),
-        TDT.SetTargetVal('Stim.TrigCond',1);
-        TDT.SetTargetVal('ustim.StartCam',1);
-    end
-    pause(0.01);
-    TDT.SetTargetVal('ustim.TrigCond',0);
-    if get(handles.checkbox_RX6,'Value'),
-        TDT.SetTargetVal('Stim.TrigCond',0);
-        TDT.SetTargetVal('ustim.StartCam',0);
-    end
-end
 
-if strcmpi(stimmode,'optocondition')
-    TDT.SetTargetVal('ustim.StartPulse',1);
-    TDT.SetTargetVal('ustim.PuffManual',1);
-%     if get(handles.checkbox_puff,'Value')==1
-        if get(handles.checkbox_RX6,'Value'),
-            TDT.SetTargetVal('Stim.PuffManual',1);
-        end
-%     end
-    pause(0.01);
-    if get(handles.checkbox_RX6,'Value'),
-        TDT.SetTargetVal('Stim.PuffManual',0);   
-    end
-    TDT.SetTargetVal('ustim.PuffManual',0);  
-    TDT.SetTargetVal('ustim.StartPulse',0);
-end
+% if strcmpi(stimmode,'none')
+%     % If doing no stim or puff
+%     % Emulate button press in OpenEx
+%     TDT.SetTargetVal('ustim.StartCam',1);
+%     pause(pre./1e3);
+%     TDT.SetTargetVal('ustim.StartCam',0);
+% end
 
-if strcmpi(stimmode,'electrical') || strcmpi(stimmode,'optical') ||strcmpi(stimmode,'optoelectric')
-    % Emulate button press in OpenEx
-    TDT.SetTargetVal('ustim.StartPulse',1);
-    pause(0.01);
-    TDT.SetTargetVal('ustim.StartPulse',0);
-end
+% if strcmpi(stimmode,'puff')
+%     TDT.SetTargetVal('ustim.PuffManual',1);
+% %     if get(handles.checkbox_RX6,'Value'),
+% %         TDT.SetTargetVal('Stim.PuffManual',1);
+% %         TDT.SetTargetVal('ustim.StartCam',1);
+% %     end
+%     pause(0.01);
+%     TDT.SetTargetVal('ustim.PuffManual',0);
+% %     if get(handles.checkbox_RX6,'Value'),
+% %         TDT.SetTargetVal('Stim.PuffManual',0);
+% %         TDT.SetTargetVal('ustim.StartCam',0);
+% %     end
+% end
+
+% if strcmpi(stimmode,'conditioning')
+%     TDT.SetTargetVal('ustim.TrigCond',1);
+% %     if get(handles.checkbox_RX6,'Value'),
+% %         TDT.SetTargetVal('Stim.TrigCond',1);
+% %         TDT.SetTargetVal('ustim.StartCam',1);
+% %     end
+%     pause(0.01);
+%     TDT.SetTargetVal('ustim.TrigCond',0);
+% %     if get(handles.checkbox_RX6,'Value'),
+% %         TDT.SetTargetVal('Stim.TrigCond',0);
+% %         TDT.SetTargetVal('ustim.StartCam',0);
+% %     end
+% end
+
+% if strcmpi(stimmode,'optocondition')
+%     TDT.SetTargetVal('ustim.StartPulse',1);
+%     TDT.SetTargetVal('ustim.PuffManual',1);
+% %     if get(handles.checkbox_puff,'Value')==1
+% %         if get(handles.checkbox_RX6,'Value'),
+% %             TDT.SetTargetVal('Stim.PuffManual',1);
+% %         end
+% %     end
+%     pause(0.01);
+% %     if get(handles.checkbox_RX6,'Value'),
+% %         TDT.SetTargetVal('Stim.PuffManual',0);   
+% %     end
+%     TDT.SetTargetVal('ustim.PuffManual',0);  
+%     TDT.SetTargetVal('ustim.StartPulse',0);
+% end
+
+% if strcmpi(stimmode,'electrical') || strcmpi(stimmode,'optical') ||strcmpi(stimmode,'optoelectric')
+%     % Emulate button press in OpenEx
+%     TDT.SetTargetVal('ustim.StartPulse',1);
+%     pause(0.01);
+%     TDT.SetTargetVal('ustim.StartPulse',0);
+% end
 
 % --- required to initialize the eye monitor and count trial # ---- 
 TDT.SetTargetVal('ustim.InitTrial',1);
@@ -140,7 +146,7 @@ if strcmpi(stimmode,'puff')
 end
 
 % ---- display current trial data in conditioning ----
-if strcmpi(metadata.stim.type,'conditioning')
+if strcmpi(metadata.stim.type,'conditioning') | strcmpi(metadata.stim.type,'electrocondition')
     
     trialvars=readTrialTable(metadata.eye.trialnum1+1);
     csdur=trialvars(1);

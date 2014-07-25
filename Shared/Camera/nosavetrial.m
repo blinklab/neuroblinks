@@ -16,7 +16,7 @@ setappdata(0,'lastmetadata',metadata);
 fprintf('Data from last trial saved to memory for review.\n')
 
 % --- trial counter updated and saved in memory ---
-if strcmpi(metadata.stim.type,'conditioning')
+if strcmpi(metadata.stim.type,'conditioning') | strcmpi(metadata.stim.type,'electrocondition')
     metadata.eye.trialnum1=metadata.eye.trialnum1+1;
 end
 metadata.eye.trialnum2=metadata.eye.trialnum2+1;

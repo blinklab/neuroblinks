@@ -58,7 +58,7 @@ switch lower(stimmode)
         metadata.stim.totaltime=metadata.stim.p.puffdelay+metadata.stim.p.puffdur;
     case 'electrical'
         metadata.stim.totaltime=metadata.stim.e.traindur+metadata.stim.e.delay;
-    case 'conditioning'
+    case {'conditioning','electrocondition'}
         % metadata.stim.totaltime=metadata.stim.c.isi+metadata.stim.c.usdur;
         metadata.stim.totaltime=metadata.stim.c.csdur+metadata.stim.c.usdur;    % So that same duration is recorded even if using two different ISIs (b/c CS dur is same)
     case {'optical','optocondition'}
