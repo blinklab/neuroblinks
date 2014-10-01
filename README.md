@@ -3,6 +3,8 @@ Neuroblinks
 
 A program for doing eyeblink classical conditioning using Matlab and either Tucker Davis (TDT) or Arduino hardware. The TDT version also supports control of neurophysiological and optogenetic experiments. 
 
+Please note that this page is a work on progress so there are missing links below. Please email us with questions. 
+
 Authors: Shane Heiney & Shogo Ohmae, University of Pennsylvania
 
 Copyright &copy; 2013
