@@ -1,4 +1,5 @@
-function Launch(basedir)
+function Launch(rig)
+% Note that "rig" argument is not currently used for TDT option
 
 config;
 

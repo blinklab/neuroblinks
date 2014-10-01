@@ -1,35 +1,35 @@
-function varargout = MainWindowA(varargin)
-% MAINWINDOWA M-file for MainWindowA.fig
-%      MAINWINDOWA, by itself, creates a new MAINWINDOWA or raises the existing
+function varargout = MainWindow(varargin)
+% MAINWINDOW M-file for MainWindow.fig
+%      MAINWINDOW, by itself, creates a new MAINWINDOW or raises the existing
 %      singleton*.
 %
-%      H = MAINWINDOWA returns the handle to a new MAINWINDOWA or the handle to
+%      H = MAINWINDOW returns the handle to a new MAINWINDOW or the handle to
 %      the existing singleton*.
 %
-%      MAINWINDOWA('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in MAINWINDOWA.M with the given input arguments.
+%      MAINWINDOW('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in MAINWINDOW.M with the given input arguments.
 %
-%      MAINWINDOWA('Property','Value',...) creates a new MAINWINDOWA or raises the
+%      MAINWINDOW('Property','Value',...) creates a new MAINWINDOW or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before MainWindowA_OpeningFcn gets called.  An
+%      applied to the GUI before MainWindow_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to MainWindowA_OpeningFcn via varargin.
+%      stop.  All inputs are passed to MainWindow_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help MainWindowA
+% Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 22-Jun-2013 12:52:15
+% Last Modified by GUIDE v2.5 30-Sep-2014 16:20:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @MainWindowA_OpeningFcn, ...
-                   'gui_OutputFcn',  @MainWindowA_OutputFcn, ...
+                   'gui_OpeningFcn', @MainWindow_OpeningFcn, ...
+                   'gui_OutputFcn',  @MainWindow_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,17 +44,17 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before MainWindowA is made visible.
-function MainWindowA_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before MainWindow is made visible.
+function MainWindow_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
-% varargin   command line arguments to MainWindowA (see VARARGIN)
+% varargin   command line arguments to MainWindow (see VARARGIN)
 
-% Choose default command line output for MainWindowA
+% Choose default command line output for MainWindow
 handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes MainWindowA wait for user response (see UIRESUME)
+% UIWAIT makes MainWindow wait for user response (see UIRESUME)
 % uiwait(handles.CamFig);
 src=getappdata(0,'src');
 metadata=getappdata(0,'metadata');
@@ -187,7 +187,7 @@ if strcmpi(button,'Yes')
 end
 
 % --- Outputs from this function are returned to the command line.
-function varargout = MainWindowA_OutputFcn(hObject, eventdata, handles) 
+function varargout = MainWindow_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % Get default command line output from handles structure
 varargout{1} = handles.output;

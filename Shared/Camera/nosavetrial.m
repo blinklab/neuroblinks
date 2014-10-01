@@ -1,4 +1,4 @@
-function nosavetrial(obj,event)
+function nosavetrial()
 % We set a callback function and trigger camera anyway so we can get instant replay
 
 vidobj=getappdata(0,'vidobj');

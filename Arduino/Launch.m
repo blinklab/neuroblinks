@@ -1,12 +1,8 @@
-function LaunchArduino(ch)
-configA;
-
-setappdata(0,'paramtable',paramtable);
-setappdata(0,'metadata',metadata);
-pause(0.3);
+function Launch(ch)
+config;
 
 %% Initialize Camera
-InitCamA(ch, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
+InitCam(ch, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
 
 %% -- start serial communication to arduino ---
 arduino=serial(comport{ch},'BaudRate',9600);
@@ -21,7 +17,7 @@ setappdata(0,'arduino',arduino);
 % eyelidTimer=timer('Name','eyelidTimer','Period',0.005,'ExecutionMode','FixedRate','TimerFcn',@eyelidstream,'BusyMode','drop');
 
 %% Open GUI
-ghandles.maingui=MainWindowA;
+ghandles.maingui=MainWindow;
 set(ghandles.maingui,'units','pixels')
 set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
 

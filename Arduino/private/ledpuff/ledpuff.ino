@@ -3,16 +3,16 @@
   to regulate camera, CS (LED, tone, whisker puff, ...), US. 
  */
  
-// Pin 13 has an LED connected on most Arduino boards.
-// give it a name:
-
+// Outputs
 int camera=8;
 int led = 9;
 int whisker = 10;
 int tonech = 11;
 int puff = 13;
 
+// Task variables (time in ms, freq in hz)
 int campretime=200;
+int camposttime=800;
 int cs = 500;
 int csch = 1;
 int ISI = 200;
@@ -20,6 +20,7 @@ int us = 20;
 int residual;
 int tonefreq5 = 1000;
 
+unsigned long trialtime=0;  // For keeping track of elapsed time during trial
 
 // the setup routine runs once when you press reset:
 void setup() {                
@@ -28,6 +29,13 @@ void setup() {
   pinMode(led, OUTPUT);     
   pinMode(puff, OUTPUT);  
   pinMode(whisker, OUTPUT);  
+
+  // Default all output pins to LOW - for some reason they were floating high on the Due before I (Shane) added this
+  digitalWrite(camera, LOW);
+  digitalWrite(led, LOW);
+  digitalWrite(puff, LOW);
+  digitalWrite(whisker, LOW);
+
   Serial.begin(9600);
 }
 
@@ -81,6 +89,9 @@ void checkVars() {
       case 8:
         tonefreq5=value;
         break;
+      case 9:
+        camposttime=value;
+        break;
      }
      delay(4); // Delay enough to allow next 3 bytes into buffer (24 bits/9600 bps = 2.5 ms, so double it for safety).
   }
@@ -89,16 +100,22 @@ void checkVars() {
 
 // --- function executed to start a trial ----
 void Triggered() {
+  unsigned long now; 
   // triggering camera 
-  digitalWrite(camera, HIGH);
-  delay(1); 
-  digitalWrite(camera, LOW);
-  residual=campretime-1;
+  digitalWrite(camera, HIGH);  // Camera will collect the number of frames that we specify while TTL is high
+ 
+// NOTE: I removed the single short pulse because camera is now configured for "TTL High" instead of "Rising-Edge"
+//  delay(1); 
+//  digitalWrite(camera, LOW);
+//  residual=campretime-1;
+  residual=campretime;
   if (residual > 0) {
     delay(residual);          // wait 
   }
   
   // starting a trial
+  trialtime = millis();
+  
   if (cs > 0){
      switch (csch) {
        case 1:
@@ -138,6 +155,17 @@ void Triggered() {
            break; 
      }
   }
+  
+  now = millis();
+  if (now - trialtime < camposttime) {
+    delay(int(now-trialtime));
+  }
+  
+  // Camera will only collect the number of frames that we specify so we only have to reset TTL
+  // to low before starting the next trial. The hitch is that if we set it low too early we won't
+  // collect all of the frames that we asked for and the camera will get stuck; hence the extra delay. 
+  delay(10); // Delay a little while longer just to be safe - so the camera doesn't get stuck with more frames to acquire
+  digitalWrite(camera, LOW);  
 }
 
 

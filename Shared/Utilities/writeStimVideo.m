@@ -68,7 +68,8 @@ for i=1:t
     F(i).colormap=[]; 
 end
 
-writeObj=VideoWriter(fname);
+% writeObj=VideoWriter(fname); % default is AVI
+writeObj=VideoWriter(fname,'MPEG-4');
 set(writeObj,'FrameRate',fr);
 open(writeObj);
 

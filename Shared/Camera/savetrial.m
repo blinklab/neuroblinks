@@ -1,4 +1,4 @@
-function savetrial(obj,event)
+function savetrial()
 % Load objects from root app data
 vidobj=getappdata(0,'vidobj');
 

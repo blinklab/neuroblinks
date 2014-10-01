@@ -1,11 +1,14 @@
 function CalbEye(obj,event)
 %  callback function by video(timer) obj
-disp('Delivering puff and saving cal data.')
+disp('Delivering puff and saving calibration data.')
 
 vidobj=getappdata(0,'vidobj');
 metadata=getappdata(0,'metadata');
 
 data=getdata(vidobj,vidobj.FramesPerTrigger*(vidobj.TriggerRepeat + 1));
+
+% Set camera to freerun mode so we can preview
+src.FrameStartTriggerSource = 'Freerun';
 
 % --- save data to root app ---
 % Keep data from last trial in memory even if we don't save it to disk
