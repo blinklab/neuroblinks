@@ -15,8 +15,8 @@ Requirements
 
 * Modern Windows computer (tested on Win7) with lots of RAM and multi-core processor (e.g. 8-16 GB RAM, Intel i7).
 * Matlab v 2010b or later with the Image Acquisition and Image Processing toolboxes. Note that the code used to control the camera varies based on the particular release of Matlab because of changes in the Image Acquisition Toolbox. The current version of Neuroblinks works with Matlab 2014a but the source code comments contain code for some previous Matlab releases. 
-* A high frame rate video camera (at least 200 FPS) supported by the Image Acquisition toolbox, for instance the Allied Vision Technologies Prosilica GE680 [link]. If you use a different camera you may need to modify the camera control code in Neuroblinks. We have only tested the Prosilica. 
-* Arduino microprocessor [link] or Tucker Davis Technologies RZ5 Bioamplifier [link] (required to use neurophysiology features).
+* A high frame rate video camera (at least 200 FPS) supported by the Image Acquisition toolbox, for instance the Allied Vision Technologies [Prosilica GE680](http://www.alliedvisiontec.com/us/products/cameras/gigabit-ethernet/prosilica-ge/ge680.html). If you use a different camera you may need to modify the camera control code in Neuroblinks. We have only tested the Prosilica. 
+* [Arduino microprocessor](http://arduino.cc/en/Main/arduinoBoardDue) or Tucker Davis Technologies [RZ5 Bioamplifier](http://www.tdt.com/rz5d-base-processor.html) (required to use neurophysiology features).
 
 
 Instructions
