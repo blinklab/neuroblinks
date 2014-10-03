@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 30-Sep-2014 16:20:36
+% Last Modified by GUIDE v2.5 03-Oct-2014 13:25:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -443,22 +443,22 @@ set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_one
 
 function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
-    case 'togglebutton_TDTRecord'
-        dlgans = inputdlg({'Enter Block name'},'Recording');
+    case 'togglebutton_NewSession'
+        dlgans = inputdlg({'Enter session name'},'Create');
         if isempty(dlgans) 
             ok=0;
         elseif isempty(dlgans{1})
             ok=0;
         else
-            ok=1;  block=dlgans{1};
+            ok=1;  session=dlgans{1};
             set(handles.checkbox_save_metadata,'Value',0);
         end
-    case 'togglebutton_TDTPreview'
-        button=questdlg('Are you sure you want to quit recording?','Yes','No');
+    case 'togglebutton_StopSession'
+        button=questdlg('Are you sure you want to stop this session?','Yes','No');
         if ~strcmpi(button,'Yes')
             ok=0;
         else
-            block='TempBlk';     ok=1;
+            session='s00';     ok=1;
         end
     otherwise
         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
@@ -476,9 +476,9 @@ else
     return
 end
 ResetCamTrials()
-set(handles.edit_TDTBlockName,'String',block);
+set(handles.edit_SessionName,'String',session);
 metadata=getappdata(0,'metadata');
-metadata.TDTblockname=block;
+metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
 setappdata(0,'metadata',metadata);
 
 
@@ -647,7 +647,7 @@ if get(handles.togglebutton_stream,'Value')
     set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
 end
 
-try
+% try
     while get(handles.togglebutton_stream,'Value') == 1
         t2=clock;
         
@@ -682,14 +682,16 @@ try
         if d>0
             pause(d)        %   java.lang.Thread.sleep(d*1000);     %     drawnow
         else
-            disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
+            if get(handles.checkbox_verbose,'Value') == 1
+                disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
+            end
         end
     end
-catch
-    disp('Aborted eye streaming.')
-    set(handles.togglebutton_stream,'Value',0);
-    return
-end
+% catch
+%     disp('Aborted eye streaming.')
+%     set(handles.togglebutton_stream,'Value',0);
+%     return
+% end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
@@ -830,18 +832,18 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function edit_TDTBlockName_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_TDTBlockName (see GCBO)
+function edit_SessionName_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit_TDTBlockName as text
-%        str2double(get(hObject,'String')) returns contents of edit_TDTBlockName as a double
+% Hints: get(hObject,'String') returns contents of edit_SessionName as text
+%        str2double(get(hObject,'String')) returns contents of edit_SessionName as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit_TDTBlockName_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_TDTBlockName (see GCBO)
+function edit_SessionName_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -919,3 +921,12 @@ function edit_eyethr_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkbox_verbose.
+function checkbox_verbose_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_verbose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_verbose
