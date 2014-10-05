@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 03-Oct-2014 13:25:43
+% Last Modified by GUIDE v2.5 05-Oct-2014 19:20:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -541,7 +541,7 @@ metadata.stim.c.ITI=str2double(get(handles.edit_ITI,'String'));
 
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(2)=metadata.stim.totaltime;
-metadata.cam.time(3)=metadata.cam.recdurA-sum(metadata.cam.time(1:2));
+metadata.cam.time(3)=str2double(get(handles.edit_pretime,'String'))-metadata.stim.totaltime;
 
 metadata.now=now;
 
@@ -551,9 +551,10 @@ setappdata(0,'trials',trials);
 
 function sendto_arduino()
 metadata=getappdata(0,'metadata');
-datatoarduino=zeros(1,8);
+datatoarduino=zeros(1,9);
 
 datatoarduino(3)=metadata.cam.time(1);
+datatoarduino(9)=sum(metadata.cam.time(2:3));
 if strcmpi(metadata.stim.type, 'puff')
     datatoarduino(6)=metadata.stim.p.puffdur;
 elseif  strcmpi(metadata.stim.type, 'conditioning')
@@ -592,6 +593,7 @@ flushdata(vidobj); % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
 src.FrameStartTriggerSource = 'Line1';
+vidobj.FramesPerTrigger=metadata.cam.fps*(sum(metadata.cam.time)/1e3);
 
 % Now get camera ready for acquisition -- shouldn't start yet
 start(vidobj)
@@ -930,3 +932,41 @@ function checkbox_verbose_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox_verbose
+
+
+
+function edit_posttime_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_posttime (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_posttime as text
+%        str2double(get(hObject,'String')) returns contents of edit_posttime as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_posttime_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_posttime (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton_abort.
+function pushbutton_abort_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_abort (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% If camera gets hung up for any reason, this button can be pressed to
+% reset it.
+
+vidobj = getappdata(0,'vidobj');
+stop(vidobj);
+
+

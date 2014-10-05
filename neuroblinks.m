@@ -76,4 +76,4 @@ function neuroblinks(varargin)
    
     % A different "launch" function should be called depending on whether we're using TDT or Arduino
     % and will be determined by what's in the path generated above
-    Launch(cam)
+    Launch(rig,cam)

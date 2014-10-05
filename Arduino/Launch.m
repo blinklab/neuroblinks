@@ -1,11 +1,11 @@
-function Launch(ch)
+function Launch(rig,cam)
 config;
 
 %% Initialize Camera
-InitCam(ch, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
+InitCam(cam, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
 
 %% -- start serial communication to arduino ---
-arduino=serial(comport{ch},'BaudRate',9600);
+arduino=serial(comport{rig},'BaudRate',9600);
 fopen(arduino);
 setappdata(0,'arduino',arduino);
 
