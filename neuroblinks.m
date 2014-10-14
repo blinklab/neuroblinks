@@ -7,7 +7,7 @@ function neuroblinks(varargin)
     ALLOWEDDEVICES = {'arduino','tdt'};
     ALLOWEDCAMS = {'02-2020C-07321','02-2020C-07420'};
 
-    % Set up devaults in case user doesn't specify all options
+    % Set up defaults in case user doesn't specify all options
     device = DEFAULTDEVICE;
     rig = DEFAULTRIG;
 
@@ -37,12 +37,13 @@ function neuroblinks(varargin)
     end
  
     cam = 0;
-    for i=length(founddeviceids)
+    for i=1:length(founddeviceids)
         vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
         src = getselectedsource(vidobj);
         if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
             cam = i;
         end
+        delete(vidobj)
     end
 
     if ~cam

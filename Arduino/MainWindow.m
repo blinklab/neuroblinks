@@ -541,7 +541,7 @@ metadata.stim.c.ITI=str2double(get(handles.edit_ITI,'String'));
 
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(2)=metadata.stim.totaltime;
-metadata.cam.time(3)=str2double(get(handles.edit_pretime,'String'))-metadata.stim.totaltime;
+metadata.cam.time(3)=str2double(get(handles.edit_posttime,'String'))-metadata.stim.totaltime;
 
 metadata.now=now;
 
@@ -967,6 +967,9 @@ function pushbutton_abort_Callback(hObject, eventdata, handles)
 % reset it.
 
 vidobj = getappdata(0,'vidobj');
+src = getappdata(0,'src');
+
 stop(vidobj);
 
+src.FrameStartTriggerSource = 'Freerun';
 

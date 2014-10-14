@@ -1,7 +1,7 @@
 function InitCam(ch,recdur)
 
 % First delete any existing image acquisition objects
-% imaqreset
+imaqreset
 
 disp('creating video object ...')
 % vidobj = videoinput('gentl', ch, 'Mono8');

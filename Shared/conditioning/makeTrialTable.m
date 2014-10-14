@@ -18,6 +18,7 @@ for blk=blk_set,
     if rep_blk==0, rep_blk=1; end
     
     if randomize
+        rng('shuffle');     % Need to do this first to seed the RNG with current time
         [m,n]=size(trialtable2);
         for j=1:rep_blk,
             trialtable=[trialtable; trialtable2(randperm(m),:)];
