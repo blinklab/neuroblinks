@@ -515,6 +515,7 @@ metadata.stim.c.csdur=0;
 metadata.stim.c.csnum=0;
 metadata.stim.c.isi=0;
 metadata.stim.c.usdur=0;
+metadata.stim.c.usnum=0;
 metadata.stim.c.cstone=[0 0];
 
 metadata.stim.p.puffdur=str2double(get(handles.edit_puffdur,'String'));
@@ -530,6 +531,7 @@ switch lower(metadata.stim.type)
         metadata.stim.c.csnum=trialvars(2);
         metadata.stim.c.isi=trialvars(3);
         metadata.stim.c.usdur=trialvars(4);
+        metadata.stim.c.usnum=trialvars(5);
         metadata.stim.c.cstone=str2num(get(handles.edit_tone,'String'))*1000;
         if length(metadata.stim.c.cstone)<2, metadata.stim.c.cstone(2)=0; end
         metadata.stim.totaltime=metadata.stim.c.isi+metadata.stim.c.usdur;
@@ -551,12 +553,13 @@ setappdata(0,'trials',trials);
 
 function sendto_arduino()
 metadata=getappdata(0,'metadata');
-datatoarduino=zeros(1,9);
+datatoarduino=zeros(1,10);
 
 datatoarduino(3)=metadata.cam.time(1);
 datatoarduino(9)=sum(metadata.cam.time(2:3));
 if strcmpi(metadata.stim.type, 'puff')
     datatoarduino(6)=metadata.stim.p.puffdur;
+    datatoarduino(10)=3;    % This is the puff channel
 elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(4)=metadata.stim.c.csnum;
     datatoarduino(5)=metadata.stim.c.csdur;
@@ -565,6 +568,7 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     if ismember(datatoarduino(4),[5 6]),
         datatoarduino(8)=metadata.stim.c.cstone(datatoarduino(3)-4)*1000;
     end
+    datatoarduino(10)=metadata.stim.c.usnum;
 end
 
 % ---- send data to arduino ----
@@ -614,6 +618,7 @@ if strcmpi(metadata.stim.type,'conditioning')
     csnum=trialvars(2);
     isi=trialvars(3);
     usdur=trialvars(4);
+    usnum=trialvars(5);
     cstone=str2num(get(handles.edit_tone,'String'));
     if length(cstone)<2, cstone(2)=0; end
     
@@ -622,7 +627,7 @@ if strcmpi(metadata.stim.type,'conditioning')
         str2=[' (' num2str(cstone(csnum-4)) ' Hz)'];
     end
         
-    str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur);
+    str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d, US ch %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur, usnum);
     set(handles.text_disp_cond,'String',str1)
 end
 setappdata(0,'metadata',metadata);
@@ -970,6 +975,7 @@ vidobj = getappdata(0,'vidobj');
 src = getappdata(0,'src');
 
 stop(vidobj);
+flushdata(vidobj);
 
 src.FrameStartTriggerSource = 'Freerun';
 
