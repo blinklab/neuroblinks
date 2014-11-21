@@ -637,6 +637,7 @@ ghandles=getappdata(0,'ghandles');
 metadata=getappdata(0,'metadata');
 vidobj=getappdata(0,'vidobj');
 updaterate=0.017;   % ~67 Hz
+% updaterate=0.1;   % 10 Hz
 t1=clock-10;
 t0=clock;
 
