@@ -566,7 +566,7 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(6)=metadata.stim.c.usdur;
     datatoarduino(7)=metadata.stim.c.isi;
     if ismember(datatoarduino(4),[5 6]),
-        datatoarduino(8)=metadata.stim.c.cstone(datatoarduino(3)-4)*1000;
+        datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.csnum-4);
     end
     datatoarduino(10)=metadata.stim.c.usnum;
 end
@@ -624,7 +624,7 @@ if strcmpi(metadata.stim.type,'conditioning')
     
     str2=[];
     if ismember(csnum,[5 6]), 
-        str2=[' (' num2str(cstone(csnum-4)) ' Hz)'];
+        str2=[' (' num2str(cstone(csnum-4)) ' KHz)'];
     end
         
     str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d, US ch %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur, usnum);

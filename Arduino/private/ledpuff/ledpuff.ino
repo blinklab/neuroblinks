@@ -23,7 +23,7 @@ int usch = 3;   // default to ipsi corneal puff
 int ISI = 200;
 int us = 20;
 int residual;
-int tonefreq5 = 1000;
+int tonefreq5 = 10000;
 
 unsigned long trialtime = 0; // For keeping track of elapsed time during trial
 
@@ -34,12 +34,14 @@ void setup() {
   pinMode(led, OUTPUT);
   pinMode(puff, OUTPUT);
   pinMode(whisker, OUTPUT);
+  pinMode(tonech, OUTPUT);
 
   // Default all output pins to LOW - for some reason they were floating high on the Due before I (Shane) added this
   digitalWrite(camera, LOW);
   digitalWrite(led, LOW);
   digitalWrite(puff, LOW);
   digitalWrite(whisker, LOW);
+  digitalWrite(tonech, LOW);
 
   Serial.begin(9600);
 }
