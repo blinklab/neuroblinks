@@ -42,7 +42,8 @@ else
      ];
  end
  
-comport={'COM4' 'COM5'};
+% comport={'COM4', 'COM5'};
+comport={'COM4', 'COM8'};
 
 setappdata(0,'paramtable',paramtable);
 setappdata(0,'metadata',metadata);

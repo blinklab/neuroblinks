@@ -181,6 +181,9 @@ catch err
     warning(err.identifier,'Problem cleaning up objects. You may need to do it manually.')
 end
 delete(handles.CamFig)
+
+pause(0.5)
+
 button=questdlg('Do you want to compress the videos from this session?');
 if strcmpi(button,'Yes')
     makeCompressedVideos(metadata.folder,1);

@@ -5,7 +5,7 @@ function neuroblinks(varargin)
     DEFAULTRIG = 1;
 
     ALLOWEDDEVICES = {'arduino','tdt'};
-    ALLOWEDCAMS = {'02-2020C-07418','02-2020C-07421'};
+    ALLOWEDCAMS = {'02-2020C-07321','02-2020C-07420'};
 
     % Set up defaults in case user doesn't specify all options
     device = DEFAULTDEVICE;
