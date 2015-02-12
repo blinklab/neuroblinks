@@ -4,9 +4,10 @@ function neuroblinks(varargin)
     DEFAULTDEVICE = 'arduino';
     DEFAULTRIG = 1;
 
-    ALLOWEDDEVICES = {'arduino','tdt'};
-    ALLOWEDCAMS = {'02-2020C-07321','02-2020C-07420'};
-
+    % Load local configuration for these rigs
+    % Should be somewhere in path but not "neuroblinks" directory or subdirectory
+    neuroblinks_config
+    
     % Set up defaults in case user doesn't specify all options
     device = DEFAULTDEVICE;
     rig = DEFAULTRIG;
