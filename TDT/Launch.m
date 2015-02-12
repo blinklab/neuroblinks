@@ -1,7 +1,7 @@
 function Launch(rig)
 % Note that "rig" argument is not currently used for TDT option
 
-config;
+configure;
 
 
 setappdata(0,'paramtable',paramtable);
