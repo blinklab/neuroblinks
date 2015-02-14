@@ -3,7 +3,7 @@ function Launch(rig,cam)
 % Load local configuration for these rigs	
 % Should be somewhere in path but not "neuroblinks" directory or subdirectory
 neuroblinks_config;	% Per user settings
-config; % Configuration script
+configure; % Configuration script
 
 %% Initialize Camera
 InitCam(cam, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
