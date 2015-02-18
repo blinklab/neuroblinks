@@ -16,6 +16,7 @@ if isempty(com_ports{rig}),
 end
 
 arduino=serial(com_ports{rig},'BaudRate',9600);
+arduino.DataTerminalReady='off';	% to prevent resetting Arduino on connect
 fopen(arduino);
 setappdata(0,'arduino',arduino);
 

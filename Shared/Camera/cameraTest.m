@@ -41,29 +41,38 @@ set(hf,'Name',getappdata(0,'defaultTitle'))
 
 function InitCam(ch)
 % See Image Acquisition Toolbox documentation for details. Some settings depend on particular camera driver
-% Use VIMBA with GenTL adaptor in Matlab for best results.
+% Use Universal Library adaptor GIGE in Matlab for best results.
 
 % First delete any existing image acquisition objects
 imaqreset
 
 % We use the GenTL driver (camera connected to computer over gigabit ethernet)
-vidobj = videoinput('gentl', ch, 'Mono8');
+disp('creating video object ...')
+vidobj = videoinput('gige', ch, 'Mono8');
+disp('video settings ....')
 src = getselectedsource(vidobj);
 
 % Exposure time is constrained by frame rate
 src.ExposureTimeAbs = 4900;		% In microseconds
 src.AllGainRaw=12;				% Tweak this based on IR light illumination (lower values preferred due to less noise)
-% src.PacketSize = 9014;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
-src.StreamBytesPerSecond=124e6; % Set based on AVT's suggestion
+src.PacketSize = 9014;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
+src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
 src.AcquisitionFrameRateAbs=200;	% Our camera can sustain 200 FPS at full resolution (640x480) but can go up to 500 FPS if you reduce ROI or do vertical binning of frames
 
 vidobj.LoggingMode = 'memory'; 	% Can log straight to disk as well but older versions of Matlab are weird about compression because of licensing of codecs. 
 vidobj.FramesPerTrigger=200;		% We trigger for every frame acquired (value of 1) but this is definitely not necessary. You could, e.g. set this value to 200 if you want 1 second of video @ 200 FPS and then just trigger at the beginning
 
 % To trigger using a TTL pulse, which is what we do, you'll want to use the following line instead
-% triggerconfig(vidobj, 'hardware', 'RisingEdge', 'Line1-FrameStart');
+% triggerconfig(vidobj, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
+% src.FrameStartTriggerMode = 'On';
+% src.FrameStartTriggerActivation = 'LevelHigh';
 % I'm only using this line for demonstration purposes so that this program can run without external hardware
 triggerconfig(vidobj, 'manual');
+
+% Normally, the following two values need to be toggled to switch between preview and acquisition mode, 
+% but they're both commented out for now because we're doing manual trigger
+% src.FrameStartTriggerSource = 'Line1';
+% src.FrameStartTriggerSource = 'Freerun';
 
 %% Save objects to root app data - for ease of passing variables between functions in GUI
 setappdata(0,'vidobj',vidobj)
