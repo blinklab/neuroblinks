@@ -4,6 +4,7 @@
  */
 
 // Outputs
+int greenled = 7; 
 int camera = 8;
 int led = 9;
 int whisker = 10;
@@ -35,6 +36,7 @@ void setup() {
   pinMode(puff, OUTPUT);
   pinMode(whisker, OUTPUT);
   pinMode(tonech, OUTPUT);
+  pinMode(greenled, OUTPUT); 
 
   // Default all output pins to LOW - for some reason they were floating high on the Due before I (Shane) added this
   digitalWrite(camera, LOW);
@@ -42,6 +44,7 @@ void setup() {
   digitalWrite(puff, LOW);
   digitalWrite(whisker, LOW);
   digitalWrite(tonech, LOW);
+  digitalWrite(greenled, LOW);
 
   Serial.begin(9600);
 }
@@ -213,6 +216,9 @@ void csON() {
       case 6:
         tone(tonech, tonefreq5, cs);   // turn the LED on (HIGH is the voltage level)
         break;
+      case  7:
+        digitalWrite(greenled, HIGH); // turn the green LED on (HIGH is the voltage level) 
+        break; 
     }
   } 
 }
@@ -227,6 +233,9 @@ void csOFF() {
       case 2:
         digitalWrite(whisker, LOW);   // turn the LED on (HIGH is the voltage level)
         break;
+      case 7:
+        digitalWrite(greenled, LOW); //  turn the green LED off (LOW is the voltage level) 
+        break; 
     }
   }
 }
@@ -243,6 +252,9 @@ void usON() {
         break;
       case 3:
         usout = puff;
+        break;
+      case 7:
+        usout = greenled;
         break;
       default:
         usout = 0;
