@@ -658,7 +658,7 @@ if get(handles.togglebutton_stream,'Value')
     set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
 end
 
-% try
+try
     while get(handles.togglebutton_stream,'Value') == 1
         t2=clock;
         
@@ -698,11 +698,21 @@ end
             end
         end
     end
-% catch
-%     disp('Aborted eye streaming.')
-%     set(handles.togglebutton_stream,'Value',0);
-%     return
-% end
+catch
+    try % If it's a dropped frame, see if we can recover
+        handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
+        preview(vidobj,handles.pwin);
+        guidata(handles.cameraAx,handles)
+        stream(handles)
+        disp('Caught camera error')
+    catch   
+        disp('Aborted eye streaming.')
+        set(handles.togglebutton_stream,'Value',0);
+        set(handles.pushbutton_StartStopPreview,'String','Start Preview')
+        closepreview(vidobj);
+        return
+    end
+end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
