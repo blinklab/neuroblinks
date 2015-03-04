@@ -568,8 +568,11 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(5)=metadata.stim.c.csdur;
     datatoarduino(6)=metadata.stim.c.usdur;
     datatoarduino(7)=metadata.stim.c.isi;
-    if ismember(datatoarduino(4),[5 6]),
+    if ismember(metadata.stim.c.csnum,[5 6]),
         datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.csnum-4);
+    end
+    if ismember(metadata.stim.c.usnum,[5 6]),
+        datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.usnum-4);
     end
     datatoarduino(10)=metadata.stim.c.usnum;
 end

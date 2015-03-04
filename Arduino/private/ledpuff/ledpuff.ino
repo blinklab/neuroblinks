@@ -152,7 +152,7 @@ or something like "delay" conditioning
 */
 
 void doDelay() {
-
+  
   csON();
   
   delay(ISI);
@@ -182,7 +182,7 @@ void doDelay() {
 }
 
 void doTrace() {
- 
+
   csON(); 
   
   delay(cs);
@@ -211,10 +211,10 @@ void csON() {
         digitalWrite(whisker, HIGH);   // turn the LED on (HIGH is the voltage level)
         break;
       case 5:
-        tone(tonech, tonefreq5, cs);   // turn the LED on (HIGH is the voltage level)
+        tone(tonech, tonefreq5, cs);   
         break;
       case 6:
-        tone(tonech, tonefreq5, cs);   // turn the LED on (HIGH is the voltage level)
+        tone(tonech, tonefreq5, cs);   
         break;
       case  7:
         digitalWrite(greenled, HIGH); // turn the green LED on (HIGH is the voltage level) 
@@ -255,6 +255,14 @@ void usON() {
         break;
       case 7:
         usout = greenled;
+        break;
+      case 5:      // Tone is a special case that we have to handle differently 
+        tone(tonech, tonefreq5, us);
+        usout = 0;
+        break;
+      case 6:      // Tone is a special case that we have to handle differently 
+        tone(tonech, tonefreq5, us);
+        usout = 0;
         break;
       default:
         usout = 0;
