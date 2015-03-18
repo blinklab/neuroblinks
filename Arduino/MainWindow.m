@@ -294,8 +294,8 @@ metadata=getappdata(0,'metadata');
 metadata.cam.cal=1;
 setappdata(0,'metadata',metadata);
 
-refreshPermsA(handles);
-sendto_arduino();
+refreshParams(handles);
+% sendto_arduino();
 
 metadata=getappdata(0,'metadata'); 
 vidobj=getappdata(0,'vidobj');
@@ -311,8 +311,10 @@ start(vidobj)
 metadata.cam.cal=0;
 metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
 % --- trigger via arduino --
+trial_type = 1;         % calibration trial, US only
+metadata.stim.misc.trial_type=trial_type;
 arduino=getappdata(0,'arduino');
-fwrite(arduino,1,'int8');
+fwrite(arduino,uint8(trial_type),'uint8');
 
 setappdata(0,'metadata',metadata);
 
@@ -554,43 +556,77 @@ setappdata(0,'metadata',metadata);
 setappdata(0,'trials',trials);
 
 
-function sendto_arduino()
+function refreshParams(handles)
+
 metadata=getappdata(0,'metadata');
-datatoarduino=zeros(1,10);
+trials=getappdata(0,'trials');
 
-datatoarduino(3)=metadata.cam.time(1);
-datatoarduino(9)=sum(metadata.cam.time(2:3));
-if strcmpi(metadata.stim.type, 'puff')
-    datatoarduino(6)=metadata.stim.p.puffdur;
-    datatoarduino(10)=3;    % This is the puff channel
-elseif  strcmpi(metadata.stim.type, 'conditioning')
-    datatoarduino(4)=metadata.stim.c.csnum;
-    datatoarduino(5)=metadata.stim.c.csdur;
-    datatoarduino(6)=metadata.stim.c.usdur;
-    datatoarduino(7)=metadata.stim.c.isi;
-    if ismember(metadata.stim.c.csnum,[5 6]),
-        datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.csnum-4);
-    end
-    if ismember(metadata.stim.c.usnum,[5 6]),
-        datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.usnum-4);
-    end
-    datatoarduino(10)=metadata.stim.c.usnum;
-end
+trials.savematadata=get(handles.checkbox_save_metadata,'Value');
+val=get(handles.popupmenu_stimtype,'Value');
+str=get(handles.popupmenu_stimtype,'String');
+metadata.stim.type=str{val};
+if metadata.cam.cal, metadata.stim.type='Puff'; end % for Cal
 
-% ---- send data to arduino ----
-arduino=getappdata(0,'arduino');
-for i=3:length(datatoarduino),
-    fwrite(arduino,i,'int8');                  % header
-    fwrite(arduino,datatoarduino(i),'int16');  % data
-    if mod(i,4)==0,
-        pause(0.010);
-    end
-end
+% These are hard coded in Arduino right now
+metadata.stim.c.csdur=300;
+metadata.stim.c.csnum=7;
+metadata.stim.c.isi=200;
+metadata.stim.c.usdur=20;
+metadata.stim.c.usnum=3;
+metadata.stim.c.cstone=[0 0];
+
+metadata.stim.totaltime=metadata.stim.c.isi+metadata.stim.c.usdur;
+
+metadata.stim.c.ITI=str2double(get(handles.edit_ITI,'String'));
+
+metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
+metadata.cam.time(2)=metadata.stim.totaltime;
+metadata.cam.time(3)=str2double(get(handles.edit_posttime,'String'))-metadata.stim.totaltime;
+
+metadata.now=now;
+
+setappdata(0,'metadata',metadata);
+setappdata(0,'trials',trials);
+
+
+% function sendto_arduino()
+% metadata=getappdata(0,'metadata');
+% datatoarduino=zeros(1,10);
+
+% datatoarduino(3)=metadata.cam.time(1);
+% datatoarduino(9)=sum(metadata.cam.time(2:3));
+% if strcmpi(metadata.stim.type, 'puff')
+%     datatoarduino(6)=metadata.stim.p.puffdur;
+%     datatoarduino(10)=3;    % This is the puff channel
+% elseif  strcmpi(metadata.stim.type, 'conditioning')
+%     datatoarduino(4)=metadata.stim.c.csnum;
+%     datatoarduino(5)=metadata.stim.c.csdur;
+%     datatoarduino(6)=metadata.stim.c.usdur;
+%     datatoarduino(7)=metadata.stim.c.isi;
+%     if ismember(metadata.stim.c.csnum,[5 6]),
+%         datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.csnum-4);
+%     end
+%     if ismember(metadata.stim.c.usnum,[5 6]),
+%         datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.usnum-4);
+%     end
+%     datatoarduino(10)=metadata.stim.c.usnum;
+% end
+
+% % ---- send data to arduino ----
+% arduino=getappdata(0,'arduino');
+% for i=3:length(datatoarduino),
+%     fwrite(arduino,i,'int8');                  % header
+%     fwrite(arduino,datatoarduino(i),'int16');  % data
+%     if mod(i,4)==0,
+%         pause(0.010);
+%     end
+% end
+
 
 
 function TriggerArduino(handles)
-refreshPermsA(handles)
-sendto_arduino()
+refreshParams(handles)
+% sendto_arduino()
 
 metadata=getappdata(0,'metadata');
 vidobj=getappdata(0,'vidobj');
@@ -610,32 +646,35 @@ start(vidobj)
 
 metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
 
+trial_type = randi([2,3]);    % Randomly do paired or paired with laser
+
+metadata.stim.misc.trial_type=trial_type;
 
 % --- trigger via arduino --
 arduino=getappdata(0,'arduino');
-fwrite(arduino,1,'int8');
+fwrite(arduino,uint8(trial_type),'uint8');
 
 % ---- write status bar ----
-trials=getappdata(0,'trials');
-set(handles.text_status,'String',sprintf('Total trials: %d\nStim trials: %d',metadata.cam.trialnum-1,trials.stimnum));
-if strcmpi(metadata.stim.type,'conditioning')
-    trialvars=readTrialTable(metadata.eye.trialnum1+1);
-    csdur=trialvars(1);
-    csnum=trialvars(2);
-    isi=trialvars(3);
-    usdur=trialvars(4);
-    usnum=trialvars(5);
-    cstone=str2num(get(handles.edit_tone,'String'));
-    if length(cstone)<2, cstone(2)=0; end
+% trials=getappdata(0,'trials');
+% set(handles.text_status,'String',sprintf('Total trials: %d\nStim trials: %d',metadata.cam.trialnum-1,trials.stimnum));
+% if strcmpi(metadata.stim.type,'conditioning')
+%     trialvars=readTrialTable(metadata.eye.trialnum1+1);
+%     csdur=trialvars(1);
+%     csnum=trialvars(2);
+%     isi=trialvars(3);
+%     usdur=trialvars(4);
+%     usnum=trialvars(5);
+%     cstone=str2num(get(handles.edit_tone,'String'));
+%     if length(cstone)<2, cstone(2)=0; end
     
-    str2=[];
-    if ismember(csnum,[5 6]), 
-        str2=[' (' num2str(cstone(csnum-4)) ' KHz)'];
-    end
+%     str2=[];
+%     if ismember(csnum,[5 6]), 
+%         str2=[' (' num2str(cstone(csnum-4)) ' KHz)'];
+%     end
         
-    str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d, US ch %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur, usnum);
-    set(handles.text_disp_cond,'String',str1)
-end
+%     str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d, US ch %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur, usnum);
+%     set(handles.text_disp_cond,'String',str1)
+% end
 setappdata(0,'metadata',metadata);
 
 function stream(handles)
