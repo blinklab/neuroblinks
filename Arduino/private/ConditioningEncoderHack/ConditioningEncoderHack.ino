@@ -39,7 +39,7 @@ long sample_times[MAXDATALENGTH]; // Time since trial started, in ms. (using sig
 // In the final version these should all be set to 0 or -1 by default
 // To delay 0 we might need to actually delay 1 us.
 long delays[NUMTIMERS] = {200000, 350000, 400000, 0, 0, 0};
-long durations[NUMTIMERS] = {500000, 100000, 20000, 0, 0, 0};
+long durations[NUMTIMERS] = {500000, 150000, 15000, 0, 0, 0};
 long delays_actual[NUMTIMERS];
 long durations_actual[NUMTIMERS];
 

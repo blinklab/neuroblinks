@@ -202,7 +202,7 @@ data=getappdata(0,'calb_data');
 
 % --- eyelid trace --
 [trace,t]=vid2eyetrace(data,metadata,metadata.cam.thresh);
-ind_t=find(t<0.2);
+ind_t=find(t<0.3);
 [y_max, ind_max1]=max(trace(ind_t));  [y_min, ind_min1]=min(trace(ind_t));
 ind_max=ind_t(ind_max1);  ind_min=ind_t(ind_min1);  
 set(0,'CurrentFigure',ghandles.threshgui2)
@@ -245,7 +245,7 @@ data=getappdata(0,'calb_data');
 [trace,t]=vid2eyetrace(data,metadata,metadata.cam.thresh);
 
 % --- cal ---
-ind_t=(t<0.2);
+ind_t=(t<0.3);
 calib_offset=min(trace(ind_t));
 maxclosure=max(trace(ind_t));
 calib_scale=maxclosure-calib_offset;
