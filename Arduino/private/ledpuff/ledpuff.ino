@@ -9,6 +9,7 @@ int camera = 8;
 int led = 9;
 int whisker = 10;
 int tonech = 11;
+int laser = 12;
 int puff = 13;
 
 // Used internally to select channels for CS/US
@@ -18,13 +19,17 @@ int usout = 0;  // Used for 2nd order conditioning to use "US" as CS2
 // Task variables (time in ms, freq in hz)
 int campretime = 200;
 int camposttime = 800;
-int cs = 500;
+int csdur = 500;
 int csch = 1;   // default to LED
 int usch = 3;   // default to ipsi corneal puff
 int ISI = 200;
-int us = 20;
+int usdur = 20;
 int residual;
 int tonefreq5 = 10000;
+
+// Added as temporary fix to allow laser stim during trial
+int laserdelay = 0; // delay from CS onset until laser onset
+int laserdur = 0; // duration of laser pulse
 
 unsigned long trialtime = 0; // For keeping track of elapsed time during trial
 
@@ -37,6 +42,7 @@ void setup() {
   pinMode(whisker, OUTPUT);
   pinMode(tonech, OUTPUT);
   pinMode(greenled, OUTPUT); 
+  pinMode(laser, OUTPUT); 
 
   // Default all output pins to LOW - for some reason they were floating high on the Due before I (Shane) added this
   digitalWrite(camera, LOW);
@@ -45,6 +51,7 @@ void setup() {
   digitalWrite(whisker, LOW);
   digitalWrite(tonech, LOW);
   digitalWrite(greenled, LOW);
+  digitalWrite(laser, LOW);
 
   Serial.begin(9600);
 }
@@ -88,10 +95,10 @@ void checkVars() {
         csch = value;
         break;
       case 5:
-        cs = value;
+        csdur = value;
         break;
       case 6:
-        us = value;
+        usdur = value;
         break;
       case 7:
         ISI = value;
@@ -104,6 +111,12 @@ void checkVars() {
         break;
       case 10:
         usch = value;
+        break;
+      case 11:
+        laserdelay = value;
+        break;
+      case 12:
+        laserdur = value;
         break;
     }
     delay(4); // Delay enough to allow next 3 bytes into buffer (24 bits/9600 bps = 2.5 ms, so double it for safety).
@@ -129,7 +142,7 @@ void Triggered() {
   // starting a trial
   trialtime = millis();
 
-  if (cs <= ISI) {
+  if (csdur <= ISI) {
     doTrace();
   }
   else { doDelay(); }
@@ -152,6 +165,10 @@ or something like "delay" conditioning
 */
 
 void doDelay() {
+
+  if laserdur > 0 {
+    doDelayWithLaser();
+  }
   
   csON();
   
@@ -159,20 +176,20 @@ void doDelay() {
 
   usON();
   
-  if (cs < (ISI+us)) {
-   delay(cs-ISI);
+  if (csdur < (ISI+usdur)) {
+   delay(csdur-ISI);
    csOFF();
-   residual = us - (cs-ISI);
+   residual = usdur - (csdur-ISI);
   }
   else {
-    residual = us;
+    residual = usdur;
   }   
   
   delay(residual);                  // wait for remainder of us (or all if cs is longer)
   
   usOFF();
 
-  residual = cs - ISI - us;
+  residual = csdur - ISI - usdur;
   if (residual > 0) {
     delay(residual);          // wait for whatever additional time cs is on
   }
@@ -185,24 +202,60 @@ void doTrace() {
 
   csON(); 
   
-  delay(cs);
+  delay(csdur);
   
   csOFF();
   
-  residual = ISI-cs;
+  residual = ISI-csdur;
   
   if (residual > 0) {
     delay(residual);    // residual is trace period
   }
 
   usON();
-  delay(us);                  // wait for us
+  delay(usdur);                  // wait for us
   usOFF();  
   
 }
 
+void doDelayWithLaser() {
+  csON();
+  
+  // We have to figure out what the order of state transitions should be
+  // This seems better implemented as a DAG (directed acyclic graph), where
+  // each node is a state transition and the edges are delays. 
+  // Can we do this relatively easily in Arduino? We first need to sort based on
+  // delays from trial onset, then make a priority queue for each state transition and
+  // it's associated residual delay. 
+
+  delay(ISI);
+
+  usON();
+  
+  if (csdur < (ISI+usdur)) {
+   delay(csdur-ISI);
+   csOFF();
+   residual = usdur - (csdur-ISI);
+  }
+  else {
+    residual = usdur;
+  }   
+  
+  delay(residual);                  // wait for remainder of us (or all if cs is longer)
+  
+  usOFF();
+
+  residual = csdur - ISI - usdur;
+  if (residual > 0) {
+    delay(residual);          // wait for whatever additional time cs is on
+  }
+
+  csOFF();
+
+}
+
 void csON() {
- if (cs > 0) {
+ if (csdur > 0) {
     switch (csch) {
       case 1:
         digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -211,10 +264,10 @@ void csON() {
         digitalWrite(whisker, HIGH);   // turn the LED on (HIGH is the voltage level)
         break;
       case 5:
-        tone(tonech, tonefreq5, cs);   
+        tone(tonech, tonefreq5, csdur);   
         break;
       case 6:
-        tone(tonech, tonefreq5, cs);   
+        tone(tonech, tonefreq5, csdur);   
         break;
       case  7:
         digitalWrite(greenled, HIGH); // turn the green LED on (HIGH is the voltage level) 
@@ -225,7 +278,7 @@ void csON() {
 
 
 void csOFF() {
-     if (cs > 0) {
+     if (csdur > 0) {
     switch (csch) {
       case 1:
         digitalWrite(led, LOW);   // turn the LED on (HIGH is the voltage level)
