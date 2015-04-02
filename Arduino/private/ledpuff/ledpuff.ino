@@ -166,13 +166,14 @@ or something like "delay" conditioning
 
 void doDelay() {
 
-  if laserdur > 0 {
-    doDelayWithLaser();
-  }
-  
   csON();
-  
-  delay(ISI);
+
+  if (laserdur > 0) {
+    delay(laserdelay);
+    laserOn();
+    delay(ISI-laserdelay);
+  }
+  else { delay(ISI); }
 
   usON();
   
@@ -189,7 +190,18 @@ void doDelay() {
   
   usOFF();
 
-  residual = csdur - ISI - usdur;
+  if (laserdur > 0) {
+    residual = (laserdelay + laserdur) - ISI - usdur;
+    if (residual > 0) {
+      delay(residual);
+      residual = csdur - (laserdelay + laserdur);
+    }
+    laserOff();
+  }
+  else {
+    residual = csdur - ISI - usdur;
+  }
+
   if (residual > 0) {
     delay(residual);          // wait for whatever additional time cs is on
   }
@@ -294,7 +306,7 @@ void csOFF() {
 }
 
 void usON() {
-    if (us > 0) {
+    if (usdur > 0) {
 
     switch (usch) {
       case 1:
@@ -310,11 +322,11 @@ void usON() {
         usout = greenled;
         break;
       case 5:      // Tone is a special case that we have to handle differently 
-        tone(tonech, tonefreq5, us);
+        tone(tonech, tonefreq5, usdur);
         usout = 0;
         break;
       case 6:      // Tone is a special case that we have to handle differently 
-        tone(tonech, tonefreq5, us);
+        tone(tonech, tonefreq5, usdur);
         usout = 0;
         break;
       default:
@@ -331,6 +343,15 @@ void usOFF() {
   if (usout > 0) {
   digitalWrite(usout, LOW);    // turn the PUFF off (HIGH is the voltage level)
   }
+}
+
+void laserOn(){
+  digitalWrite(laser, HIGH);
+}
+
+
+void laserOff() {
+  digitalWrite(laser, LOW);
 }
 
 /*
