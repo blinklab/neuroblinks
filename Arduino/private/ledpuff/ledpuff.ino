@@ -10,6 +10,12 @@
 //#define LASERSLOPE 27
 //#define LASEROFFSET 2400
 // For laser 11140002, Rig 2
+//#define LASERSLOPE 36
+//#define LASEROFFSET 2100
+// For laser 11140002, Rig 3
+//#define LASERSLOPE 30
+//#define LASEROFFSET 2500
+// For laser 11140002, Rig 4
 #define LASERSLOPE 36
 #define LASEROFFSET 2100
 //For devices with A0 pulled HIGH, use 0x61
