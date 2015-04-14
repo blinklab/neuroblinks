@@ -523,6 +523,7 @@ metadata.stim.c.cstone=[0 0];
 
 metadata.stim.l.delay=0;
 metadata.stim.l.dur=0;
+metadata.stim.l.amp=0;
 
 metadata.stim.p.puffdur=str2double(get(handles.edit_puffdur,'String'));
 
@@ -543,6 +544,7 @@ switch lower(metadata.stim.type)
         metadata.stim.totaltime=metadata.stim.c.isi+metadata.stim.c.usdur;
         metadata.stim.l.delay = trialvars(6);
         metadata.stim.l.dur = trialvars(7);
+        metadata.stim.l.amp = trialvars(8);
     otherwise
         metadata.stim.totaltime=0;
         warning('Unknown stimulation mode set.');
@@ -582,6 +584,7 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(10)=metadata.stim.c.usnum;
     datatoarduino(11)=metadata.stim.l.delay;
     datatoarduino(12)=metadata.stim.l.dur;
+    datatoarduino(13)=metadata.stim.l.amp;
 end
 
 % ---- send data to arduino ----

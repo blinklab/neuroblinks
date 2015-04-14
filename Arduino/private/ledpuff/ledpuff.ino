@@ -1,3 +1,15 @@
+#include <Wire.h> // For I2C communication
+
+//This is the I2C Address of the MCP4725, by default (A0 pulled to GND).
+//Please note that this breakout is for the MCP4725A0. 
+#define MCP4725_ADDR 0x60   // DAC
+#define MAXDACUNIT 4095       // 2^12-1 (ie 12 bits)
+#define MINDACUNIT 0
+// For converstion from laser power to DAC units
+#define LASERSLOPE 27
+#define LASEROFFSET 2400
+//For devices with A0 pulled HIGH, use 0x61
+
 /*
   Conditioning
   to regulate camera, CS (LED, tone, whisker puff, ...), US.
@@ -30,6 +42,7 @@ int tonefreq5 = 10000;
 // Added as temporary fix to allow laser stim during trial
 int laserdelay = 0; // delay from CS onset until laser onset
 int laserdur = 0; // duration of laser pulse
+int laserpower = 0; // in the future we should use float
 
 unsigned long trialtime = 0; // For keeping track of elapsed time during trial
 
@@ -54,6 +67,9 @@ void setup() {
   digitalWrite(laser, LOW);
 
   Serial.begin(9600);
+  Wire.begin();
+
+  DACWrite(0);
 }
 
 // the loop routine runs over and over again forever:
@@ -117,6 +133,9 @@ void checkVars() {
         break;
       case 12:
         laserdur = value;
+        break;
+      case 13:
+        laserpower = value;
         break;
     }
     delay(4); // Delay enough to allow next 3 bytes into buffer (24 bits/9600 bps = 2.5 ms, so double it for safety).
@@ -346,12 +365,33 @@ void usOFF() {
 }
 
 void laserOn(){
-  digitalWrite(laser, HIGH);
+  // digitalWrite(laser, HIGH);
+  DACWrite(powerToDACUnits(laserpower));
 }
 
 
 void laserOff() {
-  digitalWrite(laser, LOW);
+  // digitalWrite(laser, LOW);
+  DACWrite(MINDACUNIT);
+}
+
+void DACWrite(int DACvalue) {
+ 
+  Wire.beginTransmission(MCP4725_ADDR);
+  Wire.write(64);                     // cmd to update the DAC
+  Wire.write(DACvalue >> 4);        // the 8 most significant bits...
+  Wire.write((DACvalue & 15) << 4); // the 4 least significant bits...
+  Wire.endTransmission(); 
+  
+}
+
+int powerToDACUnits(int power) {
+
+  int DACUnits = power * LASERSLOPE + LASEROFFSET;
+
+  if (DACUnits < MAXDACUNIT) {return DACUnits;}
+  else {return MAXDACUNIT;}
+
 }
 
 /*
