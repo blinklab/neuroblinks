@@ -6,8 +6,12 @@
 #define MAXDACUNIT 4095       // 2^12-1 (ie 12 bits)
 #define MINDACUNIT 0
 // For converstion from laser power to DAC units
-#define LASERSLOPE 27
-#define LASEROFFSET 2400
+// For laser 11140001, Rig 1
+//#define LASERSLOPE 27
+//#define LASEROFFSET 2400
+// For laser 11140002, Rig 2
+#define LASERSLOPE 36
+#define LASEROFFSET 2100
 //For devices with A0 pulled HIGH, use 0x61
 
 /*
