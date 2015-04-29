@@ -15,8 +15,9 @@ src.AllGainRaw=12;				% Tweak this based on IR light illumination (lower values 
 % src.StreamBytesPerSecond=124e6; % Set based on AVT's suggestion
 src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
 
-src.PacketSize = 9014;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
-% src.PacketSize = 8228;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
+% src.PacketSize = 9014;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
+src.PacketSize = 8000;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
+src.PacketDelay = 4908;		% Calculated based on frame rate and image size using Mathworks helper function
 vidobj.LoggingMode = 'memory'; 
 src.AcquisitionFrameRateAbs=200;
 vidobj.FramesPerTrigger=ceil(recdur/(1000/200));
