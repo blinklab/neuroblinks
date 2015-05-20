@@ -53,6 +53,6 @@ function com_ports = findArduinos(ids)
 	    idx = find(~cellfun(@isempty,match));
 	    if ~isempty(idx)
 	        %...and find the corresponding COM port on that line
-	        com_ports{i} = regexp(result_list(idx),'(COM\d+?)','match','once');
+	        com_ports{i} = regexp(result_list(idx),'(COM\d+)','match','once');
 	    end
 	end

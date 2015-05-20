@@ -652,6 +652,7 @@ function stream(handles)
 ghandles=getappdata(0,'ghandles'); 
 metadata=getappdata(0,'metadata');
 vidobj=getappdata(0,'vidobj');
+src=getappdata(0,'src');
 updaterate=0.017;   % ~67 Hz
 % updaterate=0.1;   % 10 Hz
 t1=clock-10;
@@ -671,7 +672,7 @@ if get(handles.togglebutton_stream,'Value')
     set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
 end
 
-try
+% try
     while get(handles.togglebutton_stream,'Value') == 1
         t2=clock;
         
@@ -710,22 +711,34 @@ try
                 disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
             end
         end
+
+        % Try to deal with dropped frames silently
+        % if strcmp(src.FrameStartTriggerSource,'Freerun') & strcmp(vidobj.Previewing,'off')
+        %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
+        %     preview(vidobj,handles.pwin);
+        % end
+
+        % if strcmp(src.FrameStartTriggerSource,'Line1') & strcmp(vidobj.Running,'off')
+        %     start(vidobj);
+        % end
+
     end
-catch
-    try % If it's a dropped frame, see if we can recover
-        handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-        preview(vidobj,handles.pwin);
-        guidata(handles.cameraAx,handles)
-        stream(handles)
-        disp('Caught camera error')
-    catch   
-        disp('Aborted eye streaming.')
-        set(handles.togglebutton_stream,'Value',0);
-        set(handles.pushbutton_StartStopPreview,'String','Start Preview')
-        closepreview(vidobj);
-        return
-    end
-end
+% catch
+
+    % try % If it's a dropped frame, see if we can recover
+    %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
+    %     preview(vidobj,handles.pwin);
+    %     guidata(handles.cameraAx,handles)
+    %     stream(handles)
+    %     disp('Caught camera error')
+    % catch   
+    %     disp('Aborted eye streaming.')
+    %     set(handles.togglebutton_stream,'Value',0);
+    %     set(handles.pushbutton_StartStopPreview,'String','Start Preview')
+    %     closepreview(vidobj);
+    %     return
+    % end
+% end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
