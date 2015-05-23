@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 05-Oct-2014 19:20:23
+% Last Modified by GUIDE v2.5 22-May-2015 19:25:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,6 +71,12 @@ metadata.eye.trialnum2=1;
 
 typestring=get(handles.popupmenu_stimtype,'String');
 metadata.stim.type=typestring{get(handles.popupmenu_stimtype,'Value')};
+
+% Set ITI using base time plus optional random range
+% We have to initialize here because "stream" function uses metadata.stim.c.ITI
+base_ITI = str2double(get(handles.edit_ITI,'String'));
+rand_ITI = str2double(get(handles.edit_ITI_rand,'String'));
+metadata.stim.c.ITI = base_ITI + rand(1,1) * rand_ITI;
 
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(3)=metadata.cam.recdurA-metadata.cam.time(1);
@@ -400,9 +406,9 @@ instantReplay(getappdata(0,'lastdata'),getappdata(0,'lastmetadata'));
 
 function toggle_continuous_Callback(hObject, eventdata, handles)
 if get(hObject,'Value'),
-    set(hObject,'String','Continuous: ON')
+    set(hObject,'String','Pause Continuous')
 else
-    set(hObject,'String','Continuous: OFF')
+    set(hObject,'String','Start Continuous')
 end
 
 
@@ -429,7 +435,14 @@ end
 
 
 function togglebutton_stream_Callback(hObject, eventdata, handles)
-stream(handles)
+
+if get(hObject,'Value'),
+    set(hObject,'String','Stop Streaming')
+    stream(handles)
+else
+    set(hObject,'String','Start Streaming')
+end
+
 
 function pushbutton_params_Callback(hObject, eventdata, handles)
 ParamsWindow
@@ -549,7 +562,11 @@ switch lower(metadata.stim.type)
         metadata.stim.totaltime=0;
         warning('Unknown stimulation mode set.');
 end
-metadata.stim.c.ITI=str2double(get(handles.edit_ITI,'String'));
+
+% Set ITI using base time plus optional random range
+base_ITI = str2double(get(handles.edit_ITI,'String'));
+rand_ITI = str2double(get(handles.edit_ITI_rand,'String'));
+metadata.stim.c.ITI = base_ITI + rand(1,1) * rand_ITI;
 
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(2)=metadata.stim.totaltime;
@@ -691,8 +708,15 @@ end
         
         % --- Trigger ----
         if get(handles.toggle_continuous,'Value') == 1
+            
+            stopTrial = str2double(get(handles.edit_StopAfterTrial,'String'));
+            if stopTrial > 0 && metadata.cam.trialnum > stopTrial
+                set(handles.toggle_continuous,'Value',0);
+                set(handles.toggle_continuous,'String','Start Continuous');
+            end
+                
             etime1=round(1000*etime(clock,t1))/1000;
-            if etime1>str2double(get(handles.edit_ITI,'String')),
+            if etime1>metadata.stim.c.ITI,
                 eyeok=checkeye(handles,eyedata);
                 if eyeok
                     TriggerArduino(handles)
@@ -1019,3 +1043,66 @@ flushdata(vidobj);
 
 src.FrameStartTriggerSource = 'Freerun';
 
+
+
+
+function edit_ITI_rand_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_ITI_rand (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_ITI_rand as text
+%        str2double(get(hObject,'String')) returns contents of edit_ITI_rand as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_ITI_rand_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_ITI_rand (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_StopAfterTrial_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_StopAfterTrial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_StopAfterTrial as text
+%        str2double(get(hObject,'String')) returns contents of edit_StopAfterTrial as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_StopAfterTrial_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_StopAfterTrial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton_loadParams.
+function pushbutton_loadParams_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_loadParams (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+paramtable = getappdata(0,'paramtable');
+
+[paramfile,paramfilepath,filteridx] = uigetfile('*.csv');
+
+if paramfile & filteridx == 1 % The filterindex thing is a hack to make sure it's a csv file
+    paramtable.data=csvread(fullfile(paramfilepath,paramfile));
+    set(handles.uitable_params,'Data',paramtable.data);
+    setappdata(0,'paramtable',paramtable);
+end
