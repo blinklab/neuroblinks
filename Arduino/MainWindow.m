@@ -644,7 +644,7 @@ fwrite(arduino,1,'int8');
 
 % ---- write status bar ----
 trials=getappdata(0,'trials');
-set(handles.text_status,'String',sprintf('Total trials: %d\nStim trials: %d',metadata.cam.trialnum-1,trials.stimnum));
+set(handles.text_status,'String',sprintf('Total trials: %d\n',metadata.cam.trialnum));
 if strcmpi(metadata.stim.type,'conditioning')
     trialvars=readTrialTable(metadata.eye.trialnum1+1);
     csdur=trialvars(1);
@@ -667,7 +667,6 @@ setappdata(0,'metadata',metadata);
 
 function stream(handles)
 ghandles=getappdata(0,'ghandles'); 
-metadata=getappdata(0,'metadata');
 vidobj=getappdata(0,'vidobj');
 src=getappdata(0,'src');
 updaterate=0.017;   % ~67 Hz
@@ -692,6 +691,7 @@ end
 % try
     while get(handles.togglebutton_stream,'Value') == 1
         t2=clock;
+        metadata=getappdata(0,'metadata');  % get updated metadata within this loop, otherwise we'll be using stale data
         
         % --- eye trace ---
         wholeframe=getsnapshot(vidobj);
