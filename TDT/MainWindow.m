@@ -139,100 +139,6 @@ function pushbutton_stim_Callback(hObject, eventdata, handles)
 TriggerStim(hObject, handles)
 
 
-
-function edit_estimfreq_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_estimfreq (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_estimfreq as text
-%        str2double(get(hObject,'String')) returns contents of edit_estimfreq as a double
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_estimfreq_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_estimfreq (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_epulsewidth_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_epulsewidth (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_epulsewidth as text
-%        str2double(get(hObject,'String')) returns contents of edit_epulsewidth as a double
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_epulsewidth_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_epulsewidth (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_etraindur_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_etraindur (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_etraindur as text
-%        str2double(get(hObject,'String')) returns contents of edit_etraindur as a double
-
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_etraindur_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_etraindur (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_estimamp_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_estimamp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_estimamp as text
-%        str2double(get(hObject,'String')) returns contents of edit_estimamp as a double
-
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_estimamp_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_estimamp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 % --- Executes on button press in pushbutton_StartStopPreview.
 function pushbutton_StartStopPreview_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_StartStopPreview (see GCBO)
@@ -433,23 +339,9 @@ metadata=getappdata(0,'metadata');
 val=get(hObject,'Value');
 str=get(hObject,'String');
 metadata.stim.type=str{val};
+
 setappdata(0,'metadata',metadata);
 
-% ------ highlight for uipanel -----
-set(handles.uipanel_stim,'BackgroundColor',[240 240 240]/255); 
-set(handles.uipanel_puff,'BackgroundColor',[240 240 240]/255);
-set(handles.uipanel_conditioning,'BackgroundColor',[240 240 240]/255);
-switch lower(metadata.stim.type)
-    case 'puff'
-        set(handles.uipanel_puff,'BackgroundColor',[225 237 248]/255); % light blue
-    case 'conditioning'
-        set(handles.uipanel_conditioning,'BackgroundColor',[225 237 248]/255); % light blue
-    case {'electrical','optical','optoelectric'}
-        set(handles.uipanel_stim,'BackgroundColor',[225 237 248]/255); % light blue
-    case  {'optocondition','electrocondition'}
-        set(handles.uipanel_stim,'BackgroundColor',[225 237 248]/255); % light blue
-        set(handles.uipanel_conditioning,'BackgroundColor',[225 237 248]/255); % light blue
-end   
 resetStimTrials()
 refreshParams(hObject);
 sendParamsToTDT(hObject);
@@ -467,167 +359,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
-function edit_lstimfreq_Callback(hObject, eventdata, handles)
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_lstimfreq_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_lstimfreq (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_lpulsewidth_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_lpulsewidth (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_lpulsewidth as text
-%        str2double(get(hObject,'String')) returns contents of edit_lpulsewidth as a double
-resetStimTrials()
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_lpulsewidth_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_lpulsewidth (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_ltraindur_Callback(hObject, eventdata, handles)
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_ltraindur_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_ltraindur (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_lstimamp_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_lstimamp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_lstimamp as text
-%        str2double(get(hObject,'String')) returns contents of edit_lstimamp as a double
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_lstimamp_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_lstimamp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit_estimdelay_Callback(hObject, eventdata, handles)
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_estimdelay_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_estimdelay (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function edit_lstimdelay_Callback(hObject, eventdata, handles)
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_lstimdelay_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_lstimdelay (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function edit_estimdepth_Callback(hObject, eventdata, handles)
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_estimdepth_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_estimdepth (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-function edit_lstimdepth_Callback(hObject, eventdata, handles)
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_lstimdepth_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_lstimdepth (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function togglebutton_ampblank_Callback(hObject, eventdata, handles)
-sendParamsToTDT(hObject)
-
-function edit_blankampextratime_Callback(hObject, eventdata, handles)
-sendParamsToTDT(hObject)
-
-% --- Executes during object creation, after setting all properties.
-function edit_blankampextratime_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_blankampextratime (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 function pushbutton_instantreplay_Callback(hObject, eventdata, handles)
 instantReplay(getappdata(0,'lastdata'),getappdata(0,'lastmetadata'));
@@ -823,31 +554,6 @@ end
 
 
 
-
-function edit_puffdelay_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_puffdelay (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_puffdelay as text
-%        str2double(get(hObject,'String')) returns contents of edit_puffdelay as a double
-resetStimTrials()
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_puffdelay_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_puffdelay (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
 % --- Executes on button press in togglebutton_tgframerate.
 function togglebutton_tgframerate_Callback(hObject, eventdata, handles)
 % hObject    handle to togglebutton_tgframerate (see GCBO)
@@ -907,44 +613,6 @@ setappdata(0,'src',src);
 setappdata(0,'metadata',metadata);
 
 
-
-
-function edit_lramptm_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_lramptm (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hints: get(hObject,'String') returns contents of edit_lramptm as text
-%        str2double(get(hObject,'String')) returns contents of edit_lramptm as a double
-resetStimTrials()
-
-% --- Executes during object creation, after setting all properties.
-function edit_lramptm_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_lramptm (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbutton_analysisWindow.
-function pushbutton_analysisWindow_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_analysisWindow (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-ghandles=getappdata(0,'ghandles');
-ghandles.analysisgui=AnalysisWindow;
-setappdata(0,'ghandles',ghandles);
-
-% movegui(ghandles.analysisgui,ghandles.pos_anawin)
-set(ghandles.analysisgui,'units','pixels')
-set(ghandles.analysisgui,'position',[ghandles.pos_anawin ghandles.size_anawin])
-
-
 % --- Executes on button press in pushbutton_CalbEye.
 function pushbutton_CalbEye_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton_CalbEye (see GCBO)
@@ -967,10 +635,6 @@ metadata=getappdata(0,'metadata');
 % Send TDT trial number of zero 
 TDT.SetTargetVal('ustim.CamTrial',0);
 TDT.SetTargetVal('ustim.TrialNum',0);
-
-% --- stim type is puff ---
-TDT.SetTargetVal('ustim.TrialType',1);
-TDT.SetTargetVal('ustim.StimDevice',3);
 
 % Set up camera to record
 frames_per_trial=ceil(metadata.cam.fps.*(sum(metadata.cam.time))./1000);
@@ -1004,9 +668,9 @@ function toggle_continuous_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of toggle_continuous
 
 if get(hObject,'Value'),
-    set(hObject,'String','Continuous: ON')
+    set(hObject,'String','Pause Continuous')
 else
-    set(hObject,'String','Continuous: OFF')
+    set(hObject,'String','Start Continuous')
 end
 
 
@@ -1097,33 +761,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in checkbox_puffside.
-function checkbox_puffside_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox_puffside (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of checkbox_puffside
-
-
-function edit27_Callback(hObject, eventdata, handles)
-% hObject    handle to edit27 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hints: get(hObject,'String') returns contents of edit27 as text
-%        str2double(get(hObject,'String')) returns contents of edit27 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit27_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit27 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 
 function edit_ITI_Callback(hObject, eventdata, handles)
@@ -1279,13 +916,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in checkbox_RX6.
-function checkbox_RX6_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox_RX6 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of checkbox_RX6
 
 
 % --- Executes on button press in checkbox_save_metadata.
