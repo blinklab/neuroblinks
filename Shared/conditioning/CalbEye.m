@@ -8,7 +8,11 @@ metadata=getappdata(0,'metadata');
 data=getdata(vidobj,vidobj.FramesPerTrigger*(vidobj.TriggerRepeat + 1));
 
 % Set camera to freerun mode so we can preview
-src.FrameStartTriggerSource = 'Freerun';
+if isprop(src,'FrameStartTriggerSource')
+    src.FrameStartTriggerSource = 'Freerun';
+else
+    src.TriggerSource = 'Freerun';
+end
 
 % --- save data to root app ---
 % Keep data from last trial in memory even if we don't save it to disk

@@ -580,7 +580,11 @@ if get(hObject,'Value')
     else
         metadata.cam.fps=str2double(dlgans{1});
         src.ExposureTimeAbs = str2double(dlgans{2});
-        src.AllGainRaw=str2double(dlgans{3});
+        if isprop(src,'AllGainRaw')
+            src.AllGainRaw=str2double(dlgans{2});
+        else
+            src.GainRaw=str2double(dlgans{2});
+        end
     end
     metadata.cam.vidobj_ROIposition=max(metadata.cam.winpos+[-15 0 30 0],[0 0 0 0]);
     vidobj.ROIposition=metadata.cam.vidobj_ROIposition;
@@ -595,7 +599,11 @@ else
     vidobj.ROIposition=metadata.cam.fullsize;
     metadata.cam.fps=200;
     src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
-    src.AllGainRaw=metadata.cam.init_AllGainRaw;
+    if isprop(src,'AllGainRaw')
+        src.AllGainRaw=metadata.cam.init_AllGainRaw;
+    else
+        src.GainRaw=metadata.cam.init_AllGainRaw;
+    end
     % --- size fit for roi and mask ----
     mask0=metadata.cam.mask; s_mask0=size(mask0);
     metadata.cam.mask = false(metadata.cam.fullsize([4 3]));
@@ -633,8 +641,8 @@ vidobj=getappdata(0,'vidobj');
 metadata=getappdata(0,'metadata');
 
 % Send TDT trial number of zero 
-TDT.SetTargetVal('ustim.CamTrial',0);
-TDT.SetTargetVal('ustim.TrialNum',0);
+TDT.SetTargetVal('task-timer.CamTrial',0);
+TDT.SetTargetVal('task-timer.TrialNum',0);
 
 % Set up camera to record
 frames_per_trial=ceil(metadata.cam.fps.*(sum(metadata.cam.time))./1000);
@@ -645,15 +653,15 @@ start(vidobj)
 
 metadata.cam.cal=0;
 metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
-TDT.SetTargetVal('ustim.MatTime',metadata.ts(2));
+TDT.SetTargetVal('task-timer.MatTime',metadata.ts(2));
 
-% TDT.SetTargetVal('ustim.PuffManual',1);
+% TDT.SetTargetVal('task-timer.PuffManual',1);
 % pause(0.01);
-% TDT.SetTargetVal('ustim.PuffManual',0);
+% TDT.SetTargetVal('task-timer.PuffManual',0);
 
-TDT.SetTargetVal('ustim.StartCam',1);
+TDT.SetTargetVal('task-timer.StartCam',1);
 pause(0.01);
-TDT.SetTargetVal('ustim.StartCam',0);
+TDT.SetTargetVal('task-timer.StartCam',0);
 
 setappdata(0,'metadata',metadata);
 

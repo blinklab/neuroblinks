@@ -54,7 +54,14 @@ src = getselectedsource(vidobj);
 
 % Exposure time is constrained by frame rate
 src.ExposureTimeAbs = 4900;		% In microseconds
-src.AllGainRaw=12;				% Tweak this based on IR light illumination (lower values preferred due to less noise)
+
+% Tweak this based on IR light illumination (lower values preferred due to less noise)
+if isprop(src,'AllGainRaw')   
+    src.AllGainRaw=12;
+else
+    src.GainRaw=12;
+end	
+
 src.PacketSize = 9014;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
 src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
 src.AcquisitionFrameRateAbs=200;	% Our camera can sustain 200 FPS at full resolution (640x480) but can go up to 500 FPS if you reduce ROI or do vertical binning of frames

@@ -37,19 +37,20 @@ function neuroblinks(varargin)
         error('No cameras found')
     end
  
-    cam = 0;
-    for i=1:length(founddeviceids)
-        vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
-        src = getselectedsource(vidobj);
-        if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
-            cam = i;
-        end
-        delete(vidobj)
-    end
-
-    if ~cam
-        error(sprintf('The camera you specified (%d) could not be found',rig));
-    end
+    cam = 1;
+%     cam = 0;
+%     for i=1:length(founddeviceids)
+%         vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
+%         src = getselectedsource(vidobj);
+%         if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
+%             cam = i;
+%         end
+%         delete(vidobj)
+%     end
+% 
+%     if ~cam
+%         error(sprintf('The camera you specified (%d) could not be found',rig));
+%     end
 
     try 
         switch lower(device)

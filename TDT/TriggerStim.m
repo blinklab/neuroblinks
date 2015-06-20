@@ -146,7 +146,7 @@ if strcmpi(stimmode,'puff')
 end
 
 % ---- display current trial data in conditioning ----
-if strcmpi(metadata.stim.type,'conditioning') | strcmpi(metadata.stim.type,'electrocondition')
+if strcmpi(metadata.stim.type,'conditioning'))
     
     trialvars=readTrialTable(metadata.eye.trialnum1+1);
     csdur=trialvars(1);

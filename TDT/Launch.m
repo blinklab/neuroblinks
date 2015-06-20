@@ -1,14 +1,14 @@
-function Launch(rig)
+function Launch(rig,cam)
 % Note that "rig" argument is not currently used for TDT option
 
+neuroblinks_config;	% Per user settings
 configure;
-
 
 setappdata(0,'paramtable',paramtable);
 setappdata(0,'metadata',metadata);
 
 %% Initialize Camera
-InitCam(1); % src and vidobj are now saved as root app data so no global vars
+InitCam(cam,metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
 
 %% Initialize TDT interface
 ghandles.TDTfig=figure;
