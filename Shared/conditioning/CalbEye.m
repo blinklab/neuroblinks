@@ -4,6 +4,7 @@ disp('Delivering puff and saving calibration data.')
 
 vidobj=getappdata(0,'vidobj');
 metadata=getappdata(0,'metadata');
+src=getappdata(0,'src');
 
 data=getdata(vidobj,vidobj.FramesPerTrigger*(vidobj.TriggerRepeat + 1));
 

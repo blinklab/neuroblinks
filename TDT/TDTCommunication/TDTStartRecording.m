@@ -16,6 +16,6 @@ else
 end
 
 % start go, 
-TDT.SetTargetVal('ustim.Start',1);
+TDT.SetTargetVal('task_timer.Start',1);
 pause(0.01);
-TDT.SetTargetVal('ustim.Start',0);
+TDT.SetTargetVal('task_timer.Start',0);

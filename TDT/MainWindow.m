@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 15-Jun-2013 13:11:38
+% Last Modified by GUIDE v2.5 03-Jul-2015 12:22:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -70,6 +70,12 @@ metadata.eye.trialnum2=1;
 
 typestring=get(handles.popupmenu_stimtype,'String');
 metadata.stim.type=typestring{get(handles.popupmenu_stimtype,'Value')};
+
+% Set ITI using base time plus optional random range
+% We have to initialize here because "stream" function uses metadata.stim.c.ITI
+base_ITI = str2double(get(handles.edit_ITI,'String'));
+rand_ITI = str2double(get(handles.edit_ITI_rand,'String'));
+metadata.stim.c.ITI = base_ITI + rand(1,1) * rand_ITI;
 
 % metadata.thresh=str2double(get(handles.edit_eyelidThresh,'String'));
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
@@ -638,30 +644,35 @@ sendParamsToTDT(hObject)
 
 TDT=getappdata(0,'tdt');
 vidobj=getappdata(0,'vidobj');
-metadata=getappdata(0,'metadata');
+src=getappdata(0,'src');
+metadata=getappdata(0,'metadata');  % Need to refresh metadata bc it was updated in refreshParams
 
 % Send TDT trial number of zero 
-TDT.SetTargetVal('task-timer.CamTrial',0);
-TDT.SetTargetVal('task-timer.TrialNum',0);
+TDT.SetTargetVal('task_timer.CamTrial',0);
+TDT.SetTargetVal('task_timer.TrialNum',0);
 
 % Set up camera to record
 frames_per_trial=ceil(metadata.cam.fps.*(sum(metadata.cam.time))./1000);
 vidobj.TriggerRepeat = frames_per_trial-1;
-vidobj.StopFcn=@CalbEye;   % @nosavetrial
+vidobj.StopFcn=@CalbEye;   
+
+% Set camera to Line mode so we can trigger with TTL
+if isprop(src,'FrameStartTriggerSource')
+    src.FrameStartTriggerSource = 'Line1';
+else
+    src.TriggerSource = 'Line1';
+end
+
 flushdata(vidobj); % Remove any data from buffer before triggering
 start(vidobj)
 
 metadata.cam.cal=0;
 metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
-TDT.SetTargetVal('task-timer.MatTime',metadata.ts(2));
+TDT.SetTargetVal('task_timer.MatTime',metadata.ts(2));
 
-% TDT.SetTargetVal('task-timer.PuffManual',1);
-% pause(0.01);
-% TDT.SetTargetVal('task-timer.PuffManual',0);
-
-TDT.SetTargetVal('task-timer.StartCam',1);
+TDT.SetTargetVal('task_timer.StartCam',1);
 pause(0.01);
-TDT.SetTargetVal('task-timer.StartCam',0);
+TDT.SetTargetVal('task_timer.StartCam',0);
 
 setappdata(0,'metadata',metadata);
 
@@ -990,4 +1001,76 @@ function edit_toneamp_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_ITI_rand_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_ITI_rand (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_ITI_rand as text
+%        str2double(get(hObject,'String')) returns contents of edit_ITI_rand as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_ITI_rand_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_ITI_rand (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_StopAfterTrial_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_StopAfterTrial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_StopAfterTrial as text
+%        str2double(get(hObject,'String')) returns contents of edit_StopAfterTrial as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_StopAfterTrial_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_StopAfterTrial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in checkbox_verbose.
+function checkbox_verbose_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_verbose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_verbose
+
+
+% --- Executes on button press in pushbutton_loadParams.
+function pushbutton_loadParams_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_loadParams (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+paramtable = getappdata(0,'paramtable');
+
+[paramfile,paramfilepath,filteridx] = uigetfile('*.csv');
+
+if paramfile & filteridx == 1 % The filterindex thing is a hack to make sure it's a csv file
+    paramtable.data=csvread(fullfile(paramfilepath,paramfile));
+    set(handles.uitable_params,'Data',paramtable.data);
+    setappdata(0,'paramtable',paramtable);
 end

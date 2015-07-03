@@ -1,4 +1,4 @@
-VERSION_1ENDVERSIONÿŠNAME=Grid Size;VALUE=10;GROUPID=Appearance;
+VERSION_1ENDVERSIONÿ‚ŠNAME=Grid Size;VALUE=10;GROUPID=Appearance;
 NAME=Page Color;VALUE=15790320;GROUPID=Appearance;
 NAME=Grid Color;VALUE=14737632;GROUPID=Appearance;
 NAME=Highlight Color;VALUE=12582912;GROUPID=Appearance;
@@ -101,7 +101,7 @@ NAME=Logging Mode;VALUE=0;GROUPID=Hide;
 NAME=Log Tank Name;VALUE=;GROUPID=Hide;
 NAME=Log Tank Code (4 chars);VALUE=;GROUPID=Hide;
 NAME=Log Time Stamping Target;VALUE=;GROUPID=Hide;
-NAME=Value;VALUE=110.;GROUPID=Value Control;
+NAME=Value;VALUE=3.;GROUPID=Value Control;
 NAME=Initialize Value;VALUE=0.;GROUPID=Value Control;
 NAME=Initialize Mode;VALUE=0;GROUPID=Value Control;
 NAME=Value Scale;VALUE=1.;GROUPID=Value Control;
@@ -146,7 +146,7 @@ NAME=Logging Mode;VALUE=0;GROUPID=Hide;
 NAME=Log Tank Name;VALUE=;GROUPID=Hide;
 NAME=Log Tank Code (4 chars);VALUE=;GROUPID=Hide;
 NAME=Log Time Stamping Target;VALUE=;GROUPID=Hide;
-NAME=Value;VALUE=7.;GROUPID=Value Control;
+NAME=Value;VALUE=-1000.;GROUPID=Value Control;
 NAME=Initialize Value;VALUE=0.;GROUPID=Value Control;
 NAME=Initialize Mode;VALUE=0;GROUPID=Value Control;
 NAME=Value Scale;VALUE=1.;GROUPID=Value Control;
@@ -335,7 +335,7 @@ NAME=Logging Mode;VALUE=0;GROUPID=Hide;
 NAME=Log Tank Name;VALUE=;GROUPID=Hide;
 NAME=Log Tank Code (4 chars);VALUE=;GROUPID=Hide;
 NAME=Log Time Stamping Target;VALUE=;GROUPID=Hide;
-NAME=Value;VALUE=0.6;GROUPID=Value Control;
+NAME=Value;VALUE=0.2;GROUPID=Value Control;
 NAME=Initialize Value;VALUE=0.;GROUPID=Value Control;
 NAME=Initialize Mode;VALUE=0;GROUPID=Value Control;
 NAME=Value Scale;VALUE=1.;GROUPID=Value Control;
@@ -520,7 +520,7 @@ NAME=Enable HandMark;VALUE=T;GROUPID=#Hand Mark;
 NAME=User Involve;VALUE=F;GROUPID=#Hand Mark;
 NAME=HandMarkColor0;VALUE=0;GROUPID=#Hand Mark;
 NAME=HandMarkPosX0;VALUE=1;GROUPID=#Hand Mark;
-NAME=HandMarkYMin0;VALUE=0.4289044;GROUPID=#Hand Mark;
+NAME=HandMarkYMin0;VALUE=5.125e-002;GROUPID=#Hand Mark;
 NAME=HandMarkYMax0;VALUE=25001.68;GROUPID=#Hand Mark;
 NAME=HandMarkWidth0;VALUE=1;GROUPID=#Hand Mark;
 NAME=HandMarkColor1;VALUE=0;GROUPID=#Hand Mark;
@@ -601,7 +601,7 @@ NAME=Logging Mode;VALUE=0;GROUPID=Hide;
 NAME=Log Tank Name;VALUE=;GROUPID=Hide;
 NAME=Log Tank Code (4 chars);VALUE=;GROUPID=Hide;
 NAME=Log Time Stamping Target;VALUE=;GROUPID=Hide;
-NAME=Value;VALUE=0.;GROUPID=Value Control;
+NAME=Value;VALUE=1.;GROUPID=Value Control;
 NAME=Initialize Value;VALUE=0.;GROUPID=Value Control;
 NAME=Initialize Mode;VALUE=0;GROUPID=Value Control;
 NAME=Value Scale;VALUE=1.;GROUPID=Value Control;
@@ -720,4 +720,4 @@ NAME=Show Minor Ticks;VALUE=T;GROUPID=Scale;
 NAME=Minor Ticks Count;VALUE=5;GROUPID=Scale;
 NAME=Key Arrow Step Size;VALUE=10;GROUPID=Scale;
 NAME=Key Page Step Size;VALUE=100;GROUPID=Scale;
-   @  °    è             þÿÿÿþÿÿÿÿ                               €      è             ÿÿÿÿÿÿÿÿÿ        è            ÿÿÿÿÿÿÿÿÿ            è       è      è            ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ            è              þÿÿÿþÿÿÿÿ                               €      É  H     ¯  
+   @  °    è              þÿÿÿþÿÿÿÿ                 Ó            €      è              ÿÿÿÿÿÿÿÿÿ        è            ÿÿÿÿÿÿÿÿÿ            è       è      è            ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ            è             þÿÿÿþÿÿÿÿ         þÿÿÿþÿÿÿÑ            €      É  ¹	     ”  

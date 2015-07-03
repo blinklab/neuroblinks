@@ -28,7 +28,7 @@ tank=TDT.GetTankName();
 set(handles.edit_TDTBlockName,'String',block);
 set(handles.edit_TDTTankName,'String',tank);
 
-set(handles.text_status,'String',sprintf('Total trials: %d\nStim trials: %d',metadata.cam.trialnum-1,trials.stimnum));
+set(handles.text_status,'String',sprintf('Total trials: %d',metadata.cam.trialnum-1));
 
 metadata.TDTblockname=block;
 metadata.TDTtankname=tank;

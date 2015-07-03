@@ -2,11 +2,14 @@ function InitCam(ch,recdur)
 % First delete any existing image acquisition objects
 
 imaqreset
+
+disp('creating video object ...')
+% vidobj = videoinput('gentl', ch, 'Mono8');
+vidobj = videoinput('gige', ch, 'Mono8');
+disp('video settings ....')
+
 metadata=getappdata(0,'metadata');
 
-
-% vidobj = videoinput('avtmatlabadaptor64_r2009b', 1, 'Mono8_640x480_Binning_1x1');
-vidobj = videoinput('gige', ch, 'Mono8');
 src = getselectedsource(vidobj);
 src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
 
@@ -30,7 +33,7 @@ src.PacketSize = 8228;
 src.PacketDelay = 2000;		% Calculated based on frame rate and image size using Mathworks helper function
 vidobj.LoggingMode = 'memory'; 
 src.AcquisitionFrameRateAbs=200;
-vidobj.FramesPerTrigger=ceil(recdur/(1000/200));
+vidobj.FramesPerTrigger=1;
 
 % vidobj.LoggingMode = 'memory'; 
 % vidobj.FramesPerTrigger=1;
