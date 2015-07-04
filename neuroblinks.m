@@ -1,9 +1,6 @@
 % Set up environment and launch app based on which version you want to use
 function neuroblinks(varargin)
 
-    DEFAULTDEVICE = 'arduino';
-    DEFAULTRIG = 1;
-
     % Load local configuration for these rigs
     % Should be somewhere in path but not "neuroblinks" directory or subdirectory
     neuroblinks_config
@@ -38,6 +35,8 @@ function neuroblinks(varargin)
     end
  
     cam = 1;
+% This code doesn't work on some versions of Matlab so it's commented out. If you plan to use
+% more than one camera on the same computer you should uncomment it and find a way to get it working.
 %     cam = 0;
 %     for i=1:length(founddeviceids)
 %         vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
