@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 30-Sep-2014 16:20:36
+% Last Modified by GUIDE v2.5 22-May-2015 19:25:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,6 +71,12 @@ metadata.eye.trialnum2=1;
 
 typestring=get(handles.popupmenu_stimtype,'String');
 metadata.stim.type=typestring{get(handles.popupmenu_stimtype,'Value')};
+
+% Set ITI using base time plus optional random range
+% We have to initialize here because "stream" function uses metadata.stim.c.ITI
+base_ITI = str2double(get(handles.edit_ITI,'String'));
+rand_ITI = str2double(get(handles.edit_ITI_rand,'String'));
+metadata.stim.c.ITI = base_ITI + rand(1,1) * rand_ITI;
 
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(3)=metadata.cam.recdurA-metadata.cam.time(1);
@@ -181,6 +187,9 @@ catch err
     warning(err.identifier,'Problem cleaning up objects. You may need to do it manually.')
 end
 delete(handles.CamFig)
+
+pause(0.5)
+
 button=questdlg('Do you want to compress the videos from this session?');
 if strcmpi(button,'Yes')
     makeCompressedVideos(metadata.folder,1);
@@ -397,9 +406,9 @@ instantReplay(getappdata(0,'lastdata'),getappdata(0,'lastmetadata'));
 
 function toggle_continuous_Callback(hObject, eventdata, handles)
 if get(hObject,'Value'),
-    set(hObject,'String','Continuous: ON')
+    set(hObject,'String','Pause Continuous')
 else
-    set(hObject,'String','Continuous: OFF')
+    set(hObject,'String','Start Continuous')
 end
 
 
@@ -426,7 +435,14 @@ end
 
 
 function togglebutton_stream_Callback(hObject, eventdata, handles)
-stream(handles)
+
+if get(hObject,'Value'),
+    set(hObject,'String','Stop Streaming')
+    stream(handles)
+else
+    set(hObject,'String','Start Streaming')
+end
+
 
 function pushbutton_params_Callback(hObject, eventdata, handles)
 ParamsWindow
@@ -443,22 +459,22 @@ set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_one
 
 function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
-    case 'togglebutton_TDTRecord'
-        dlgans = inputdlg({'Enter Block name'},'Recording');
+    case 'togglebutton_NewSession'
+        dlgans = inputdlg({'Enter session name'},'Create');
         if isempty(dlgans) 
             ok=0;
         elseif isempty(dlgans{1})
             ok=0;
         else
-            ok=1;  block=dlgans{1};
+            ok=1;  session=dlgans{1};
             set(handles.checkbox_save_metadata,'Value',0);
         end
-    case 'togglebutton_TDTPreview'
-        button=questdlg('Are you sure you want to quit recording?','Yes','No');
+    case 'togglebutton_StopSession'
+        button=questdlg('Are you sure you want to stop this session?','Yes','No');
         if ~strcmpi(button,'Yes')
             ok=0;
         else
-            block='TempBlk';     ok=1;
+            session='s00';     ok=1;
         end
     otherwise
         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
@@ -476,9 +492,9 @@ else
     return
 end
 ResetCamTrials()
-set(handles.edit_TDTBlockName,'String',block);
+set(handles.edit_SessionName,'String',session);
 metadata=getappdata(0,'metadata');
-metadata.TDTblockname=block;
+metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
 setappdata(0,'metadata',metadata);
 
 
@@ -515,7 +531,12 @@ metadata.stim.c.csdur=0;
 metadata.stim.c.csnum=0;
 metadata.stim.c.isi=0;
 metadata.stim.c.usdur=0;
+metadata.stim.c.usnum=0;
 metadata.stim.c.cstone=[0 0];
+
+metadata.stim.l.delay=0;
+metadata.stim.l.dur=0;
+metadata.stim.l.amp=0;
 
 metadata.stim.p.puffdur=str2double(get(handles.edit_puffdur,'String'));
 
@@ -530,18 +551,26 @@ switch lower(metadata.stim.type)
         metadata.stim.c.csnum=trialvars(2);
         metadata.stim.c.isi=trialvars(3);
         metadata.stim.c.usdur=trialvars(4);
+        metadata.stim.c.usnum=trialvars(5);
         metadata.stim.c.cstone=str2num(get(handles.edit_tone,'String'))*1000;
         if length(metadata.stim.c.cstone)<2, metadata.stim.c.cstone(2)=0; end
         metadata.stim.totaltime=metadata.stim.c.isi+metadata.stim.c.usdur;
+        metadata.stim.l.delay = trialvars(6);
+        metadata.stim.l.dur = trialvars(7);
+        metadata.stim.l.amp = trialvars(8);
     otherwise
         metadata.stim.totaltime=0;
         warning('Unknown stimulation mode set.');
 end
-metadata.stim.c.ITI=str2double(get(handles.edit_ITI,'String'));
+
+% Set ITI using base time plus optional random range
+base_ITI = str2double(get(handles.edit_ITI,'String'));
+rand_ITI = str2double(get(handles.edit_ITI_rand,'String'));
+metadata.stim.c.ITI = base_ITI + rand(1,1) * rand_ITI;
 
 metadata.cam.time(1)=str2double(get(handles.edit_pretime,'String'));
 metadata.cam.time(2)=metadata.stim.totaltime;
-metadata.cam.time(3)=metadata.cam.recdurA-sum(metadata.cam.time(1:2));
+metadata.cam.time(3)=str2double(get(handles.edit_posttime,'String'))-metadata.stim.totaltime;
 
 metadata.now=now;
 
@@ -551,19 +580,28 @@ setappdata(0,'trials',trials);
 
 function sendto_arduino()
 metadata=getappdata(0,'metadata');
-datatoarduino=zeros(1,8);
+datatoarduino=zeros(1,10);
 
 datatoarduino(3)=metadata.cam.time(1);
+datatoarduino(9)=sum(metadata.cam.time(2:3));
 if strcmpi(metadata.stim.type, 'puff')
     datatoarduino(6)=metadata.stim.p.puffdur;
+    datatoarduino(10)=3;    % This is the puff channel
 elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(4)=metadata.stim.c.csnum;
     datatoarduino(5)=metadata.stim.c.csdur;
     datatoarduino(6)=metadata.stim.c.usdur;
     datatoarduino(7)=metadata.stim.c.isi;
-    if ismember(datatoarduino(4),[5 6]),
-        datatoarduino(8)=metadata.stim.c.cstone(datatoarduino(3)-4)*1000;
+    if ismember(metadata.stim.c.csnum,[5 6]),
+        datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.csnum-4);
     end
+    if ismember(metadata.stim.c.usnum,[5 6]),
+        datatoarduino(8)=metadata.stim.c.cstone(metadata.stim.c.usnum-4);
+    end
+    datatoarduino(10)=metadata.stim.c.usnum;
+    datatoarduino(11)=metadata.stim.l.delay;
+    datatoarduino(12)=metadata.stim.l.dur;
+    datatoarduino(13)=metadata.stim.l.amp;
 end
 
 % ---- send data to arduino ----
@@ -592,6 +630,7 @@ flushdata(vidobj); % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
 src.FrameStartTriggerSource = 'Line1';
+vidobj.FramesPerTrigger=metadata.cam.fps*(sum(metadata.cam.time)/1e3);
 
 % Now get camera ready for acquisition -- shouldn't start yet
 start(vidobj)
@@ -605,31 +644,33 @@ fwrite(arduino,1,'int8');
 
 % ---- write status bar ----
 trials=getappdata(0,'trials');
-set(handles.text_status,'String',sprintf('Total trials: %d\nStim trials: %d',metadata.cam.trialnum-1,trials.stimnum));
+set(handles.text_status,'String',sprintf('Total trials: %d\n',metadata.cam.trialnum));
 if strcmpi(metadata.stim.type,'conditioning')
     trialvars=readTrialTable(metadata.eye.trialnum1+1);
     csdur=trialvars(1);
     csnum=trialvars(2);
     isi=trialvars(3);
     usdur=trialvars(4);
+    usnum=trialvars(5);
     cstone=str2num(get(handles.edit_tone,'String'));
     if length(cstone)<2, cstone(2)=0; end
     
     str2=[];
     if ismember(csnum,[5 6]), 
-        str2=[' (' num2str(cstone(csnum-4)) ' Hz)'];
+        str2=[' (' num2str(cstone(csnum-4)) ' KHz)'];
     end
         
-    str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur);
+    str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d, US ch %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur, usnum);
     set(handles.text_disp_cond,'String',str1)
 end
 setappdata(0,'metadata',metadata);
 
 function stream(handles)
 ghandles=getappdata(0,'ghandles'); 
-metadata=getappdata(0,'metadata');
 vidobj=getappdata(0,'vidobj');
+src=getappdata(0,'src');
 updaterate=0.017;   % ~67 Hz
+% updaterate=0.1;   % 10 Hz
 t1=clock-10;
 t0=clock;
 
@@ -647,9 +688,10 @@ if get(handles.togglebutton_stream,'Value')
     set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
 end
 
-try
+% try
     while get(handles.togglebutton_stream,'Value') == 1
         t2=clock;
+        metadata=getappdata(0,'metadata');  % get updated metadata within this loop, otherwise we'll be using stale data
         
         % --- eye trace ---
         wholeframe=getsnapshot(vidobj);
@@ -666,8 +708,15 @@ try
         
         % --- Trigger ----
         if get(handles.toggle_continuous,'Value') == 1
+            
+            stopTrial = str2double(get(handles.edit_StopAfterTrial,'String'));
+            if stopTrial > 0 && metadata.cam.trialnum > stopTrial
+                set(handles.toggle_continuous,'Value',0);
+                set(handles.toggle_continuous,'String','Start Continuous');
+            end
+                
             etime1=round(1000*etime(clock,t1))/1000;
-            if etime1>str2double(get(handles.edit_ITI,'String')),
+            if etime1>metadata.stim.c.ITI,
                 eyeok=checkeye(handles,eyedata);
                 if eyeok
                     TriggerArduino(handles)
@@ -682,14 +731,38 @@ try
         if d>0
             pause(d)        %   java.lang.Thread.sleep(d*1000);     %     drawnow
         else
-            disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
+            if get(handles.checkbox_verbose,'Value') == 1
+                disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
+            end
         end
+
+        % Try to deal with dropped frames silently
+        % if strcmp(src.FrameStartTriggerSource,'Freerun') & strcmp(vidobj.Previewing,'off')
+        %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
+        %     preview(vidobj,handles.pwin);
+        % end
+
+        % if strcmp(src.FrameStartTriggerSource,'Line1') & strcmp(vidobj.Running,'off')
+        %     start(vidobj);
+        % end
+
     end
-catch
-    disp('Aborted eye streaming.')
-    set(handles.togglebutton_stream,'Value',0);
-    return
-end
+% catch
+
+    % try % If it's a dropped frame, see if we can recover
+    %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
+    %     preview(vidobj,handles.pwin);
+    %     guidata(handles.cameraAx,handles)
+    %     stream(handles)
+    %     disp('Caught camera error')
+    % catch   
+    %     disp('Aborted eye streaming.')
+    %     set(handles.togglebutton_stream,'Value',0);
+    %     set(handles.pushbutton_StartStopPreview,'String','Start Preview')
+    %     closepreview(vidobj);
+    %     return
+    % end
+% end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
@@ -830,18 +903,18 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function edit_TDTBlockName_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_TDTBlockName (see GCBO)
+function edit_SessionName_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit_TDTBlockName as text
-%        str2double(get(hObject,'String')) returns contents of edit_TDTBlockName as a double
+% Hints: get(hObject,'String') returns contents of edit_SessionName as text
+%        str2double(get(hObject,'String')) returns contents of edit_SessionName as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit_TDTBlockName_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_TDTBlockName (see GCBO)
+function edit_SessionName_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -918,4 +991,118 @@ function edit_eyethr_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in checkbox_verbose.
+function checkbox_verbose_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_verbose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_verbose
+
+
+
+function edit_posttime_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_posttime (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_posttime as text
+%        str2double(get(hObject,'String')) returns contents of edit_posttime as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_posttime_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_posttime (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton_abort.
+function pushbutton_abort_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_abort (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% If camera gets hung up for any reason, this button can be pressed to
+% reset it.
+
+vidobj = getappdata(0,'vidobj');
+src = getappdata(0,'src');
+
+stop(vidobj);
+flushdata(vidobj);
+
+src.FrameStartTriggerSource = 'Freerun';
+
+
+
+
+function edit_ITI_rand_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_ITI_rand (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_ITI_rand as text
+%        str2double(get(hObject,'String')) returns contents of edit_ITI_rand as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_ITI_rand_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_ITI_rand (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_StopAfterTrial_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_StopAfterTrial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_StopAfterTrial as text
+%        str2double(get(hObject,'String')) returns contents of edit_StopAfterTrial as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_StopAfterTrial_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_StopAfterTrial (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton_loadParams.
+function pushbutton_loadParams_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_loadParams (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+paramtable = getappdata(0,'paramtable');
+
+[paramfile,paramfilepath,filteridx] = uigetfile('*.csv');
+
+if paramfile & filteridx == 1 % The filterindex thing is a hack to make sure it's a csv file
+    paramtable.data=csvread(fullfile(paramfilepath,paramfile));
+    set(handles.uitable_params,'Data',paramtable.data);
+    setappdata(0,'paramtable',paramtable);
 end

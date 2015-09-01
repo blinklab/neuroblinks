@@ -71,7 +71,7 @@ guidata(hObject, handles);
 % UIWAIT makes ThreshWindowWithPuff wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-
+% edit_eyelidThresh_Callback(handles.edit_eyelidThresh, 0, handles)
 
 
 % --- Outputs from this function are returned to the command line.

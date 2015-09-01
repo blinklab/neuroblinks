@@ -4,22 +4,29 @@ updaterate=0.015;   % ~67 Hz
 % Load objects from root app data
 TDT=getappdata(0,'tdt');
 vidobj=getappdata(0,'vidobj');
-metadata=getappdata(0,'metadata');
 
 try
     while get(handles.togglebutton_stream,'Value') == 1
+        metadata=getappdata(0,'metadata');  % Need to load metadata within this loop so the values update during streaming
         tic
         wholeframe=getsnapshot(vidobj);
         % roi=wholeframe(handles.y1:handles.y2,handles.x1:handles.x2);
         % Had to revise this to work with elliptical ROI
         roi=wholeframe.*uint8(metadata.cam.mask);
         eyelidpos=sum(roi(:)>=256*metadata.cam.thresh);
-        TDT.SetTargetVal('ustim.EyeVid',(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale);
+        TDT.SetTargetVal('task_timer.EyeVid',(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale);
         %     TDT.SetTargetVal('Stim.EyeVid',sum(sum(im2bw(roi,metadata.cam.thresh))));
+        
+        
+        stopTrial = str2double(get(handles.edit_StopAfterTrial,'String'));
+        if stopTrial > 0 && metadata.cam.trialnum > stopTrial
+            set(handles.toggle_continuous,'Value',0);
+            set(handles.toggle_continuous,'String','Start Continuous');
+        end
         
         % --- check Trigger from TDT (if OK, this sends trigger to TDT) ----
         if get(handles.toggle_continuous,'Value') == 1
-            if TDT.GetTargetVal('ustim.EyeReady'),
+            if TDT.GetTargetVal('task_timer.EyeReady'),
                 TriggerStim(hObject, handles)
             end
         end
@@ -30,7 +37,9 @@ try
         if d>0
             pause(d)        %   java.lang.Thread.sleep(d*1000);     %     drawnow
         else
-            % disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
+            if get(handles.checkbox_verbose,'Value') == 1
+                disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
+            end
         end
     end
 catch

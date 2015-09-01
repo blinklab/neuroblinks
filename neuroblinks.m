@@ -1,16 +1,11 @@
 % Set up environment and launch app based on which version you want to use
 function neuroblinks(varargin)
 
-    DEFAULTDEVICE = 'arduino';
-    DEFAULTRIG = 1;
-
-    % Get list of configured cameras
-    cams = imaqhwinfo('gige');
-
-    ALLOWEDDEVICES = {'arduino','tdt'};
-    ALLOWEDRIGS = cell2mat(cams.DeviceIDs); 
-
-    % Set up devaults in case user doesn't specify all options
+    % Load local configuration for these rigs
+    % Should be somewhere in path but not "neuroblinks" directory or subdirectory
+    neuroblinks_config
+    
+    % Set up defaults in case user doesn't specify all options
     device = DEFAULTDEVICE;
     rig = DEFAULTRIG;
 
@@ -19,7 +14,7 @@ function neuroblinks(varargin)
         for i=1:nargin
             if any(strcmpi(varargin{i},ALLOWEDDEVICES))
                 device = varargin{i};
-            elseif ismember(varargin{i},ALLOWEDRIGS)
+            elseif ismember(varargin{i},1:length(ALLOWEDCAMS))
                 rig = varargin{i}; 
             end
         end
@@ -27,7 +22,34 @@ function neuroblinks(varargin)
 
     % fprintf('Device: %s, Rig: %d\n', device, rig);
     % return
-            
+
+    % Matlab is inconsistent in how it numbers cameras so we need to explicitely search for the right one
+    disp('Finding cameras...')
+
+    % Get list of configured cameras
+    foundcams = imaqhwinfo('gige');
+    founddeviceids = cell2mat(foundcams.DeviceIDs); 
+
+    if isempty(founddeviceids)
+        error('No cameras found')
+    end
+ 
+    cam = 1;
+% This code doesn't work on some versions of Matlab so it's commented out. If you plan to use
+% more than one camera on the same computer you should uncomment it and find a way to get it working.
+%     cam = 0;
+%     for i=1:length(founddeviceids)
+%         vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
+%         src = getselectedsource(vidobj);
+%         if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
+%             cam = i;
+%         end
+%         delete(vidobj)
+%     end
+% 
+%     if ~cam
+%         error(sprintf('The camera you specified (%d) could not be found',rig));
+%     end
 
     try 
         switch lower(device)
@@ -56,4 +78,4 @@ function neuroblinks(varargin)
    
     % A different "launch" function should be called depending on whether we're using TDT or Arduino
     % and will be determined by what's in the path generated above
-    Launch(rig)
+    Launch(rig,cam)

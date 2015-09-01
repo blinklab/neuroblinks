@@ -15,34 +15,15 @@ trials.eye(metadata.eye.trialnum2).trace=trace;
 trials.eye(metadata.eye.trialnum2).stimtype=lower(metadata.stim.type);
 trials.eye(metadata.eye.trialnum2).isi=NaN;
 
-switch lower(metadata.stim.type)
-    case 'none'
-        trials.eye(metadata.eye.trialnum2).stimtime.st{1}=Inf;
-        trials.eye(metadata.eye.trialnum2).stimtime.en{1}=0;
-        trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=0;
-    case 'puff'
-        trials.eye(metadata.eye.trialnum2).stimtime.st{1}=0;
-        trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.totaltime;
-        trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=2;
-    case 'electrical'       
-        trials.eye(metadata.eye.trialnum2).stimtime.st{1}=metadata.stim.e.delay;
-        trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.e.traindur;
-        trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=1;
-    case {'conditioning','electrocondition'}
-        trials.eye(metadata.eye.trialnum2).stimtime.st{1}=0; % for CS
-        trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.c.csdur;
-        trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=3;
-        trials.eye(metadata.eye.trialnum2).stimtime.st{2}=metadata.stim.c.isi;
-        trials.eye(metadata.eye.trialnum2).stimtime.en{2}=metadata.stim.c.usdur; % for US
-        trials.eye(metadata.eye.trialnum2).stimtime.cchan(2)=2;
-        trials.eye(metadata.eye.trialnum2).isi=metadata.stim.c.isi;
-    case 'optical'      
-        trials.eye(metadata.eye.trialnum2).stimtime.st{1}=metadata.stim.l.delay;
-        trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.l.traindur;
-        trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=3;
-    case 'optoelectric'     
-        error('This version of instantReplay does not support multiple stim modalities for because of memory considerations.')
-end
+
+trials.eye(metadata.eye.trialnum2).stimtime.st{1}=0; % for CS
+trials.eye(metadata.eye.trialnum2).stimtime.en{1}=metadata.stim.c.csdur;
+trials.eye(metadata.eye.trialnum2).stimtime.cchan(1)=3;
+trials.eye(metadata.eye.trialnum2).stimtime.st{2}=metadata.stim.c.isi;
+trials.eye(metadata.eye.trialnum2).stimtime.en{2}=metadata.stim.c.usdur; % for US
+trials.eye(metadata.eye.trialnum2).stimtime.cchan(2)=2;
+trials.eye(metadata.eye.trialnum2).isi=metadata.stim.c.isi;
+    
 
 % --- this may be useful for offline analysis ----
 metadata.eye.ts0=time(1)*1e3;

@@ -9,7 +9,11 @@ src = getappdata(0,'src');
 handles = guidata(ghandles.maingui);
 
 % Set camera to freerun mode so we can preview
-src.FrameStartTriggerSource = 'Freerun';
+if isprop(src,'FrameStartTriggerSource')
+    src.FrameStartTriggerSource = 'Freerun';
+else
+    src.TriggerSource = 'Freerun';
+end
 
 if get(handles.checkbox_record,'Value') == 1  
     incrementStimTrial()

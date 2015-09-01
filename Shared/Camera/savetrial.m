@@ -39,29 +39,14 @@ if strcmpi(metadata.stim.type,'conditioning') | strcmpi(metadata.stim.type,'elec
 end
 metadata.eye.trialnum2=metadata.eye.trialnum2+1;
 setappdata(0,'metadata',metadata);
-
-% --- online spike saving, executed by timer ---
-etime1=round(1000*etime(clock,t0))/1000;
-tm1 = timer('TimerFcn',@online_savespk_to_memory, 'startdelay', max(0, 4-etime1));
-start(tm1);
-
-
-
+% 
+% % --- online spike saving, executed by timer ---
+% etime1=round(1000*etime(clock,t0))/1000;
+% tm1 = timer('TimerFcn',@online_savespk_to_memory, 'startdelay', max(0, 4-etime1));
+% start(tm1);
+% 
 
 
 
 
 
-
-
-% % Write JPEGs
-% for i=1:size(data,4)
-% %     imwrite(data(:,:,:,i),sprintf('%s/images/%03d_frame%04d.jp2',metadata.folder,metadata.cam.trialnum,i),...
-% %         'jp2','CompressionRatio',20);
-%     imwrite(data(:,:,:,i),sprintf('%s/images/%s_%03d_frame%04d.jpg',metadata.folder,metadata.TDTblockname,metadata.cam.trialnum,i),...
-%         'jpg','Quality',60,'bitdepth',8);
-% % imwrite(data(:,:,:,i),sprintf('%s/images/%03d_frame%04d.jp2',metadata.folder,metadata.cam.trialnum,i),...
-% %         'jp2','Mode','Lossless');
-% % imwrite(data(:,:,:,i),sprintf('%s/images/%03d_frame%04d.png',metadata.folder,metadata.cam.trialnum,i),...
-% %         'png','bitdepth',8);
-% end
