@@ -1,5 +1,6 @@
 function Launch(rig,cam)
-% Note that "rig" argument is not currently used for TDT option
+% Note that "rig" argument is not currently used for TDT option as you can only use
+% one camera with the TDT version right now. 
 
 neuroblinks_config;	% Per user settings
 configure;
@@ -12,8 +13,8 @@ InitCam(cam,metadata.cam.recdurA); % src and vidobj are now saved as root app da
 
 %% Initialize TDT interface
 ghandles.TDTfig=figure;
-TDT=actxcontrol('TDevAcc.X', [0 0 0 0],ghandles.TDTfig); 
-set(ghandles.TDTfig,'Visible','off');     
+TDT=actxcontrol('TDevAcc.X', [0 0 0 0],ghandles.TDTfig);
+set(ghandles.TDTfig,'Visible','off');
 TDT.ConnectServer('Local'); %Open a TDT Connection
 
 ghandles.TTXfig=figure;
@@ -31,7 +32,7 @@ if TDT.GetSysMode < 1
     if ~ok
     	error('Cannot set TDT to Preview mode. Is OpenWorkbench running?')
     end
-else 
+else
     tank=TDT.GetTankName();
 end
 
@@ -59,6 +60,3 @@ set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
 
 % Save handles to root app data
 setappdata(0,'ghandles',ghandles)
-
-
-

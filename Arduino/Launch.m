@@ -1,6 +1,6 @@
 function Launch(rig,cam)
 
-% Load local configuration for these rigs	
+% Load local configuration for these rigs
 % Should be somewhere in path but not "neuroblinks" directory or subdirectory
 neuroblinks_config;	% Per user settings
 configure; % Configuration script

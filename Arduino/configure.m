@@ -8,8 +8,8 @@ if regexp(cwd{end},'[A-Z]\d\d\d')  % Will match anything of the form LDDD, where
 end
 
 % ------ Letter for mouse -----
-path1=pwd;   
-ind1=find(path1=='\');   
+path1=pwd;
+ind1=find(path1=='\');
 metadata.mouse=path1(ind1(end-1)+1:ind1(end)-1);
 
 % ------ Initial value of the conditioning table ----
@@ -27,7 +27,7 @@ else
      1,  200,1,200, 0, 3,0,0,0,1,0;...
      ];
  end
- 
+
 
 setappdata(0,'paramtable',paramtable);
 setappdata(0,'metadata',metadata);
