@@ -11,7 +11,14 @@ disp('video settings ....')
 metadata=getappdata(0,'metadata');
 src = getselectedsource(vidobj);
 src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
-src.AllGainRaw=12;				% Tweak this based on IR light illumination (lower values preferred due to less noise)
+
+% Tweak this based on IR light illumination (lower values preferred due to less noise)
+if isprop(src,'AllGainRaw')
+    src.AllGainRaw=12;
+else
+    src.GainRaw=12;
+end
+				
 % src.StreamBytesPerSecond=124e6; % Set based on AVT's suggestion
 src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
 
@@ -29,14 +36,21 @@ vidobj.FramesPerTrigger=ceil(recdur/(1000/200));
 % set(src,'AcquisitionStartTriggerSource','Line1')
 
 triggerconfig(vidobj, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
-src.FrameStartTriggerMode = 'On';
-src.FrameStartTriggerActivation = 'LevelHigh';
+
+if isprop(src,'FrameStartTriggerMode')
+    src.FrameStartTriggerMode = 'On';
+    src.FrameStartTriggerActivation = 'LevelHigh';
+    src.FrameStartTriggerSource = 'Freerun';
+else
+    src.TriggerMode = 'On';
+    src.TriggerActivation = 'LevelHigh';
+    src.TriggerSource = 'Freerun';
+end
 
 % This needs to be toggled to switch between preview and acquisition mode
 % It is changed to 'Line1' in MainWindow just before triggering Arduino and then
 % back to 'Freerun' in 'endOfTrial' function
 % src.FrameStartTriggerSource = 'Line1';
-src.FrameStartTriggerSource = 'Freerun';
 
 % src.TriggerMode='On';
 % src.TriggerSelector='FrameStart';
