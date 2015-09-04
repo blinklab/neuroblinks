@@ -34,23 +34,39 @@ function neuroblinks(varargin)
         error('No cameras found')
     end
 
-    cam = 1;
-% This code doesn't work on some versions of Matlab so it's not working for you, you can
-% comment it out and uncomment the cam=1 line above. If  you do this you can only use one camera though.
-%     cam = 0;
-%     for i=1:length(founddeviceids)
-%         vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
-%         src = getselectedsource(vidobj);
-%         if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
-%             cam = i;
-%         end
-%         delete(vidobj)
-%     end
 
+    %====== Getting camera ID  =====
+    cam = 0;
+    
+    if verLessThan('matlab', '8.3') % older than 2014a
+        cam = rig;
+%         cam = 3-rig;
+    elseif verLessThan('matlab', '8.5')  % for 2014a-b
+        % This code doesn't work on some versions of Matlab (this worked on 2014a)
+        % so it's commented out. If you plan to use
+        % more than one camera on the same computer you should uncomment it and find a way to get it working.
+        for i=1:length(founddeviceids)
+            vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
+            src = getselectedsource(vidobj);
+            if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
+                cam = founddeviceids(i);
+            end
+            delete(vidobj)
+        end
+    else,             % 2015a or later
+        camlist=gigecamlist;
+        for i=1:length(founddeviceids)
+            if strcmp(camlist.SerialNumber{founddeviceids(i)},ALLOWEDCAMS{rig})
+                cam = i;
+            end
+        end
+    end
+    
     if ~cam
         error(sprintf('The camera you specified (%d) could not be found',rig));
     end
-
+    %================================================
+    
     try
         switch lower(device)
             case 'tdt'

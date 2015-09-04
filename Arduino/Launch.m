@@ -30,6 +30,8 @@ setappdata(0,'arduino',arduino);
 %% Open GUI
 ghandles.maingui=MainWindow;
 set(ghandles.maingui,'units','pixels')
+ghandles.pos_mainwin = ghandles.pos_mainwin+(rig-1)*ghandles.shift_for_2nd_rig;
+ghandles.pos_oneanawin = ghandles.pos_oneanawin+(rig-1)*ghandles.shift_for_2nd_rig;
 set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
 
 % Save handles to root app data

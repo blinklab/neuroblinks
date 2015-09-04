@@ -14,9 +14,9 @@ src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
 
 % Tweak this based on IR light illumination (lower values preferred due to less noise)
 if isprop(src,'AllGainRaw')
-    src.AllGainRaw=12;
+    src.AllGainRaw=metadata.cam.init_GainRaw;
 else
-    src.GainRaw=12;
+    src.GainRaw=metadata.cam.init_GainRaw;
 end
 				
 % src.StreamBytesPerSecond=124e6; % Set based on AVT's suggestion

@@ -463,8 +463,8 @@ NAME=Auto-Threshold Polarity;VALUE=0;GROUPID=Behavior;
 NAME=Plot Depth;PHANTOMNAME=Scroll Sections;VALUE=50;GROUPID=Behavior;
 NAME=TimeRef Epoc Name;VALUE=;GROUPID=Behavior;
 NAME=Respect TRef Duration;VALUE=F;GROUPID=Behavior;
-NAME=TRef Epoc Low Range;VALUE=0.;GROUPID=Behavior;
 NAME=TRef Epoc High Range;VALUE=-1.;GROUPID=Behavior;
+NAME=TRef Epoc Low Range;VALUE=0.;GROUPID=Behavior;
 NAME=TimeRef Offset;VALUE=0.;GROUPID=Behavior;
 NAME=Time Span;VALUE=0.;GROUPID=Behavior;
 NAME=Bin Width;VALUE=1.e-003;GROUPID=Behavior;
@@ -477,8 +477,8 @@ NAME=Min Value;VALUE=0;GROUPID=Behavior;
 NAME=Max Value;VALUE=200;GROUPID=Behavior;
 NAME=Show Num Trace;VALUE=T;GROUPID=Behavior;
 NAME=Refresh Epoc Name;VALUE=;GROUPID=Refresh Control;
-NAME=Strobe Epoc Low Range;VALUE=0.;GROUPID=Refresh Control;
 NAME=Strobe Epoc High Range;VALUE=-1.;GROUPID=Refresh Control;
+NAME=Strobe Epoc Low Range;VALUE=0.;GROUPID=Refresh Control;
 NAME=Refresh on Change;VALUE=F;GROUPID=Refresh Control;
 NAME=Refresh Period;VALUE=0.;GROUPID=Refresh Control;
 NAME=Y-Axis Range;VALUE=1.1;GROUPID=Scaling;
@@ -720,4 +720,4 @@ NAME=Show Minor Ticks;VALUE=T;GROUPID=Scale;
 NAME=Minor Ticks Count;VALUE=5;GROUPID=Scale;
 NAME=Key Arrow Step Size;VALUE=10;GROUPID=Scale;
 NAME=Key Page Step Size;VALUE=100;GROUPID=Scale;
-   @  °    è              þÿÿÿþÿÿÿÿ                 Ó            €      è              ÿÿÿÿÿÿÿÿÿ        è            ÿÿÿÿÿÿÿÿÿ            è       è      è            ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ            è             þÿÿÿþÿÿÿÿ         þÿÿÿþÿÿÿÑ            €      É  ¹	     ”  
+   @  °    è             þÿÿÿþÿÿÿÿ                 Ó            €      è             ÿÿÿÿÿÿÿÿÿ        è            ÿÿÿÿÿÿÿÿÿ            è       è      è            ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ           è             ÿÿÿÿÿÿÿÿÿ            è              þÿÿÿþÿÿÿÿ                               €      É  ¹	     ”  
