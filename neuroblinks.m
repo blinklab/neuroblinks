@@ -39,8 +39,11 @@ function neuroblinks(varargin)
     cam = 0;
     
     if verLessThan('matlab', '8.3') % older than 2014a
-        cam = rig;
-%         cam = 3-rig;
+        if length(founddeviceids)>1
+            cam = ALLOWEDCAMS(rig);
+        else,
+            cam = founddeviceids(1);
+        end
     elseif verLessThan('matlab', '8.5')  % for 2014a-b
         % This code doesn't work on some versions of Matlab (this worked on 2014a)
         % so it's commented out. If you plan to use
@@ -48,17 +51,22 @@ function neuroblinks(varargin)
         for i=1:length(founddeviceids)
             vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
             src = getselectedsource(vidobj);
-            if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
+            if strcmp(src.DeviceID,ALLOWEDCAMS_2014a{rig})
                 cam = founddeviceids(i);
             end
             delete(vidobj)
         end
     else,             % 2015a or later
-        camlist=gigecamlist;
-        for i=1:length(founddeviceids)
-            if strcmp(camlist.SerialNumber{founddeviceids(i)},ALLOWEDCAMS{rig})
-                cam = i;
-            end
+        if length(founddeviceids)>1
+            cam = ALLOWEDCAMS(rig);
+%             camlist=gigecamlist;
+%             for i=1:length(founddeviceids)
+%                 if strcmp(camlist.SerialNumber{founddeviceids(i)},ALLOWEDCAMS{rig})
+%                     cam = founddeviceids(i);
+%                 end
+%             end
+        else,
+            cam = founddeviceids(1);
         end
     end
     
