@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 22-May-2015 19:25:25
+% Last Modified by GUIDE v2.5 25-Jun-2015 20:08:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,6 +60,7 @@ src=getappdata(0,'src');
 metadata=getappdata(0,'metadata');
 metadata.date=date;
 metadata.TDTblockname='TempBlk';
+set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
 metadata.ts=[datenum(clock) 0]; % two element vector containing datenum at beginning of session and offset of current trial (in seconds) from beginning
 metadata.folder=pwd; % For now use current folder as base; will want to change this later
 
@@ -492,9 +493,10 @@ else
     return
 end
 ResetCamTrials()
-set(handles.edit_SessionName,'String',session);
+set(handles.text_SessionName,'String',session);
 metadata=getappdata(0,'metadata');
 metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
+set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
 setappdata(0,'metadata',metadata);
 
 
@@ -695,8 +697,8 @@ end
         
         % --- eye trace ---
         wholeframe=getsnapshot(vidobj);
-        roi=wholeframe.*uint8(metadata.cam.mask);
-        eyelidpos=sum(roi(:)>=256*metadata.cam.thresh);
+        roi=wholeframe.*uint8(metadata.cam.mask); % multiply the frame by the mask --> everything outside of the ROI becomes 0 and everything inside the ROI remains the same (is multiplied by 1)
+        eyelidpos=sum(roi(:)>=256*metadata.cam.thresh); % find everywhere in roi that is > your threshold value converted into 8-bit-integer units
         
         % --- eye trace buffer ---
         etime0=round(1000*etime(clock,t0));
@@ -904,25 +906,25 @@ end
 
 
 function edit_SessionName_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_SessionName (see GCBO)
+% hObject    handle to text_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit_SessionName as text
-%        str2double(get(hObject,'String')) returns contents of edit_SessionName as a double
+% Hints: get(hObject,'String') returns contents of text_SessionName as text
+%        str2double(get(hObject,'String')) returns contents of text_SessionName as a double
 
 
 % --- Executes during object creation, after setting all properties.
 function edit_SessionName_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_SessionName (see GCBO)
+% hObject    handle to text_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+% if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+%     set(hObject,'BackgroundColor','white');
+% end
 
 
 
