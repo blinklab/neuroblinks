@@ -6,7 +6,7 @@ neuroblinks_config;	% Per user settings
 configure; % Configuration script
 
 %% Initialize Camera
-InitCam(cam, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
+InitCam(rig, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
 
 %% -- start serial communication to arduino ---
 com_ports = findArduinos(ARDUINO_IDS);

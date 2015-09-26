@@ -1,6 +1,11 @@
 % Set up environment and launch app based on which version you want to use
 function neuroblinks(varargin)
 
+    % I am not sure why we have to do this now, but in Matlab 2015 you need
+    % to specify DEFAULTDEVICE and DEFAULTRIG here
+    DEFAULTDEVICE = 'arduino';
+    DEFAULTRIG = 1;
+
     % Load local configuration for these rigs
     % Should be somewhere in path but not "neuroblinks" directory or subdirectory
     neuroblinks_config
@@ -34,23 +39,6 @@ function neuroblinks(varargin)
         error('No cameras found')
     end
 
-    % cam = 1;
-% This code doesn't work on some versions of Matlab so it's not working for you, you can
-% comment it out and uncomment the cam=1 line above. If  you do this you can only use one camera though.
-    cam = 0;
-    for i=1:length(founddeviceids)
-        vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
-        src = getselectedsource(vidobj);
-        if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
-            cam = i;
-        end
-        delete(vidobj)
-    end
-
-    if ~cam
-        error(sprintf('The camera you specified (%d) could not be found',rig));
-    end
-
     try
         switch lower(device)
             case 'tdt'
@@ -78,4 +66,4 @@ function neuroblinks(varargin)
 
     % A different "launch" function should be called depending on whether we're using TDT or Arduino
     % and will be determined by what's in the path generated above
-    Launch(rig,cam)
+    Launch(rig)
