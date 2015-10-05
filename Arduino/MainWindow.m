@@ -493,7 +493,7 @@ else
     return
 end
 ResetCamTrials()
-set(handles.text_SessionName,'String',session);
+set(handles.edit_SessionName,'String',session);
 metadata=getappdata(0,'metadata');
 metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
 set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
@@ -906,17 +906,17 @@ end
 
 
 function edit_SessionName_Callback(hObject, eventdata, handles)
-% hObject    handle to text_SessionName (see GCBO)
+% hObject    handle to edit_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of text_SessionName as text
-%        str2double(get(hObject,'String')) returns contents of text_SessionName as a double
+% Hints: get(hObject,'String') returns contents of edit_SessionName as text
+%        str2double(get(hObject,'String')) returns contents of edit_SessionName as a double
 
 
 % --- Executes during object creation, after setting all properties.
 function edit_SessionName_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to text_SessionName (see GCBO)
+% hObject    handle to edit_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
