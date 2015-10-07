@@ -11,7 +11,8 @@ vidobj = videoinput('gige', ch, 'Mono8');
 
 metadata=getappdata(0,'metadata');
 src = getselectedsource(vidobj);
-src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
+% src.ExposureTimeAbs = metadata.cam.init_ExposureTime;  % commented out to
+%   % preservecamera-specific exposure time settings
 
 %% Now, use the exposure time to check which camera you are connected to
 % The exposure time on camera 1 should end with 1, and the exposure time on
@@ -48,16 +49,17 @@ if checkMe == 0 % the camera ID cannot be determined using ExposureTimeAbs
         display('Connecting to other camera...')
 
         % connect to the other camera
+        closepreview
         delete(vidobj) % get rid of the old video object
         ch = 2;
         imaqreset
         vidobj = videoinput('gige', ch, 'Mono8');
-        disp('video settings ....')
         metadata=getappdata(0,'metadata');
         src = getselectedsource(vidobj);
         src.ExposureTimeAbs = metadata.cam.init_ExposureTime + rig; % set this camera so that its rig association is encoded by ExposureTimeAbs     
     else
         display('Camera was associated with desired rig.')
+        closepreview
     end
 elseif checkMe ~= rig
     display('This camera-s exposure time indicates that it is associated with the other rig.')
