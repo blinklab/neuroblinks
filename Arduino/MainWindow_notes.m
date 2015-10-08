@@ -1,35 +1,35 @@
-function varargout = MainWindow(varargin)
-% MAINWINDOW M-file for MainWindow.fig
-%      MAINWINDOW, by itself, creates a new MAINWINDOW or raises the existing
+function varargout = MainWindow_notes(varargin)
+% MAINWINDOW_NOTES M-file for MainWindow_notes.fig
+%      MAINWINDOW_NOTES, by itself, creates a new MAINWINDOW_NOTES or raises the existing
 %      singleton*.
 %
-%      H = MAINWINDOW returns the handle to a new MAINWINDOW or the handle to
+%      H = MAINWINDOW_NOTES returns the handle to a new MAINWINDOW_NOTES or the handle to
 %      the existing singleton*.
 %
-%      MAINWINDOW('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in MAINWINDOW.M with the given input arguments.
+%      MAINWINDOW_NOTES('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in MAINWINDOW_NOTES.M with the given input arguments.
 %
-%      MAINWINDOW('Property','Value',...) creates a new MAINWINDOW or raises the
+%      MAINWINDOW_NOTES('Property','Value',...) creates a new MAINWINDOW_NOTES or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before MainWindow_OpeningFcn gets called.  An
+%      applied to the GUI before MainWindow_notes_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to MainWindow_OpeningFcn via varargin.
+%      stop.  All inputs are passed to MainWindow_notes_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help MainWindow
+% Edit the above text to modify the response to help MainWindow_notes
 
-% Last Modified by GUIDE v2.5 25-Jun-2015 20:08:17
+% Last Modified by GUIDE v2.5 08-Oct-2015 10:24:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @MainWindow_OpeningFcn, ...
-                   'gui_OutputFcn',  @MainWindow_OutputFcn, ...
+                   'gui_OpeningFcn', @MainWindow_notes_OpeningFcn, ...
+                   'gui_OutputFcn',  @MainWindow_notes_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,17 +44,17 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before MainWindow is made visible.
-function MainWindow_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before MainWindow_notes is made visible.
+function MainWindow_notes_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
-% varargin   command line arguments to MainWindow (see VARARGIN)
+% varargin   command line arguments to MainWindow_notes (see VARARGIN)
 
-% Choose default command line output for MainWindow
+% Choose default command line output for MainWindow_notes
 handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes MainWindow wait for user response (see UIRESUME)
+% UIWAIT makes MainWindow_notes wait for user response (see UIRESUME)
 % uiwait(handles.CamFig);
 src=getappdata(0,'src');
 metadata=getappdata(0,'metadata');
@@ -197,7 +197,7 @@ if strcmpi(button,'Yes')
 end
 
 % --- Outputs from this function are returned to the command line.
-function varargout = MainWindow_OutputFcn(hObject, eventdata, handles) 
+function varargout = MainWindow_notes_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % Get default command line output from handles structure
 varargout{1} = handles.output;
@@ -255,6 +255,20 @@ handles.XY=XY;
 
 setappdata(0,'metadata',metadata);
 guidata(hObject,handles)
+
+% take note of ROI set
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'ROI set';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'ROI set';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
 
 
 
@@ -321,6 +335,20 @@ metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
 arduino=getappdata(0,'arduino');
 fwrite(arduino,1,'int8');
 
+% take note of calibration trial
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Puff';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'Calibration puff delivered';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
+
 setappdata(0,'metadata',metadata);
 
 
@@ -336,7 +364,7 @@ if get(hObject,'Value')
     metadata.cam.vidobj_ROIposition=max(metadata.cam.winpos+[-10 0 20 0],[0 0 0 0]);
     vidobj.ROIposition=metadata.cam.vidobj_ROIposition;
 %     metadata.cam.fps=500;
-    src.ExposureTimeAbs = 1900 + metadata.cam.rignum;  % add rig number so exposure time remains reliable indicator of camera-rig assc.
+    src.ExposureTimeAbs = 1900;
 %     src.AllGainRaw=metadata.cam.init_AllGainRaw+round(20*log10(metadata.cam.init_ExposureTime/src.ExposureTimeAbs));
     % --- size fit for roi and mask ----
     vidroi_x=metadata.cam.vidobj_ROIposition(1)+[1:metadata.cam.vidobj_ROIposition(3)];
@@ -347,7 +375,7 @@ else
     % Turn off high frame rate mode
     vidobj.ROIposition=metadata.cam.fullsize;
 %     metadata.cam.fps=200;
-    src.ExposureTimeAbs = metadata.cam.init_ExposureTime + metadata.cam.rignum;  % add rig number so exposure time remains reliable indicator of camera-rig assc.
+    src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
 %     src.AllGainRaw=metadata.cam.init_AllGainRaw;
     % --- size fit for roi and mask ----
     mask0=metadata.cam.mask; s_mask0=size(mask0);
@@ -408,13 +436,43 @@ instantReplay(getappdata(0,'lastdata'),getappdata(0,'lastmetadata'));
 function toggle_continuous_Callback(hObject, eventdata, handles)
 if get(hObject,'Value'),
     set(hObject,'String','Pause Continuous')
+    comment = 'Start Continuous';
 else
     set(hObject,'String','Start Continuous')
+    comment = 'Pause Continuous';
 end
+
+% take note of toggling continuous session
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Toggle trial mode';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = comment;
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
 
 
 function pushbutton_stim_Callback(hObject, eventdata, handles)
 TriggerArduino(handles)
+
+% take note of stimulus delivered
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Puff';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'User delivered single trial manually';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
 
 function popupmenu_stimtype_Callback(hObject, eventdata, handles)
 % --- updating metadata ---
@@ -470,6 +528,19 @@ switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
             ok=1;  session=dlgans{1};
             set(handles.checkbox_save_metadata,'Value',0);
         end
+        % take note of new seesion pushed
+        notedata = getappdata(0, 'notedata');
+        notedata.note{1,2} = 'Session';
+        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+        try
+            nextTrial = metadata.eye.trialnum1;
+        catch ME
+            nextTrial = 1;
+        end
+        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+        notedata.note{1,5} = 'New Session pressed';
+        setappdata(0, 'notedata', notedata)
+        appendcell2csv(notedata.filename,notedata.note);
     case 'togglebutton_StopSession'
         button=questdlg('Are you sure you want to stop this session?','Yes','No');
         if ~strcmpi(button,'Yes')
@@ -477,6 +548,19 @@ switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
         else
             session='s00';     ok=1;
         end
+        % take note of new seesion pushed
+        notedata = getappdata(0, 'notedata');
+        notedata.note{1,2} = 'Session';
+        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+        try
+            nextTrial = metadata.eye.trialnum1;
+        catch ME
+            nextTrial = 1;
+        end
+        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+        notedata.note{1,5} = 'Stop Session pressed';
+        setappdata(0, 'notedata', notedata)
+        appendcell2csv(notedata.filename,notedata.note);
     otherwise
         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
         return
@@ -510,6 +594,20 @@ setappdata(0,'paramtable',paramtable);
 ghandles=getappdata(0,'ghandles');
 trialtablegui=TrialTable;
 movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
+
+% take note of trial table generation
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Trial table';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'New trial table generated';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
 
 
 
