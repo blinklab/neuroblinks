@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 07-Oct-2015 19:39:59
+% Last Modified by GUIDE v2.5 25-Jun-2015 20:08:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1108,10 +1108,3 @@ if paramfile & filteridx == 1 % The filterindex thing is a hack to make sure it'
     set(handles.uitable_params,'Data',paramtable.data);
     setappdata(0,'paramtable',paramtable);
 end
-
-
-% --- Executes on button press in takeNote.
-function takeNote_Callback(hObject, eventdata, handles)
-% hObject    handle to takeNote (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
