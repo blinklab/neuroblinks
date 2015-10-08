@@ -24,7 +24,7 @@ src = getselectedsource(vidobj);
 % watching the video stream while moving something in front of the camera.
 
 checkCamRigAssc = num2str(src.ExposureTimeAbs); 
-display(src.ExposureTimeAbs)
+%display(src.ExposureTimeAbs)
 checkMe = str2num(checkCamRigAssc(length(checkCamRigAssc))); % pull out the last digit of ExposureTimeAbs
 if checkMe == 0 % the camera ID cannot be determined using ExposureTimeAbs
     display('Camera/rig association unknown...')

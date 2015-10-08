@@ -1,9 +1,42 @@
-function Launch(rig,cam)
+function Launch(rig)
 
 % Load local configuration for these rigs
 % Should be somewhere in path but not "neuroblinks" directory or subdirectory
 neuroblinks_config;	% Per user settings
+
+% If Neuroblinks is launched from the root directory of the mouse, make a new directory for the session, otherwise leave that up to the user
+cwd=regexp(pwd,'\\','split');
+
 configure; % Configuration script
+
+%% make a file to contain this day's notes
+% the if statement condtion below was taken from teh configure file. Might make
+%   sense to just do this in configure. But I'm not sure configure is on
+%   git, so I decided to duplicate it here
+notedata.header = {'Subject', 'Event Type', 'Time', 'Trial', 'Comments'};
+notedata.subj = cwd{end};
+notedata.note = {notedata.subj, 'file made', datestr(now, 'hh:mm:ss'), 0, ''};
+if regexp(cwd{end},'[A-Z]\d\d\d')  % Will match anything of the form LDDD, where L is single uppercase letter and DDD is a seq of 3 digits
+    thisdate = datestr(now,'yymmdd');
+    notedata.filename = strcat(notedata.subj, '_', thisdate, '.csv');
+    checkMe = dir('*.csv');
+    found = 0;
+    for i = 1 : length(checkMe)
+        if strcmp(notedata.filename, checkMe(1).name)
+            found = 1;
+            break
+        end
+    end
+    if found == 1
+        display('Warning: Notes file already exists for this mouse.')
+    else
+        saveme = [notedata.header; notedata.note];
+        cell2csv(notedata.filename, saveme)  % this cell2csv function was written by a Matlab user and is located in C:shane\matlab on Sherrington as of 10/7/15
+        display('Notes csv created.')
+    end
+end
+setappdata(0, 'notedata', notedata)
+clear cwd filename checkMe thisdate mouse found notedata
 
 %% Initialize Camera
 InitCam(rig, metadata.cam.recdurA); % src and vidobj are now saved as root app data so no global vars
@@ -26,6 +59,8 @@ setappdata(0,'arduino',arduino);
 % t=timerfind('Name','eyelidTimer');
 % delete(t)
 % eyelidTimer=timer('Name','eyelidTimer','Period',0.005,'ExecutionMode','FixedRate','TimerFcn',@eyelidstream,'BusyMode','drop');
+
+%% make a file for 
 
 %% Open GUI
 ghandles.maingui=MainWindow;
