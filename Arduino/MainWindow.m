@@ -256,20 +256,6 @@ handles.XY=XY;
 setappdata(0,'metadata',metadata);
 guidata(hObject,handles)
 
-% take note of ROI set
-notedata = getappdata(0, 'notedata');
-notedata.note{1,2} = 'ROI set';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-try
-    nextTrial = metadata.eye.trialnum1;
-catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-notedata.note{1,5} = 'ROI set';
-setappdata(0, 'notedata', notedata)
-appendcell2csv(notedata.filename,notedata.note);
-
 
 
 
@@ -334,20 +320,6 @@ metadata.ts(2)=etime(clock,datevec(metadata.ts(1)));
 % --- trigger via arduino --
 arduino=getappdata(0,'arduino');
 fwrite(arduino,1,'int8');
-
-% take note of calibration trial
-notedata = getappdata(0, 'notedata');
-notedata.note{1,2} = 'Puff';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-try
-    nextTrial = metadata.eye.trialnum1;
-catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-notedata.note{1,5} = 'Calibration puff delivered';
-setappdata(0, 'notedata', notedata)
-appendcell2csv(notedata.filename,notedata.note);
 
 setappdata(0,'metadata',metadata);
 
@@ -436,43 +408,13 @@ instantReplay(getappdata(0,'lastdata'),getappdata(0,'lastmetadata'));
 function toggle_continuous_Callback(hObject, eventdata, handles)
 if get(hObject,'Value'),
     set(hObject,'String','Pause Continuous')
-    comment = 'Start Continuous';
 else
     set(hObject,'String','Start Continuous')
-    comment = 'Pause Continuous';
 end
-
-% take note of toggling continuous session
-notedata = getappdata(0, 'notedata');
-notedata.note{1,2} = 'Toggle trial mode';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-try
-    nextTrial = metadata.eye.trialnum1;
-catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-notedata.note{1,5} = comment;
-setappdata(0, 'notedata', notedata)
-appendcell2csv(notedata.filename,notedata.note);
 
 
 function pushbutton_stim_Callback(hObject, eventdata, handles)
 TriggerArduino(handles)
-
-% take note of stimulus delivered
-notedata = getappdata(0, 'notedata');
-notedata.note{1,2} = 'Puff';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-try
-    nextTrial = metadata.eye.trialnum1;
-catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-notedata.note{1,5} = 'User delivered single trial manually';
-setappdata(0, 'notedata', notedata)
-appendcell2csv(notedata.filename,notedata.note);
 
 function popupmenu_stimtype_Callback(hObject, eventdata, handles)
 % --- updating metadata ---
@@ -528,19 +470,6 @@ switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
             ok=1;  session=dlgans{1};
             set(handles.checkbox_save_metadata,'Value',0);
         end
-        % take note of new seesion pushed
-        notedata = getappdata(0, 'notedata');
-        notedata.note{1,2} = 'Session';
-        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-        try
-            nextTrial = metadata.eye.trialnum1;
-        catch ME
-            nextTrial = 1;
-        end
-        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-        notedata.note{1,5} = 'New Session pressed';
-        setappdata(0, 'notedata', notedata)
-        appendcell2csv(notedata.filename,notedata.note);
     case 'togglebutton_StopSession'
         button=questdlg('Are you sure you want to stop this session?','Yes','No');
         if ~strcmpi(button,'Yes')
@@ -548,19 +477,6 @@ switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
         else
             session='s00';     ok=1;
         end
-        % take note of new seesion pushed
-        notedata = getappdata(0, 'notedata');
-        notedata.note{1,2} = 'Session';
-        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-        try
-            nextTrial = metadata.eye.trialnum1;
-        catch ME
-            nextTrial = 1;
-        end
-        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-        notedata.note{1,5} = 'Stop Session pressed';
-        setappdata(0, 'notedata', notedata)
-        appendcell2csv(notedata.filename,notedata.note);
     otherwise
         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
         return
@@ -594,20 +510,6 @@ setappdata(0,'paramtable',paramtable);
 ghandles=getappdata(0,'ghandles');
 trialtablegui=TrialTable;
 movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
-
-% take note of trial table generation
-notedata = getappdata(0, 'notedata');
-notedata.note{1,2} = 'Trial table';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-try
-    nextTrial = metadata.eye.trialnum1;
-catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-notedata.note{1,5} = 'New trial table generated';
-setappdata(0, 'notedata', notedata)
-appendcell2csv(notedata.filename,notedata.note);
 
 
 
