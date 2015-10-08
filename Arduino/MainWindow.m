@@ -364,7 +364,7 @@ if get(hObject,'Value')
     metadata.cam.vidobj_ROIposition=max(metadata.cam.winpos+[-10 0 20 0],[0 0 0 0]);
     vidobj.ROIposition=metadata.cam.vidobj_ROIposition;
 %     metadata.cam.fps=500;
-    src.ExposureTimeAbs = 1900;
+    src.ExposureTimeAbs = 1900 + metadata.cam.rignum;  % add rig number so exposure time remains reliable indicator of camera-rig assc.
 %     src.AllGainRaw=metadata.cam.init_AllGainRaw+round(20*log10(metadata.cam.init_ExposureTime/src.ExposureTimeAbs));
     % --- size fit for roi and mask ----
     vidroi_x=metadata.cam.vidobj_ROIposition(1)+[1:metadata.cam.vidobj_ROIposition(3)];
@@ -375,7 +375,7 @@ else
     % Turn off high frame rate mode
     vidobj.ROIposition=metadata.cam.fullsize;
 %     metadata.cam.fps=200;
-    src.ExposureTimeAbs = metadata.cam.init_ExposureTime;
+    src.ExposureTimeAbs = metadata.cam.init_ExposureTime + metadata.cam.rignum;  % add rig number so exposure time remains reliable indicator of camera-rig assc.
 %     src.AllGainRaw=metadata.cam.init_AllGainRaw;
     % --- size fit for roi and mask ----
     mask0=metadata.cam.mask; s_mask0=size(mask0);

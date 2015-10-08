@@ -10,6 +10,8 @@ ch = 1; % arbitrarily try to connect to the first camera
 vidobj = videoinput('gige', ch, 'Mono8');
 
 metadata=getappdata(0,'metadata');
+metadata.cam.rignum = rig;
+setappdata(0, 'metadata', metadata);  % store the cam number in the metadata
 src = getselectedsource(vidobj);
 % src.ExposureTimeAbs = metadata.cam.init_ExposureTime;  % commented out to
 %   % preservecamera-specific exposure time settings
