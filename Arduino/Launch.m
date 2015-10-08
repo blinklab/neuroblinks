@@ -66,7 +66,7 @@ setappdata(0,'arduino',arduino);
 ghandles.maingui=MainWindow;
 set(ghandles.maingui,'units','pixels')
 set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
-
+set(ghandles.maingui, 'WindowStyle', 'docked')  % added this
 % Save handles to root app data
 setappdata(0,'ghandles',ghandles)
 
