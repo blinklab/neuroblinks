@@ -22,7 +22,7 @@ function varargout = MainWindow_new(varargin)
 
 % Edit the above text to modify the response to help MainWindow_new
 
-% Last Modified by GUIDE v2.5 09-Oct-2015 12:06:02
+% Last Modified by GUIDE v2.5 08-Oct-2015 14:04:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,7 +57,7 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 % UIWAIT makes MainWindow wait for user response (see UIRESUME)
-% uiwait(handles.MainFig);
+% uiwait(handles.CamFig);
 src=getappdata(0,'src');
 metadata=getappdata(0,'metadata');
 metadata.date=date;
@@ -98,6 +98,12 @@ h=ParamsWindow;
 waitfor(h);
 
 % pushbutton_StartStopPreview_Callback(handles.pushbutton_StartStopPreview, [], handles)
+
+% --- init table ----
+if isappdata(0,'paramtable')
+    paramtable=getappdata(0,'paramtable');
+    set(handles.uitable_params,'Data',paramtable.data);
+end
 
 % --- Executes on button press in pushbutton_StartStopPreview.
 function pushbutton_StartStopPreview_Callback(hObject, eventdata, handles)
@@ -183,7 +189,7 @@ try
 catch err
     warning(err.identifier,'Problem cleaning up objects. You may need to do it manually.')
 end
-delete(handles.MainFig)
+delete(handles.CamFig)
 
 pause(0.5)
 
@@ -199,7 +205,7 @@ function varargout = MainWindow_new_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-function MainFig_KeyPressFcn(hObject, eventdata, handles)
+function CamFig_KeyPressFcn(hObject, eventdata, handles)
 %	Key: name of the key that was pressed, in lower case
 %	Character: character interpretation of the key(s) that was pressed
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
@@ -833,6 +839,19 @@ eyeok = eyethrok && eyestableok;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+
+
+
+
+% --- Executes on button press in checkbox_random.
+function checkbox_random_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_random (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of checkbox_random
+
+
 % --- Executes during object creation, after setting all properties.
 function popupmenu_stimtype_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to popupmenu_stimtype (see GCBO)
@@ -1112,11 +1131,48 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-%% Generate trial table stuff
-function pushbutton_opentable_Callback(hObject, eventdata, handles)
+% --- Executes on button press in pushbutton_loadParams.
+function pushbutton_loadParams_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_loadParams (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
-% go to other gui
-GenTrialTableWin
+paramtable = getappdata(0,'paramtable');
+
+[paramfile,paramfilepath,filteridx] = uigetfile('*.csv');
+
+if paramfile & filteridx == 1 % The filterindex thing is a hack to make sure it's a csv file
+    paramtable.data=csvread(fullfile(paramfilepath,paramfile));
+    set(handles.uitable_params,'Data',paramtable.data);
+    setappdata(0,'paramtable',paramtable);
+end
+
+%% Generate trial table stuff
+% this is old function. need to update to work with new GUI
+function pushbutton_opentable_Callback(hObject, eventdata, handles)
+paramtable.data=get(handles.uitable_params,'Data');
+paramtable.randomize=get(handles.checkbox_random,'Value');
+% paramtable.tonefreq=str2num(get(handles.edit_tone,'String'));
+% if length(paramtable.tonefreq)<2, paramtable.tonefreq(2)=0; end
+setappdata(0,'paramtable',paramtable);
+
+ghandles=getappdata(0,'ghandles');
+trialtablegui=TrialTable;
+movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
+
+% take note of trial table generation
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Trial table';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'New trial table generated';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
 
 
 
@@ -1253,38 +1309,15 @@ set(gca,'color',[240 240 240]/255);
 
 
 %% CONNECT TO WEBCAM STUFF
-% --- Executes on button press in pushbutton_connectToWebcam.
-function pushbutton_connectToWebcam_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_connectToWebcam (see GCBO)
+% --- Executes on button press in connectToWebcam.
+function connectToWebcam_Callback(hObject, eventdata, handles)
+% hObject    handle to connectToWebcam (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on button press in pushbutton_changeWebcam.
-function pushbutton_changeWebcam_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_changeWebcam (see GCBO)
+% --- Executes on button press in changeWebcam.
+function changeWebcam_Callback(hObject, eventdata, handles)
+% hObject    handle to changeWebcam (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-
-
-function edit_tone_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_tone (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_tone as text
-%        str2double(get(hObject,'String')) returns contents of edit_tone as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_tone_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_tone (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
