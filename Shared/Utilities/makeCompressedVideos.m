@@ -21,10 +21,10 @@ fnames=getFileNames(dir([folder '/*.mat']));
 
 mkdir([folder '/compressed'])
 
-if matlabpool('size') == 0
-    matlabpool open	% Start a parallel computing pool using default number of labs (usually 4-8).
-    cleaner = onCleanup(@() matlabpool('close'));
-end
+% if matlabpool('size') == 0
+%     matlabpool open	% Start a parallel computing pool using default number of labs (usually 4-8).
+%     cleaner = onCleanup(@() matlabpool('close'));
+% end
 % Note, this is called implicitly in >2014a
 
 fprintf('Compressing %d video files...\n',length(fnames));
