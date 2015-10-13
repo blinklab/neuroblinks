@@ -22,7 +22,7 @@ function varargout = MainWindow_new(varargin)
 
 % Edit the above text to modify the response to help MainWindow_new
 
-% Last Modified by GUIDE v2.5 09-Oct-2015 12:06:02
+% Last Modified by GUIDE v2.5 12-Oct-2015 19:10:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -504,71 +504,71 @@ ParamsWindow
 
 
 function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
-switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
-    case 'togglebutton_NewSession'
-        dlgans = inputdlg({'Enter session name'},'Create');
-        if isempty(dlgans) 
-            ok=0;
-        elseif isempty(dlgans{1})
-            ok=0;
-        else
-            ok=1;  session=dlgans{1};
-            set(handles.checkbox_save_metadata,'Value',0);
-        end
-        % take note of new seesion pushed
-        notedata = getappdata(0, 'notedata');
-        notedata.note{1,2} = 'Session';
-        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-        try
-            nextTrial = metadata.eye.trialnum1;
-        catch ME
-            nextTrial = 1;
-        end
-        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-        notedata.note{1,5} = 'New Session pressed';
-        setappdata(0, 'notedata', notedata)
-        appendcell2csv(notedata.filename,notedata.note);
-    case 'togglebutton_StopSession'
-        button=questdlg('Are you sure you want to stop this session?','Yes','No');
-        if ~strcmpi(button,'Yes')
-            ok=0;
-        else
-            session='s00';     ok=1;
-        end
-        % take note of new seesion pushed
-        notedata = getappdata(0, 'notedata');
-        notedata.note{1,2} = 'Session';
-        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-        try
-            nextTrial = metadata.eye.trialnum1;
-        catch ME
-            nextTrial = 1;
-        end
-        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-        notedata.note{1,5} = 'Stop Session pressed';
-        setappdata(0, 'notedata', notedata)
-        appendcell2csv(notedata.filename,notedata.note);
-    otherwise
-        warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
-        return
-end
-
-if ok
-    set(eventdata.NewValue,'Value',1);
-    set(eventdata.OldValue,'Value',0);
-    set(handles.uipanel_TDTMode,'SelectedObject',eventdata.NewValue);
-else
-    set(eventdata.NewValue,'Value',0);
-    set(eventdata.OldValue,'Value',1);
-    set(handles.uipanel_TDTMode,'SelectedObject',eventdata.OldValue);
-    return
-end
-ResetCamTrials()
-set(handles.edit_SessionName,'String',session);
-metadata=getappdata(0,'metadata');
-metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
-set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
-setappdata(0,'metadata',metadata);
+% switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
+%     case 'togglebutton_NewSession'
+%         dlgans = inputdlg({'Enter session name'},'Create');
+%         if isempty(dlgans) 
+%             ok=0;
+%         elseif isempty(dlgans{1})
+%             ok=0;
+%         else
+%             ok=1;  session=dlgans{1};
+%             set(handles.checkbox_save_metadata,'Value',0);
+%         end
+%         % take note of new seesion pushed
+%         notedata = getappdata(0, 'notedata');
+%         notedata.note{1,2} = 'Session';
+%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+%         try
+%             nextTrial = metadata.eye.trialnum1;
+%         catch ME
+%             nextTrial = 1;
+%         end
+%         notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+%         notedata.note{1,5} = 'New Session pressed';
+%         setappdata(0, 'notedata', notedata)
+%         appendcell2csv(notedata.filename,notedata.note);
+%     case 'togglebutton_StopSession'
+%         button=questdlg('Are you sure you want to stop this session?','Yes','No');
+%         if ~strcmpi(button,'Yes')
+%             ok=0;
+%         else
+%             session='s00';     ok=1;
+%         end
+%         % take note of new seesion pushed
+%         notedata = getappdata(0, 'notedata');
+%         notedata.note{1,2} = 'Session';
+%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+%         try
+%             nextTrial = metadata.eye.trialnum1;
+%         catch ME
+%             nextTrial = 1;
+%         end
+%         notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+%         notedata.note{1,5} = 'Stop Session pressed';
+%         setappdata(0, 'notedata', notedata)
+%         appendcell2csv(notedata.filename,notedata.note);
+%     otherwise
+%         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
+%         return
+% end
+% 
+% if ok
+%     set(eventdata.NewValue,'Value',1);
+%     set(eventdata.OldValue,'Value',0);
+%     set(handles.uipanel_TDTMode,'SelectedObject',eventdata.NewValue);
+% else
+%     set(eventdata.NewValue,'Value',0);
+%     set(eventdata.OldValue,'Value',1);
+%     set(handles.uipanel_TDTMode,'SelectedObject',eventdata.OldValue);
+%     return
+% end
+% ResetCamTrials()
+% set(handles.edit_SessionName,'String',session);
+% metadata=getappdata(0,'metadata');
+% metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
+% set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
+% setappdata(0,'metadata',metadata);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1288,3 +1288,77 @@ function edit_tone_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in togglebutton_NewSession.
+function togglebutton_NewSession_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton_NewSession (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+dlgans = inputdlg({'Enter session name'},'Create');
+if isempty(dlgans)
+    ok=0;
+elseif isempty(dlgans{1})
+    ok=0;
+else
+    ok=1;  session=dlgans{1};
+    set(handles.checkbox_save_metadata,'Value',0);
+end
+% take note of new seesion pushed
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Session';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'New Session pressed';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
+
+ResetCamTrials()
+set(handles.edit_SessionName,'String',session);
+metadata=getappdata(0,'metadata');
+metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
+set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
+setappdata(0,'metadata',metadata);
+
+% Hint: get(hObject,'Value') returns toggle state of togglebutton_NewSession
+
+
+% --- Executes on button press in togglebutton_StopSession.
+function togglebutton_StopSession_Callback(hObject, eventdata, handles)
+% hObject    handle to togglebutton_StopSession (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+button=questdlg('Are you sure you want to stop this session?','Yes','No');
+if ~strcmpi(button,'Yes')
+    ok=0;
+else
+    session='s00';     ok=1;
+end
+% take note of new seesion pushed
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Session';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'Stop Session pressed';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
+
+ResetCamTrials()
+set(handles.edit_SessionName,'String',session);
+metadata=getappdata(0,'metadata');
+metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
+set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
+setappdata(0,'metadata',metadata);
+% Hint: get(hObject,'Value') returns toggle state of togglebutton_StopSession
