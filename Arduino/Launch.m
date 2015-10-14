@@ -63,7 +63,7 @@ setappdata(0,'arduino',arduino);
 %% make a file for 
 
 %% Open GUI
-ghandles.maingui=MainWindow_new;
+ghandles.maingui=MainWindow;
 set(ghandles.maingui,'units','pixels')
 set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
 set(ghandles.maingui, 'WindowStyle', 'docked')  % added this
