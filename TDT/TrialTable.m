@@ -63,6 +63,7 @@ guidata(hObject, handles);
 
 ghandles=getappdata(0,'ghandles');
 
+% Holding down CTRL while clicking button prevents re-initialization
 modifier=get(ghandles.maingui,'CurrentModifier');
 % disp(modifier)
 
@@ -79,7 +80,7 @@ setappdata(0,'trialtable',trialtable);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = TrialTable_OutputFcn(hObject, eventdata, handles) 
+function varargout = TrialTable_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
