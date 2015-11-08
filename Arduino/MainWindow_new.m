@@ -22,7 +22,7 @@ function varargout = MainWindow_new(varargin)
 
 % Edit the above text to modify the response to help MainWindow_new
 
-% Last Modified by GUIDE v2.5 12-Oct-2015 19:10:51
+% Last Modified by GUIDE v2.5 07-Nov-2015 18:31:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1253,18 +1253,27 @@ set(gca,'color',[240 240 240]/255);
 
 
 %% CONNECT TO WEBCAM STUFF
-% --- Executes on button press in pushbutton_connectToWebcam.
-function pushbutton_connectToWebcam_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_connectToWebcam (see GCBO)
+% --- Executes on button press in pushbutton_streamWebcam.
+function pushbutton_streamWebcam_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_streamWebcam (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+cam=getappdata(0,'webcam');
+if get(hObject,'Value'),
+    set(hObject,'String','Stop Stream')
+    ghandles=getappdata(0,'ghandles');
+    % Send camera preview to GUI
+    axes(handles.webcamAx)
+    hImage = image(288, 352, 1);
+    preview(cam,hImage);
+    setappdata(0,'hImage', hImage)
+else
+    set(hObject,'String','Stream Webcam')
+    hImage=getappdata(0,'hImage');
+    closePreview(cam,hImage)
+end
 
 
-% --- Executes on button press in pushbutton_changeWebcam.
-function pushbutton_changeWebcam_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_changeWebcam (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 
 

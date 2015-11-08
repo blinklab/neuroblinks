@@ -108,6 +108,35 @@ src.FrameStartTriggerSource = 'Freerun';
 % src.TriggerSelector='AcquisitionStart';
 % src.TriggerSource='Freerun';
 
+%% make the user tell you which webcam is associated with which rig
+cameraList = webcamlist;
+cam = webcam(cameraList{1});
+preview(cam)
+prompt = {'Which rig is this (1/2)?'};
+dlg_title = 'Rig ID';
+num_lines = 1;
+defaultans = {''};
+input = inputdlg(prompt, dlg_title, num_lines, defaultans); % ask the user to say which rig the image is from
+while ~strcmpi(input, '1') && ~strcmpi(input, '2') % your user messed up (assuming you only have 2 rigs connected)
+    msgbox('User entered unacceptable input. Please type 1 if the frame is from inside rig 1. Please type 2 if the frame is from inside rig 2. Please type 0 is you would like to see a new frame. No other inputs are accepted.');
+    input = inputdlg(prompt, dlg_title, num_lines, defaultans); % make the user enter good input
+end
+rigNum = str2double(input);
+if rigNum - rig ~= 0
+    display('Camera was not associated with desired rig.')
+    display('Connecting to other camera...')
+    
+    % connect to the other camera
+    closePreview(cam)
+    cam = webcam(cameraList{2});
+else
+    display('Camera was associated with desired rig.')
+    closePreview(cam)
+end
+cam.Resolution = '352x288';
+
+
 %% Save objects to root app data
 setappdata(0,'vidobj',vidobj)
 setappdata(0,'src',src)
+setappdata(0, 'webcam', cam)
