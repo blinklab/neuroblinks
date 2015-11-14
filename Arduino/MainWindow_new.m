@@ -256,12 +256,12 @@ guidata(hObject,handles)
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'ROI set';
 notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+trials=getappdata(0,'trials');
 try
-    nextTrial = metadata.eye.trialnum1;
+    notedata.note{1,4} = trials.stimnum;
 catch ME
-    nextTrial = 1;
+    notedata.note{1,4} = 1;
 end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
 notedata.note{1,5} = 'ROI set';
 setappdata(0, 'notedata', notedata)
 appendcell2csv(notedata.filename,notedata.note);
@@ -335,12 +335,12 @@ fwrite(arduino,1,'int8');
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Puff';
 notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+trials=getappdata(0,'trials');
 try
-    nextTrial = metadata.eye.trialnum1;
+    notedata.note{1,4} = trials.stimnum;
 catch ME
-    nextTrial = 1;
+    notedata.note{1,4} = 1;
 end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
 notedata.note{1,5} = 'Calibration puff delivered';
 setappdata(0, 'notedata', notedata)
 appendcell2csv(notedata.filename,notedata.note);
@@ -442,12 +442,12 @@ end
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Toggle trial mode';
 notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+trials=getappdata(0,'trials');
 try
-    nextTrial = metadata.eye.trialnum1;
+    notedata.note{1,4} = trials.stimnum;
 catch ME
-    nextTrial = 1;
+    notedata.note{1,4} = 1;
 end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
 notedata.note{1,5} = comment;
 setappdata(0, 'notedata', notedata)
 appendcell2csv(notedata.filename,notedata.note);
@@ -460,12 +460,12 @@ TriggerArduino(handles)
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Puff';
 notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+trials=getappdata(0,'trials');
 try
-    nextTrial = metadata.eye.trialnum1;
+    notedata.note{1,4} = trials.stimnum;
 catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+    notedata.note{1,4} = 1;
+end  % assume the user is interested in the trial that just happened
 notedata.note{1,5} = 'User delivered single trial manually';
 setappdata(0, 'notedata', notedata)
 appendcell2csv(notedata.filename,notedata.note);
@@ -1172,12 +1172,12 @@ end
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Session';
 notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+trials=getappdata(0,'trials');
 try
-    nextTrial = metadata.eye.trialnum1;
+    notedata.note{1,4} = trials.stimnum;
 catch ME
-    nextTrial = 1;
+    notedata.note{1,4} = 1;
 end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
 notedata.note{1,5} = 'New Session pressed';
 setappdata(0, 'notedata', notedata)
 appendcell2csv(notedata.filename,notedata.note);
@@ -1208,12 +1208,12 @@ end
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Session';
 notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+trials=getappdata(0,'trials');
 try
-    nextTrial = metadata.eye.trialnum1;
+    notedata.note{1,4} = trials.stimnum;
 catch ME
-    nextTrial = 1;
+    notedata.note{1,4} = 1;
 end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
 notedata.note{1,5} = 'Stop Session pressed';
 setappdata(0, 'notedata', notedata)
 appendcell2csv(notedata.filename,notedata.note);
