@@ -22,7 +22,7 @@ function varargout = MainWindow_new(varargin)
 
 % Edit the above text to modify the response to help MainWindow_new
 
-% Last Modified by GUIDE v2.5 14-Nov-2015 13:46:31
+% Last Modified by GUIDE v2.5 08-Oct-2015 14:04:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,7 +57,7 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 % UIWAIT makes MainWindow wait for user response (see UIRESUME)
-% uiwait(handles.MainFig);
+% uiwait(handles.CamFig);
 src=getappdata(0,'src');
 metadata=getappdata(0,'metadata');
 metadata.date=date;
@@ -98,6 +98,12 @@ h=ParamsWindow;
 waitfor(h);
 
 % pushbutton_StartStopPreview_Callback(handles.pushbutton_StartStopPreview, [], handles)
+
+% --- init table ----
+if isappdata(0,'paramtable')
+    paramtable=getappdata(0,'paramtable');
+    set(handles.uitable_params,'Data',paramtable.data);
+end
 
 % --- Executes on button press in pushbutton_StartStopPreview.
 function pushbutton_StartStopPreview_Callback(hObject, eventdata, handles)
@@ -183,7 +189,7 @@ try
 catch err
     warning(err.identifier,'Problem cleaning up objects. You may need to do it manually.')
 end
-delete(handles.MainFig)
+delete(handles.CamFig)
 
 pause(0.5)
 
@@ -199,7 +205,7 @@ function varargout = MainWindow_new_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-function MainFig_KeyPressFcn(hObject, eventdata, handles)
+function CamFig_KeyPressFcn(hObject, eventdata, handles)
 %	Key: name of the key that was pressed, in lower case
 %	Character: character interpretation of the key(s) that was pressed
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
@@ -504,71 +510,71 @@ ParamsWindow
 
 
 function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
-% switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
-%     case 'togglebutton_NewSession'
-%         dlgans = inputdlg({'Enter session name'},'Create');
-%         if isempty(dlgans) 
-%             ok=0;
-%         elseif isempty(dlgans{1})
-%             ok=0;
-%         else
-%             ok=1;  session=dlgans{1};
-%             set(handles.checkbox_save_metadata,'Value',0);
-%         end
-%         % take note of new seesion pushed
-%         notedata = getappdata(0, 'notedata');
-%         notedata.note{1,2} = 'Session';
-%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-%         try
-%             nextTrial = metadata.eye.trialnum1;
-%         catch ME
-%             nextTrial = 1;
-%         end
-%         notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-%         notedata.note{1,5} = 'New Session pressed';
-%         setappdata(0, 'notedata', notedata)
-%         appendcell2csv(notedata.filename,notedata.note);
-%     case 'togglebutton_StopSession'
-%         button=questdlg('Are you sure you want to stop this session?','Yes','No');
-%         if ~strcmpi(button,'Yes')
-%             ok=0;
-%         else
-%             session='s00';     ok=1;
-%         end
-%         % take note of new seesion pushed
-%         notedata = getappdata(0, 'notedata');
-%         notedata.note{1,2} = 'Session';
-%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-%         try
-%             nextTrial = metadata.eye.trialnum1;
-%         catch ME
-%             nextTrial = 1;
-%         end
-%         notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-%         notedata.note{1,5} = 'Stop Session pressed';
-%         setappdata(0, 'notedata', notedata)
-%         appendcell2csv(notedata.filename,notedata.note);
-%     otherwise
-%         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
-%         return
-% end
-% 
-% if ok
-%     set(eventdata.NewValue,'Value',1);
-%     set(eventdata.OldValue,'Value',0);
-%     set(handles.uipanel_TDTMode,'SelectedObject',eventdata.NewValue);
-% else
-%     set(eventdata.NewValue,'Value',0);
-%     set(eventdata.OldValue,'Value',1);
-%     set(handles.uipanel_TDTMode,'SelectedObject',eventdata.OldValue);
-%     return
-% end
-% ResetCamTrials()
-% set(handles.edit_SessionName,'String',session);
-% metadata=getappdata(0,'metadata');
-% metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
-% set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
-% setappdata(0,'metadata',metadata);
+switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
+    case 'togglebutton_NewSession'
+        dlgans = inputdlg({'Enter session name'},'Create');
+        if isempty(dlgans) 
+            ok=0;
+        elseif isempty(dlgans{1})
+            ok=0;
+        else
+            ok=1;  session=dlgans{1};
+            set(handles.checkbox_save_metadata,'Value',0);
+        end
+        % take note of new seesion pushed
+        notedata = getappdata(0, 'notedata');
+        notedata.note{1,2} = 'Session';
+        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+        try
+            nextTrial = metadata.eye.trialnum1;
+        catch ME
+            nextTrial = 1;
+        end
+        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+        notedata.note{1,5} = 'New Session pressed';
+        setappdata(0, 'notedata', notedata)
+        appendcell2csv(notedata.filename,notedata.note);
+    case 'togglebutton_StopSession'
+        button=questdlg('Are you sure you want to stop this session?','Yes','No');
+        if ~strcmpi(button,'Yes')
+            ok=0;
+        else
+            session='s00';     ok=1;
+        end
+        % take note of new seesion pushed
+        notedata = getappdata(0, 'notedata');
+        notedata.note{1,2} = 'Session';
+        notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+        try
+            nextTrial = metadata.eye.trialnum1;
+        catch ME
+            nextTrial = 1;
+        end
+        notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+        notedata.note{1,5} = 'Stop Session pressed';
+        setappdata(0, 'notedata', notedata)
+        appendcell2csv(notedata.filename,notedata.note);
+    otherwise
+        warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
+        return
+end
+
+if ok
+    set(eventdata.NewValue,'Value',1);
+    set(eventdata.OldValue,'Value',0);
+    set(handles.uipanel_TDTMode,'SelectedObject',eventdata.NewValue);
+else
+    set(eventdata.NewValue,'Value',0);
+    set(eventdata.OldValue,'Value',1);
+    set(handles.uipanel_TDTMode,'SelectedObject',eventdata.OldValue);
+    return
+end
+ResetCamTrials()
+set(handles.edit_SessionName,'String',session);
+metadata=getappdata(0,'metadata');
+metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
+set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
+setappdata(0,'metadata',metadata);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -831,6 +837,19 @@ eyeok = eyethrok && eyestableok;
 
 %%%%%%%%%% end of user functions %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+% --- Executes on button press in checkbox_random.
+function checkbox_random_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_random (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of checkbox_random
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1112,11 +1131,48 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-%% Generate trial table stuff
-function pushbutton_opentable_Callback(hObject, eventdata, handles)
+% --- Executes on button press in pushbutton_loadParams.
+function pushbutton_loadParams_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_loadParams (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
-% go to other gui
-GenTrialTableWin
+paramtable = getappdata(0,'paramtable');
+
+[paramfile,paramfilepath,filteridx] = uigetfile('*.csv');
+
+if paramfile & filteridx == 1 % The filterindex thing is a hack to make sure it's a csv file
+    paramtable.data=csvread(fullfile(paramfilepath,paramfile));
+    set(handles.uitable_params,'Data',paramtable.data);
+    setappdata(0,'paramtable',paramtable);
+end
+
+%% Generate trial table stuff
+% this is old function. need to update to work with new GUI
+function pushbutton_opentable_Callback(hObject, eventdata, handles)
+paramtable.data=get(handles.uitable_params,'Data');
+paramtable.randomize=get(handles.checkbox_random,'Value');
+% paramtable.tonefreq=str2num(get(handles.edit_tone,'String'));
+% if length(paramtable.tonefreq)<2, paramtable.tonefreq(2)=0; end
+setappdata(0,'paramtable',paramtable);
+
+ghandles=getappdata(0,'ghandles');
+trialtablegui=TrialTable;
+movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
+
+% take note of trial table generation
+notedata = getappdata(0, 'notedata');
+notedata.note{1,2} = 'Trial table';
+notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+try
+    nextTrial = metadata.eye.trialnum1;
+catch ME
+    nextTrial = 1;
+end
+notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
+notedata.note{1,5} = 'New trial table generated';
+setappdata(0, 'notedata', notedata)
+appendcell2csv(notedata.filename,notedata.note);
 
 
 
@@ -1128,21 +1184,96 @@ function pushbutton_takeNote_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 NoteWindow
- 
-%% Other GUI STUFF
 
-function edit_tone_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_tone (see GCBO)
+%% ONE TRIAL ANALYSIS STUFF
+% --- Executes on slider movement.
+function slider_oneana_Callback(hObject, eventdata, handles)
+% hObject    handle to slider_oneana (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit_tone as text
-%        str2double(get(hObject,'String')) returns contents of edit_tone as a double
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+if strcmp(get(handles.TrialNum_oneana,'String'),'Trial Num')
+    set(handles.TrialNum_oneana,'String','0');
+end
+t_num=round(str2double(get(handles.TrialNum_oneana,'String'))+get(hObject,'Value'));
+
+trials=getappdata(0,'trials');
+if isfield(trials,'eye'),
+    tnum_max=length(trials.eye);
+else
+    tnum_max=0;
+end
+
+% set(handles.text_trialnum,'String',sprintf('Trial Viewer (1-%d)',tnum_max));
+
+if t_num>tnum_max
+    t_num=tnum_max;
+elseif t_num<1
+    t_num=1;
+end
+set(handles.TrialNum_oneana,'String',num2str(t_num)),
+set(hObject,'Value',0),
+
+if t_num~=handles.tnum_prev | t_num==tnum_max,
+    drawOneEyelid(handles,t_num);   
+end
+handles.tnum_prev=t_num;
+guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function edit_tone_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_tone (see GCBO)
+function slider_oneana_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider_oneana (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+set(hObject,'Value',0);
+
+
+
+function TrialNum_oneana_Callback(hObject, eventdata, handles)
+% hObject    handle to TrialNum_oneana (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of TrialNum_oneana as text
+%        str2double(get(hObject,'String')) returns contents of TrialNum_oneana as a double
+
+
+t_num=round(str2double(get(handles.TrialNum_oneana,'String')));
+trials=getappdata(0,'trials');
+if isfield(trials,'eye'),
+    tnum_max=length(trials.eye);
+else
+    tnum_max=0;
+end
+if t_num>tnum_max || t_num<1
+    if t_num<1
+        t_num=1;  
+    else
+        t_num=tnum_max;
+    end
+    set(handles.TrialNum_oneana,'String',num2str(t_num)),
+end
+
+if t_num~=handles.tnum_prev | t_num==tnum_max,
+    drawOneEyelid(handles,t_num);   
+end
+handles.tnum_prev=t_num;
+guidata(hObject,handles);
+
+
+
+% --- Executes during object creation, after setting all properties.
+function TrialNum_oneana_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TrialNum_oneana (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1153,89 +1284,40 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in togglebutton_NewSession.
-function togglebutton_NewSession_Callback(hObject, eventdata, handles)
-% hObject    handle to togglebutton_NewSession (see GCBO)
+% function below from old gui code
+function drawOneEyelid(handles,t_num)
+
+trials=getappdata(0,'trials');
+if ~isfield(trials,'eye'), return,  end
+tnum_max=length(trials.eye);
+str_tl={[sprintf('Trial Viewer (1-%d)',tnum_max)] [trials.eye(t_num).stimtype]};
+
+% ------- for eye -----
+subplot('position',[0.05 0.17 0.90 0.50], 'Parent', handles.uipanel_behavior)
+cla
+plot([-1 1]*1000, [0 0],'k:'),  hold on,   plot([-1 1]*1000, [1 1],'k:'), 
+
+set(gca,'ylim',[-0.15 1.20], 'ytick',[0:0.5:1], 'box', 'off','tickdir','out')
+
+xlim1=[trials.eye(t_num).time(1) trials.eye(t_num).time(end)];
+plotOneEyelid(t_num);
+
+text(xlim1*[0.33;0.67], -0.46, str_tl)
+set(gca,'xlim',xlim1,'xtick',[-400:200:1000])
+set(gca,'color',[240 240 240]/255);
+
+
+
+%% CONNECT TO WEBCAM STUFF
+% --- Executes on button press in connectToWebcam.
+function connectToWebcam_Callback(hObject, eventdata, handles)
+% hObject    handle to connectToWebcam (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-dlgans = inputdlg({'Enter session name'},'Create');
-if isempty(dlgans)
-    ok=0;
-elseif isempty(dlgans{1})
-    ok=0;
-else
-    ok=1;  session=dlgans{1};
-    set(handles.checkbox_save_metadata,'Value',0);
-end
-% take note of new seesion pushed
-notedata = getappdata(0, 'notedata');
-notedata.note{1,2} = 'Session';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-try
-    nextTrial = metadata.eye.trialnum1;
-catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-notedata.note{1,5} = 'New Session pressed';
-setappdata(0, 'notedata', notedata)
-appendcell2csv(notedata.filename,notedata.note);
 
-ResetCamTrials()
-set(handles.edit_SessionName,'String',session);
-metadata=getappdata(0,'metadata');
-metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
-set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
-setappdata(0,'metadata',metadata);
-
-% Hint: get(hObject,'Value') returns toggle state of togglebutton_NewSession
-
-
-% --- Executes on button press in togglebutton_StopSession.
-function togglebutton_StopSession_Callback(hObject, eventdata, handles)
-% hObject    handle to togglebutton_StopSession (see GCBO)
+% --- Executes on button press in changeWebcam.
+function changeWebcam_Callback(hObject, eventdata, handles)
+% hObject    handle to changeWebcam (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-button=questdlg('Are you sure you want to stop this session?','Yes','No');
-if ~strcmpi(button,'Yes')
-    ok=0;
-else
-    session='s00';     ok=1;
-end
-% take note of new seesion pushed
-notedata = getappdata(0, 'notedata');
-notedata.note{1,2} = 'Session';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
-try
-    nextTrial = metadata.eye.trialnum1;
-catch ME
-    nextTrial = 1;
-end
-notedata.note{1,4} = nextTrial - 1;  % assume the user is interested in the trial that just happened
-notedata.note{1,5} = 'Stop Session pressed';
-setappdata(0, 'notedata', notedata)
-appendcell2csv(notedata.filename,notedata.note);
-
-ResetCamTrials()
-set(handles.edit_SessionName,'String',session);
-metadata=getappdata(0,'metadata');
-metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
-set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
-setappdata(0,'metadata',metadata);
-% Hint: get(hObject,'Value') returns toggle state of togglebutton_StopSession
-
-
-% --- Executes on button press in pushbutton_oneana.
-function pushbutton_oneana_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_oneana (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-ghandles=getappdata(0,'ghandles');
-ghandles.onetrialanagui=OneTrialAnaWindow_new;
-setappdata(0,'ghandles',ghandles);
-
-set(ghandles.onetrialanagui,'units','pixels')
-set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_oneanawin])
-

@@ -16,7 +16,7 @@ configure; % Configuration script
 notedata.header = {'Subject', 'Event Type', 'Time', 'Trial', 'Comments'};
 notedata.subj = cwd{end};
 notedata.note = {notedata.subj, 'file made', datestr(now, 'hh:mm:ss'), 0, ''};
-if regexp(cwd{end},'[A-Z]\d\d\d')  % Will match anything of the form LDDD, where L is single uppercase letter and DDD is a seq of 3 digits
+%if regexp(cwd{end},'[A-Z]\d\d\d')  % Will match anything of the form LDDD, where L is single uppercase letter and DDD is a seq of 3 digits
     thisdate = datestr(now,'yymmdd');
     notedata.filename = strcat(notedata.subj, '_', thisdate, '.csv');
     checkMe = dir('*.csv');
@@ -34,7 +34,7 @@ if regexp(cwd{end},'[A-Z]\d\d\d')  % Will match anything of the form LDDD, where
         cell2csv(notedata.filename, saveme)  % this cell2csv function was written by a Matlab user and is located in C:shane\matlab on Sherrington as of 10/7/15
         display('Notes csv created.')
     end
-end
+%end
 setappdata(0, 'notedata', notedata)
 clear cwd filename checkMe thisdate mouse found notedata
 
@@ -60,10 +60,9 @@ setappdata(0,'arduino',arduino);
 % delete(t)
 % eyelidTimer=timer('Name','eyelidTimer','Period',0.005,'ExecutionMode','FixedRate','TimerFcn',@eyelidstream,'BusyMode','drop');
 
-%% make a file for 
 
 %% Open GUI
-ghandles.maingui=MainWindow;
+ghandles.maingui=MainWindow_new;
 set(ghandles.maingui,'units','pixels')
 set(ghandles.maingui,'position',[ghandles.pos_mainwin ghandles.size_mainwin])
 set(ghandles.maingui, 'WindowStyle', 'docked')  % added this

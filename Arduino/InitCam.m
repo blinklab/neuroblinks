@@ -77,7 +77,8 @@ end
 disp('video settings ....')
 src.AllGainRaw=12;				% Tweak this based on IR light illumination (lower values preferred due to less noise)
 % src.StreamBytesPerSecond=124e6; % Set based on AVT's suggestion
-src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
+%src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
+src.StreamBytesPerSecond=80e6; % Shane says
 
 % src.PacketSize = 9014;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
 src.PacketSize = 8228;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
@@ -107,6 +108,9 @@ src.FrameStartTriggerSource = 'Freerun';
 % src.TriggerSelector='AcquisitionStart';
 % src.TriggerSource='Freerun';
 
+
+
 %% Save objects to root app data
 setappdata(0,'vidobj',vidobj)
 setappdata(0,'src',src)
+
