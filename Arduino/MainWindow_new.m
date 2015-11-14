@@ -22,7 +22,7 @@ function varargout = MainWindow_new(varargin)
 
 % Edit the above text to modify the response to help MainWindow_new
 
-% Last Modified by GUIDE v2.5 07-Nov-2015 18:31:05
+% Last Modified by GUIDE v2.5 14-Nov-2015 13:46:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1128,154 +1128,8 @@ function pushbutton_takeNote_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 NoteWindow
-
-%% ONE TRIAL ANALYSIS STUFF
-% --- Executes on slider movement.
-function slider_oneana_Callback(hObject, eventdata, handles)
-% hObject    handle to slider_oneana (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-if strcmp(get(handles.TrialNum_oneana,'String'),'Trial Num')
-    set(handles.TrialNum_oneana,'String','0');
-end
-t_num=round(str2double(get(handles.TrialNum_oneana,'String'))+get(hObject,'Value'));
-
-trials=getappdata(0,'trials');
-if isfield(trials,'eye'),
-    tnum_max=length(trials.eye);
-else
-    tnum_max=0;
-end
-
-% set(handles.text_trialnum,'String',sprintf('Trial Viewer (1-%d)',tnum_max));
-
-if t_num>tnum_max
-    t_num=tnum_max;
-elseif t_num<1
-    t_num=1;
-end
-set(handles.TrialNum_oneana,'String',num2str(t_num)),
-set(hObject,'Value',0),
-
-if t_num~=handles.tnum_prev | t_num==tnum_max,
-    drawOneEyelid(handles,t_num);   
-end
-handles.tnum_prev=t_num;
-guidata(hObject,handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function slider_oneana_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider_oneana (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-set(hObject,'Value',0);
-
-
-
-function TrialNum_oneana_Callback(hObject, eventdata, handles)
-% hObject    handle to TrialNum_oneana (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of TrialNum_oneana as text
-%        str2double(get(hObject,'String')) returns contents of TrialNum_oneana as a double
-
-
-t_num=round(str2double(get(handles.TrialNum_oneana,'String')));
-trials=getappdata(0,'trials');
-if isfield(trials,'eye'),
-    tnum_max=length(trials.eye);
-else
-    tnum_max=0;
-end
-if t_num>tnum_max || t_num<1
-    if t_num<1
-        t_num=1;  
-    else
-        t_num=tnum_max;
-    end
-    set(handles.TrialNum_oneana,'String',num2str(t_num)),
-end
-
-if t_num~=handles.tnum_prev | t_num==tnum_max,
-    drawOneEyelid(handles,t_num);   
-end
-handles.tnum_prev=t_num;
-guidata(hObject,handles);
-
-
-
-% --- Executes during object creation, after setting all properties.
-function TrialNum_oneana_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to TrialNum_oneana (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% function below from old gui code
-function drawOneEyelid(handles,t_num)
-
-trials=getappdata(0,'trials');
-if ~isfield(trials,'eye'), return,  end
-tnum_max=length(trials.eye);
-str_tl={[sprintf('Trial Viewer (1-%d)',tnum_max)] [trials.eye(t_num).stimtype]};
-
-% ------- for eye -----
-subplot('position',[0.05 0.17 0.90 0.50], 'Parent', handles.uipanel_behavior)
-cla
-plot([-1 1]*1000, [0 0],'k:'),  hold on,   plot([-1 1]*1000, [1 1],'k:'), 
-
-set(gca,'ylim',[-0.15 1.20], 'ytick',[0:0.5:1], 'box', 'off','tickdir','out')
-
-xlim1=[trials.eye(t_num).time(1) trials.eye(t_num).time(end)];
-plotOneEyelid(t_num);
-
-text(xlim1*[0.33;0.67], -0.46, str_tl)
-set(gca,'xlim',xlim1,'xtick',[-400:200:1000])
-set(gca,'color',[240 240 240]/255);
-
-
-
-%% CONNECT TO WEBCAM STUFF
-% --- Executes on button press in pushbutton_streamWebcam.
-function pushbutton_streamWebcam_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_streamWebcam (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-cam=getappdata(0,'webcam');
-if get(hObject,'Value'),
-    set(hObject,'String','Stop Stream')
-    ghandles=getappdata(0,'ghandles');
-    % Send camera preview to GUI
-    axes(handles.webcamAx)
-    hImage = image(288, 352, 1);
-    preview(cam,hImage);
-    setappdata(0,'hImage', hImage)
-else
-    set(hObject,'String','Stream Webcam')
-    hImage=getappdata(0,'hImage');
-    closePreview(cam,hImage)
-end
-
-
-
-
+ 
+%% Other GUI STUFF
 
 function edit_tone_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_tone (see GCBO)
@@ -1371,3 +1225,17 @@ metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),
 set(handles.text_status,'String',sprintf('Basename for session:\n%s',metadata.TDTblockname))
 setappdata(0,'metadata',metadata);
 % Hint: get(hObject,'Value') returns toggle state of togglebutton_StopSession
+
+
+% --- Executes on button press in pushbutton_oneana.
+function pushbutton_oneana_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_oneana (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ghandles=getappdata(0,'ghandles');
+ghandles.onetrialanagui=OneTrialAnaWindow_new;
+setappdata(0,'ghandles',ghandles);
+
+set(ghandles.onetrialanagui,'units','pixels')
+set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_oneanawin])
+
