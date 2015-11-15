@@ -462,7 +462,7 @@ notedata.note{1,2} = 'Puff';
 notedata.note{1,3} = datestr(now, 'hh:mm:ss');
 trials=getappdata(0,'trials');
 try
-    notedata.note{1,4} = trials.stimnum;
+    notedata.note{1,4} = trials.stimnum + 1;
 catch ME
     notedata.note{1,4} = 1;
 end  % assume the user is interested in the trial that just happened
