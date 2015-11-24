@@ -1237,5 +1237,5 @@ ghandles.onetrialanagui=OneTrialAnaWindow_new;
 setappdata(0,'ghandles',ghandles);
 
 set(ghandles.onetrialanagui,'units','pixels')
-set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_oneanawin])
+%set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_oneanawin])
 

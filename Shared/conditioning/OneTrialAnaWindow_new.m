@@ -90,6 +90,7 @@ try
         axes(handles.ax_eyetrace)
         cla
         plotOneEyelid(gototrial)
+        ylim([-0.5 1.05])
     else
         text(0,0,'Please do not try to plot nonexistant trials.')
     end
@@ -125,6 +126,7 @@ try
         axes(handles.ax_eyetrace)
         cla
         plotOneEyelid(gototrial)
+        ylim([-0.2 1.05])
         set(handles.edit_trialnum,'String',num2str(gototrial))
     else
         text(0,0,'There are no more previous trials.')
@@ -146,6 +148,7 @@ try
         axes(handles.ax_eyetrace)
         cla
         plotOneEyelid(1)
+        ylim([-0.2 1.05])
         set(handles.edit_trialnum,'String',num2str(1))
     else
         curtrial = str2double(curtrial);
@@ -154,6 +157,7 @@ try
             axes(handles.ax_eyetrace)
             cla
             plotOneEyelid(gototrial)
+            ylim([-0.2 1.05])
             set(handles.edit_trialnum,'String',num2str(gototrial))
         else
             text(0,0,'There are no more next trials.')
