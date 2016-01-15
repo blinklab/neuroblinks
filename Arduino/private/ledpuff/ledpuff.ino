@@ -34,7 +34,7 @@ int whisker = 10;
 int tonech = 11;
 int laser = 12;
 int puff = 13;
-int ssPin = 0;  // slave select Pin. need one for each external chip you are going to control.
+int ssPin = 4;  // slave select Pin. need one for each external chip you are going to control.
 
 // Used internally to select channels for CS/US
 int csout = 0;  // Not used yet
