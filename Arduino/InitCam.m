@@ -75,7 +75,11 @@ elseif checkMe ~= rig
 end
 
 disp('video settings ....')
-src.AllGainRaw=12;				% Tweak this based on IR light illumination (lower values preferred due to less noise)
+if isprop(src, 'AllGainRaw')
+    src.AllGainRaw=12;  % Tweak this based on IR light illumination (lower values preferred due to less noise)
+else
+    src.GainRaw = 12;
+end
 % src.StreamBytesPerSecond=124e6; % Set based on AVT's suggestion
 %src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
 src.StreamBytesPerSecond=80e6; % Shane says
@@ -94,14 +98,21 @@ vidobj.FramesPerTrigger=ceil(recdur/(1000/200));
 % set(src,'AcquisitionStartTriggerSource','Line1')
 
 triggerconfig(vidobj, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
-src.FrameStartTriggerMode = 'On';
-src.FrameStartTriggerActivation = 'LevelHigh';
-
-% This needs to be toggled to switch between preview and acquisition mode
-% It is changed to 'Line1' in MainWindow just before triggering Arduino and then
-% back to 'Freerun' in 'endOfTrial' function
-% src.FrameStartTriggerSource = 'Line1';
-src.FrameStartTriggerSource = 'Freerun';
+triggerconfig(vidobj, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
+if isprop(src, 'FrameStartTriggerMode')
+    src.FrameStartTriggerMode = 'On';
+    src.FrameStartTriggerActivation = 'LevelHigh';
+    
+    % This needs to be toggled to switch between preview and acquisition mode
+    % It is changed to 'Line1' in MainWindow just before triggering Arduino and then
+    % back to 'Freerun' in 'endOfTrial' function
+    % src.FrameStartTriggerSource = 'Line1';
+    src.FrameStartTriggerSource = 'Freerun';
+else
+    src.TriggerMode = 'On';
+    src.TriggerActivation = 'LevelHigh';
+    src.TriggerSource = 'Freerun';
+end
 
 % src.TriggerMode='On';
 % src.TriggerSelector='FrameStart';
