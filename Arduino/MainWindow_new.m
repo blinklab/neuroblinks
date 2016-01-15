@@ -611,15 +611,16 @@ switch lower(metadata.stim.type)
         trialvars=readTrialTable(metadata.eye.trialnum1);
         metadata.stim.c.csdur=trialvars(1);
         metadata.stim.c.csnum=trialvars(2);
-        metadata.stim.c.isi=trialvars(3);
-        metadata.stim.c.usdur=trialvars(4);
-        metadata.stim.c.usnum=trialvars(5);
+        metadata.stim.c.csint=trialsvars(3);
+        metadata.stim.c.isi=trialvars(4);
+        metadata.stim.c.usdur=trialvars(5);
+        metadata.stim.c.usnum=trialvars(6);
         metadata.stim.c.cstone=str2num(get(handles.edit_tone,'String'))*1000;
         if length(metadata.stim.c.cstone)<2, metadata.stim.c.cstone(2)=0; end
         metadata.stim.totaltime=metadata.stim.c.isi+metadata.stim.c.usdur;
-        metadata.stim.l.delay = trialvars(6);
-        metadata.stim.l.dur = trialvars(7);
-        metadata.stim.l.amp = trialvars(8);
+        metadata.stim.l.delay = trialvars(7);
+        metadata.stim.l.dur = trialvars(8);
+        metadata.stim.l.amp = trialvars(9);
     otherwise
         metadata.stim.totaltime=0;
         warning('Unknown stimulation mode set.');
@@ -664,6 +665,7 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(11)=metadata.stim.l.delay;
     datatoarduino(12)=metadata.stim.l.dur;
     datatoarduino(13)=metadata.stim.l.amp;
+    datatoarduino(14)=metadata.stim.c.csint;
 end
 
 % ---- send data to arduino ----

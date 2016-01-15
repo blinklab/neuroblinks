@@ -1,4 +1,5 @@
 #include <Wire.h> // For I2C communication
+#include <SPI.h>  // For controlling external chips
 
 //This is the I2C Address of the MCP4725, by default (A0 pulled to GND).
 //Please note that this breakout is for the MCP4725A0. 
@@ -33,6 +34,7 @@ int whisker = 10;
 int tonech = 11;
 int laser = 12;
 int puff = 13;
+int ssPin = 0;  // slave select Pin. need one for each external chip you are going to control.
 
 // Used internally to select channels for CS/US
 int csout = 0;  // Not used yet
@@ -65,7 +67,8 @@ void setup() {
   pinMode(whisker, OUTPUT);
   pinMode(tonech, OUTPUT);
   pinMode(greenled, OUTPUT); 
-  pinMode(laser, OUTPUT); 
+  pinMode(laser, OUTPUT);
+  pinMode(ssPin, OUTPUT); 
 
   // Default all output pins to LOW - for some reason they were floating high on the Due before I (Shane) added this
   digitalWrite(camera, LOW);
@@ -75,6 +78,11 @@ void setup() {
   digitalWrite(tonech, LOW);
   digitalWrite(greenled, LOW);
   digitalWrite(laser, LOW);
+  
+  // set your ssPin to LOW too. when you have more external chips to control, you will have to be more careful about this step (ssPin LOW means the chip will respond to SPI commands)
+  digitalWrite(ssPin, LOW);
+  SPI.begin();
+  SPI.setBitOrder(MSBFIRST);  // if you are using the MCP4131
 
   Serial.begin(9600);
   Wire.begin();
@@ -146,6 +154,10 @@ void checkVars() {
         break;
       case 13:
         laserpower = value;
+        break;
+      case 14:
+        csintensity = value;
+        setDiPoValue(csintensity);
         break;
     }
     delay(4); // Delay enough to allow next 3 bytes into buffer (24 bits/9600 bps = 2.5 ms, so double it for safety).
@@ -482,5 +494,13 @@ void TC3_Handler ( void ) {
   }
 }
 
+// for working with the MCP4131
+void setDiPoValue(int value)
+{
+    //digitalWrite(ssPin, LOW); // use this step to select your DiPo if you are working with multiple external chips through SPI
+    SPI.transfer(0);
+    SPI.transfer(value);
+    //digitalWrite(ssPin, HIGH); // use this step to deselect your DiPo if you are working with multiple external chips through SPI
+}
 
 
