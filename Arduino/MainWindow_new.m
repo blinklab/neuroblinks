@@ -321,13 +321,7 @@ vidobj.StopFcn=@CalbEye;   % this will be executed after timer stop
 flushdata(vidobj);         % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
-if isprop(src, 'FrameStartTriggerSource')
-    src.FrameStartTriggerSource = 'Line1';
-else
-    src.TriggerSource = 'Line1';
-end
-vidobj.FramesPerTrigger=metadata.cam.fps*(sum(metadata.cam.time)/1e3);
-
+src.FrameStartTriggerSource = 'Line1';
 start(vidobj)
 
 metadata.cam.cal=0;
@@ -611,7 +605,7 @@ switch lower(metadata.stim.type)
         trialvars=readTrialTable(metadata.eye.trialnum1);
         metadata.stim.c.csdur=trialvars(1);
         metadata.stim.c.csnum=trialvars(2);
-        metadata.stim.c.csint=trialsvars(3);
+        metadata.stim.c.csint=trialvars(3);
         metadata.stim.c.isi=trialvars(4);
         metadata.stim.c.usdur=trialvars(5);
         metadata.stim.c.usnum=trialvars(6);
@@ -693,7 +687,11 @@ vidobj.StopFcn=@endOfTrial;
 flushdata(vidobj); % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
-src.FrameStartTriggerSource = 'Line1';
+if isprop(src, 'FrameStartTriggerSource')
+    src.FrameStartTriggerSource = 'Line1';
+else
+    src.TriggerSource = 'Line1';
+end
 vidobj.FramesPerTrigger=metadata.cam.fps*(sum(metadata.cam.time)/1e3);
 
 % Now get camera ready for acquisition -- shouldn't start yet

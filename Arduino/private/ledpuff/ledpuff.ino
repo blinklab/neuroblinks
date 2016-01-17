@@ -50,6 +50,7 @@ int ISI = 200;
 int usdur = 20;
 int residual;
 int tonefreq5 = 10000;
+int csintensity = 256; // default to max intensity
 
 // Added as temporary fix to allow laser stim during trial
 int laserdelay = 0; // delay from CS onset until laser onset
