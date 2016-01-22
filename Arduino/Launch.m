@@ -4,6 +4,8 @@ function Launch(rig)
 % Should be somewhere in path but not "neuroblinks" directory or subdirectory
 neuroblinks_config;	% Per user settings
 
+beep off  % turns off beeping at error -- should help keep mice calm during dropped frame days/not interfere with tone CS
+
 % If Neuroblinks is launched from the root directory of the mouse, make a new directory for the session, otherwise leave that up to the user
 cwd=regexp(pwd,'\\','split');
 
