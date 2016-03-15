@@ -669,8 +669,8 @@ function stream(handles)
 ghandles=getappdata(0,'ghandles'); 
 vidobj=getappdata(0,'vidobj');
 src=getappdata(0,'src');
-updaterate=0.017;   % ~67 Hz
-% updaterate=0.1;   % 10 Hz
+% updaterate=0.017;   % ~67 Hz
+updaterate=0.033;   % 30 Hz
 t1=clock-10;
 t0=clock;
 
