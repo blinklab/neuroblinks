@@ -1067,7 +1067,11 @@ src = getappdata(0,'src');
 stop(vidobj);
 flushdata(vidobj);
 
-src.FrameStartTriggerSource = 'Freerun';
+if isprop(src, 'FrameStartTriggerSource')
+    src.FrameStartTriggerSource = 'Freerun';
+else
+    src.TriggerSource = 'Freerun';
+end
 
 
 
