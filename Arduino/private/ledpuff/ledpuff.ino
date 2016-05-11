@@ -399,6 +399,8 @@ int powerToDACUnits(int power) {
 
   int DACUnits = power * LASERSLOPE + LASEROFFSET;
 
+  if (power == 0) {return 0;}
+
   if (DACUnits < MAXDACUNIT) {return DACUnits;}
   else {return MAXDACUNIT;}
 
