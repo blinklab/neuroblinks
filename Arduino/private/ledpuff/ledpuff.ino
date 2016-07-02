@@ -76,7 +76,7 @@ void setup() {
   digitalWrite(greenled, LOW);
   digitalWrite(laser, LOW);
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   Wire.begin();
 
   DACWrite(0);

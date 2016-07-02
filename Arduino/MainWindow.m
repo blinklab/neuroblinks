@@ -697,6 +697,12 @@ handles=guidata(ghandles.maingui);
 src=getappdata(0,'src');
 metadata=getappdata(0,'metadata');  
 
+persistent timeOfStreamStart
+
+if isempty(timeOfStreamStart)
+    timeOfStreamStart=clock;
+end
+
 persistent timeSinceLastTrial
 
 if isempty(timeSinceLastTrial)
@@ -732,10 +738,12 @@ eyelidpos=sum(roi(:)>=256*metadata.cam.thresh);
 
 % --- eye trace buffer ---
 eyedata(1:end-1,:)=eyedata(2:end,:);
-eyedata(end,1)=0;
+timeSinceStreamStartMS=round(1000*etime(clock,timeOfStreamStart));
+eyedata(end,1)=timeSinceStreamStartMS;
 eyedata(end,2)=(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale; % eyelid pos
 
-set(eyeTrace,'XData',eyedata(:,1),'YData',eyedata(:,2))
+set(eyeTrace,'XData',eyedata(:,1)-timeSinceStreamStartMS,'YData',eyedata(:,2))
+set(himage,'CData',event.Data)
         
         
 % --- Check if new trial should be triggered ----

@@ -24,7 +24,7 @@ function neuroblinks(varargin)
     % return
 
     % Matlab is inconsistent in how it numbers cameras so we need to explicitely search for the right one
-    disp('Finding cameras...')
+    disp('Finding camera...')
 
     % Get list of configured cameras
     foundcams = imaqhwinfo('gige');
