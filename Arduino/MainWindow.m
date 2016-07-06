@@ -129,6 +129,14 @@ if strcmp(get(handles.pushbutton_StartStopPreview,'String'),'Start Preview')
     if isfield(handles,'XY')
         handles.roipatch=patch(handles.XY(:,1),handles.XY(:,2),'g','FaceColor','none','EdgeColor','g','Tag','roipatch');
     end
+    
+    ht=findobj(handles.cameraAx,'Tag','trialtimecounter');
+    delete(ht)
+    
+    axes(handles.cameraAx)
+    handles.trialtimecounter = text(630,470,' ','Color','w','HorizontalAlignment','Right',...
+        'VerticalAlignment', 'Bottom', 'Visible', 'Off', 'Tag', 'trialtimecounter',...
+        'FontSize',18);
 else
     % Camera is on. Stop camera and change button string.
     stopPreview(handles);
@@ -404,8 +412,10 @@ instantReplay(getappdata(0,'lastdata'),getappdata(0,'lastmetadata'));
 function toggle_continuous_Callback(hObject, eventdata, handles)
 if get(hObject,'Value'),
     set(hObject,'String','Pause Continuous')
+    set(handles.trialtimecounter,'Visible','On')
 else
     set(hObject,'String','Start Continuous')
+    set(handles.trialtimecounter,'Visible','Off')
 end
 
 
@@ -706,7 +716,7 @@ end
 persistent timeSinceLastTrial
 
 if isempty(timeSinceLastTrial)
-    timeSinceLastTrial=clock-metadata.stim.c.ITI;
+    timeSinceLastTrial=clock;
 end
 
 persistent eyedata
@@ -757,7 +767,11 @@ if get(handles.toggle_continuous,'Value') == 1
     end
         
     elapsedTimeSinceLastTrial=etime(clock,timeSinceLastTrial);
-    if elapsedTimeSinceLastTrial>metadata.stim.c.ITI,
+    timeLeft = metadata.stim.c.ITI - elapsedTimeSinceLastTrial;
+    
+    set(handles.trialtimecounter,'String',num2str(round(timeLeft)))
+    
+    if timeLeft <= 0,
         eyeok=checkeye(handles,eyedata);
         if eyeok
             TriggerArduino(handles)
@@ -766,104 +780,6 @@ if get(handles.toggle_continuous,'Value') == 1
     end
 end
 
-function stream(handles)
-ghandles=getappdata(0,'ghandles'); 
-vidobj=getappdata(0,'vidobj');
-src=getappdata(0,'src');
-% updaterate=0.017;   % ~67 Hz
-updaterate=0.033;   % 30 Hz
-t1=clock-10;
-t0=clock;
-
-eyedata=NaN*ones(500,2);  
-plt_range=-2100;
-
-if get(handles.togglebutton_stream,'Value')
-    set(0,'currentfigure',ghandles.maingui)
-    set(ghandles.maingui,'CurrentAxes',handles.axes_eye)
-    cla
-    pl1=plot([plt_range 0],[1 1]*0,'k-'); hold on
-    set(gca,'color',[240 240 240]/255,'YAxisLocation','right');
-    set(gca,'xlim',[plt_range 0],'ylim',[-0.1 1.1])
-    set(gca,'xtick',[-3000:500:0],'box','off')
-    set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
-end
-
-% try
-    while get(handles.togglebutton_stream,'Value') == 1
-        t2=clock;
-        metadata=getappdata(0,'metadata');  % get updated metadata within this loop, otherwise we'll be using stale data
-        
-        % --- eye trace ---
-        wholeframe=getsnapshot(vidobj);
-        roi=wholeframe.*uint8(metadata.cam.mask);
-        eyelidpos=sum(roi(:)>=256*metadata.cam.thresh);
-        
-        % --- eye trace buffer ---
-        etime0=round(1000*etime(clock,t0));
-        eyedata(1:end-1,:)=eyedata(2:end,:);
-        eyedata(end,1)=etime0;
-        eyedata(end,2)=(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale; % eyelid pos
-        
-        set(pl1,'XData',eyedata(:,1)-etime0,'YData',eyedata(:,2))
-        
-        % --- Trigger ----
-        if get(handles.toggle_continuous,'Value') == 1
-            
-            stopTrial = str2double(get(handles.edit_StopAfterTrial,'String'));
-            if stopTrial > 0 && metadata.cam.trialnum > stopTrial
-                set(handles.toggle_continuous,'Value',0);
-                set(handles.toggle_continuous,'String','Start Continuous');
-            end
-                
-            etime1=round(1000*etime(clock,t1))/1000;
-            if etime1>metadata.stim.c.ITI,
-                eyeok=checkeye(handles,eyedata);
-                if eyeok
-                    TriggerArduino(handles)
-                    t1=clock;
-                end
-            end
-        end
-        
-        t=round(1000*etime(clock,t2))/1000;
-        % -- pause in the left time -----
-        d=updaterate-t;
-        if d>0
-            pause(d)        %   java.lang.Thread.sleep(d*1000);     %     drawnow
-        else
-            if get(handles.checkbox_verbose,'Value') == 1
-                disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
-            end
-        end
-
-        % Try to deal with dropped frames silently
-        % if strcmp(src.FrameStartTriggerSource,'Freerun') & strcmp(vidobj.Previewing,'off')
-        %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-        %     preview(vidobj,handles.pwin);
-        % end
-
-        % if strcmp(src.FrameStartTriggerSource,'Line1') & strcmp(vidobj.Running,'off')
-        %     start(vidobj);
-        % end
-
-    end
-% catch
-
-    % try % If it's a dropped frame, see if we can recover
-    %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-    %     preview(vidobj,handles.pwin);
-    %     guidata(handles.cameraAx,handles)
-    %     stream(handles)
-    %     disp('Caught camera error')
-    % catch   
-    %     disp('Aborted eye streaming.')
-    %     set(handles.togglebutton_stream,'Value',0);
-    %     set(handles.pushbutton_StartStopPreview,'String','Start Preview')
-    %     closepreview(vidobj);
-    %     return
-    % end
-% end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
