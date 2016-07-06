@@ -34,21 +34,27 @@ function neuroblinks(varargin)
         error('No cameras found')
     end
 
-    % cam = 1;
-% This code doesn't work on some versions of Matlab so it's not working for you, you can
-% comment it out and uncomment the cam=1 line above. If  you do this you can only use one camera though.
-    cam = 0;
-    for i=1:length(founddeviceids)
-        vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
-        src = getselectedsource(vidobj);
-        if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
-            cam = i;
+    if ~isempty(ALLOWEDCAMS)
+        % This code doesn't work on some versions of Matlab so it's not working for you, you can
+        % set ALLOWEDCAMS to an empty cell array in "neuroblinks_config"
+        % and it will default to camera 1 (but then you can only have one
+        % gige camera connected to your computer.
+        cam = 0;
+        for i=1:length(founddeviceids)
+            vidobj = videoinput('gige', founddeviceids(i), 'Mono8');
+            src = getselectedsource(vidobj);
+            if strcmp(src.DeviceID,ALLOWEDCAMS{rig})
+                cam = i;
+            end
+            delete(vidobj)
         end
-        delete(vidobj)
-    end
-
-    if ~cam
-        error(sprintf('The camera you specified (%d) could not be found',rig));
+        
+        if ~cam
+            error(sprintf('The camera you specified (%d) could not be found',rig));
+        end
+        
+    else
+        cam = 1;
     end
 
     try
@@ -57,16 +63,16 @@ function neuroblinks(varargin)
                 % TDT version
                 % Set up path for this session
                 [basedir,mfile,ext]=fileparts(mfilename('fullpath'));
-                oldpath=addpath(genpath(fullfile(basedir,'TDT')));
-                addpath(genpath(fullfile(basedir,'Shared')));
+                oldpath=addpath(genpath(fullfile(basedir,'tdt')));
+                addpath(genpath(fullfile(basedir,'shared')));
 
             case 'arduino'
 
                 % % Arduino version
                 % % Set up path for this session
                 [basedir,mfile,ext]=fileparts(mfilename('fullpath'));
-                oldpath=addpath(genpath(fullfile(basedir,'Arduino')));
-                addpath(genpath(fullfile(basedir,'Shared')));
+                oldpath=addpath(genpath(fullfile(basedir,'arduino')));
+                addpath(genpath(fullfile(basedir,'shared')));
 
             otherwise
                 error(sprintf('Device %s not found', device))

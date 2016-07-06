@@ -21,12 +21,6 @@ arduino.DataTerminalReady='off';	% to prevent resetting Arduino on connect
 fopen(arduino);
 setappdata(0,'arduino',arduino);
 
-%% Set up timer for eyelid streaming
-% 200 Hz timer
-% First delete old instances
-% t=timerfind('Name','eyelidTimer');
-% delete(t)
-% eyelidTimer=timer('Name','eyelidTimer','Period',0.005,'ExecutionMode','FixedRate','TimerFcn',@eyelidstream,'BusyMode','drop');
 
 %% Open GUI
 clear MainWindow;    % Need to do this to clear persisent variables defined within MainWindow and subfunctions
