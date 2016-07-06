@@ -191,46 +191,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function edit_ymax_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_ymax (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_ymax as text
-%        str2double(get(hObject,'String')) returns contents of edit_ymax as a double
-ylim3=[-1 1]*str2num(get(handles.edit_ymax,'String'));
-t_num=str2num(get(handles.edit_trialnum,'String'));
-drawOneSpk(handles,t_num,ylim3)
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_ymax_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_ymax (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbutton_LFP.
-function pushbutton_LFP_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_LFP (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-ghandles=getappdata(0,'ghandles');
-ghandles.onetrialanagui=LFPWindow;
-setappdata(0,'ghandles',ghandles);
-
-% movegui(ghandles.onetrialanagui,ghandles.pos_lfpwin)
-set(ghandles.onetrialanagui,'units','pixels')
-set(ghandles.onetrialanagui,'position',[ghandles.pos_lfpwin ghandles.size_lfpwin])
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% user difined functions %%%%%%%%%%
@@ -257,48 +217,3 @@ text(xlim1*[0.33;0.67], -0.46, str_tl)
 set(gca,'xlim',xlim1,'xtick',[-400:200:1000])
 set(gca,'color',[240 240 240]/255);
 
-
-% ------- for spk -----
-
-% tnum_max=length(trials.spk);
-% ylim_low=400;
-% if t_num>tnum_max, 
-%     ylim2=ylim_low*[1 1];
-% elseif isempty(trials.spk(t_num).ylim)
-%     ylim2=ylim_low*[1 1];
-% else
-%     ylim2=abs(trials.spk(t_num).ylim); 
-% end
-% ylim1=NaN*ones(tnum_max,2);
-% for i=max(1,t_num-10):t_num,   if ~isempty(trials.spk(i).ylim), ylim1(i,:)=trials.spk(i).ylim;  end, end
-% % ylim1(find(abs(ylim1)<ylim_low))=NaN;
-% ylim2=abs(nanmedian(ylim1));  
-% ylim3=ylim_low*[1 1];  ylim3(ylim2>ylim_low)=ylim2(ylim2>ylim_low); ylim3(1)=-ylim3(1);
-ylim3=[-1 1]*str2num(get(handles.edit_ymax,'String'));
-
-drawOneSpk(handles,t_num,ylim3)
-
-
-function drawOneSpk(handles,t_num,ylim3)
-
-trials=getappdata(0,'trials');
-if isfield(trials,'spk'),
-    tnum_max=length(trials.spk);
-else, tnum_max=0; 
-end
-
-subplot('position',[0.10 0.72 0.86 0.25], 'Parent', handles.uipanel_behavior)
-cla
-if t_num>tnum_max, return, end
-
-
-plot([0 0], [-1 1]*2000, 'k:'),  hold on,   
-set(gca,'color',[240 240 240]/255);
-
-plot([1 1]*trials.eye(t_num).stimtime.st{end}, [-1 1]*2000, 'k:'), 
-if isfield(trials,'spk'),
-    plot(trials.spk(t_num).time,trials.spk(t_num).y,'k'), 
-end
-xlim2=[-100 400];
-set(gca,'xlim',xlim2,'xtick',[0:100:1000])
-set(gca,'ylim',ylim3*1.0, 'ytick',ylim3,'yticklabel',{num2str(ylim3(1)) []}, 'box', 'off','tickdir','out')

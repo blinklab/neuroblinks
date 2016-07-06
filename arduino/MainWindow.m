@@ -22,7 +22,7 @@ function varargout = MainWindow(varargin)
 
 % Edit the above text to modify the response to help MainWindow
 
-% Last Modified by GUIDE v2.5 22-May-2015 19:25:25
+% Last Modified by GUIDE v2.5 18-Jun-2016 19:34:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -129,17 +129,29 @@ if strcmp(get(handles.pushbutton_StartStopPreview,'String'),'Start Preview')
     if isfield(handles,'XY')
         handles.roipatch=patch(handles.XY(:,1),handles.XY(:,2),'g','FaceColor','none','EdgeColor','g','Tag','roipatch');
     end
+    
+    ht=findobj(handles.cameraAx,'Tag','trialtimecounter');
+    delete(ht)
+    
+    axes(handles.cameraAx)
+    handles.trialtimecounter = text(630,470,' ','Color','w','HorizontalAlignment','Right',...
+        'VerticalAlignment', 'Bottom', 'Visible', 'Off', 'Tag', 'trialtimecounter',...
+        'FontSize',18);
 else
     % Camera is on. Stop camera and change button string.
-    set(handles.pushbutton_StartStopPreview,'String','Start Preview')
-    closepreview(vidobj);
+    stopPreview(handles);
 end
 
 setappdata(0,'metadata',metadata);
 guidata(hObject,handles)
 
 
+function stopPreview(handles)
+% Pulled this out as a function so it can be called from elsewhere
+vidobj=getappdata(0,'vidobj');
 
+set(handles.pushbutton_StartStopPreview,'String','Start Preview')
+closepreview(vidobj);
 
 
 
@@ -187,13 +199,6 @@ catch err
     warning(err.identifier,'Problem cleaning up objects. You may need to do it manually.')
 end
 delete(handles.CamFig)
-
-pause(0.5)
-
-button=questdlg('Do you want to compress the videos from this session?');
-if strcmpi(button,'Yes')
-    makeCompressedVideos(metadata.folder,1);
-end
 
 % --- Outputs from this function are returned to the command line.
 function varargout = MainWindow_OutputFcn(hObject, eventdata, handles) 
@@ -407,8 +412,10 @@ instantReplay(getappdata(0,'lastdata'),getappdata(0,'lastmetadata'));
 function toggle_continuous_Callback(hObject, eventdata, handles)
 if get(hObject,'Value'),
     set(hObject,'String','Pause Continuous')
+    set(handles.trialtimecounter,'Visible','On')
 else
     set(hObject,'String','Start Continuous')
+    set(handles.trialtimecounter,'Visible','Off')
 end
 
 
@@ -437,11 +444,21 @@ end
 function togglebutton_stream_Callback(hObject, eventdata, handles)
 
 if get(hObject,'Value'),
-    set(hObject,'String','Stop Streaming')
-    stream(handles)
+    startStreaming(handles)
 else
-    set(hObject,'String','Start Streaming')
+    stopStreaming(handles)
 end
+
+function stopStreaming(handles)
+
+set(handles.togglebutton_stream,'String','Start Streaming')
+setappdata(handles.pwin,'UpdatePreviewWindowFcn',[]);
+
+
+function startStreaming(handles)
+
+set(handles.togglebutton_stream,'String','Stop Streaming')
+setappdata(handles.pwin,'UpdatePreviewWindowFcn',@newFrameCallback);
 
 
 function pushbutton_params_Callback(hObject, eventdata, handles)
@@ -458,6 +475,9 @@ set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_one
 
 
 function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
+
+metadata=getappdata(0,'metadata');
+
 switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
     case 'togglebutton_NewSession'
         dlgans = inputdlg({'Enter session name'},'Create');
@@ -470,11 +490,25 @@ switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
             set(handles.checkbox_save_metadata,'Value',0);
         end
     case 'togglebutton_StopSession'
-        button=questdlg('Are you sure you want to stop this session?','Yes','No');
-        if ~strcmpi(button,'Yes')
-            ok=0;
-        else
-            session='s00';     ok=1;
+        button=questdlg('Are you sure you want to stop this session?','Stop session?','Yes and compress videos','Yes and DON''T compress videos','No','Yes and compress videos');
+        
+        switch button
+            
+            case 'Yes and compress videos'
+                session='s00';     ok=1;
+                stopStreaming(handles);
+                stopPreview(handles);
+                
+                makeCompressedVideos(metadata.folder,1);
+                
+            case 'Yes and DON''T compress videos'
+                session='s00';     ok=1;
+                stopStreaming(handles);
+                stopPreview(handles);
+                
+            otherwise
+                ok=0;
+                
         end
     otherwise
         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
@@ -492,7 +526,7 @@ else
     return
 end
 ResetCamTrials()
-set(handles.edit_SessionName,'String',session);
+set(handles.text_SessionName,'String',session);
 metadata=getappdata(0,'metadata');
 metadata.TDTblockname=sprintf('%s_%s_%s', metadata.mouse, datestr(now,'yymmdd'),session);
 setappdata(0,'metadata',metadata);
@@ -507,7 +541,7 @@ setappdata(0,'paramtable',paramtable);
 
 ghandles=getappdata(0,'ghandles');
 trialtablegui=TrialTable;
-movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
+% movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghandles.pos_mainwin(2)])
 
 
 
@@ -665,104 +699,87 @@ if strcmpi(metadata.stim.type,'conditioning')
 end
 setappdata(0,'metadata',metadata);
 
-function stream(handles)
+function newFrameCallback(obj,event,himage)
+
 ghandles=getappdata(0,'ghandles'); 
-vidobj=getappdata(0,'vidobj');
+handles=guidata(ghandles.maingui);
+% vidobj=getappdata(0,'vidobj');
 src=getappdata(0,'src');
-% updaterate=0.017;   % ~67 Hz
-updaterate=0.033;   % 30 Hz
-t1=clock-10;
-t0=clock;
+metadata=getappdata(0,'metadata');  
 
-eyedata=NaN*ones(500,2);  
-plt_range=-2100;
+persistent timeOfStreamStart
 
-if get(handles.togglebutton_stream,'Value')
-    set(0,'currentfigure',ghandles.maingui)
-    set(ghandles.maingui,'CurrentAxes',handles.axes_eye)
-    cla
-    pl1=plot([plt_range 0],[1 1]*0,'k-'); hold on
-    set(gca,'color',[240 240 240]/255,'YAxisLocation','right');
-    set(gca,'xlim',[plt_range 0],'ylim',[-0.1 1.1])
-    set(gca,'xtick',[-3000:500:0],'box','off')
-    set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
+if isempty(timeOfStreamStart)
+    timeOfStreamStart=clock;
 end
 
-% try
-    while get(handles.togglebutton_stream,'Value') == 1
-        t2=clock;
-        metadata=getappdata(0,'metadata');  % get updated metadata within this loop, otherwise we'll be using stale data
-        
-        % --- eye trace ---
-        wholeframe=getsnapshot(vidobj);
-        roi=wholeframe.*uint8(metadata.cam.mask);
-        eyelidpos=sum(roi(:)>=256*metadata.cam.thresh);
-        
-        % --- eye trace buffer ---
-        etime0=round(1000*etime(clock,t0));
-        eyedata(1:end-1,:)=eyedata(2:end,:);
-        eyedata(end,1)=etime0;
-        eyedata(end,2)=(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale; % eyelid pos
-        
-        set(pl1,'XData',eyedata(:,1)-etime0,'YData',eyedata(:,2))
-        
-        % --- Trigger ----
-        if get(handles.toggle_continuous,'Value') == 1
-            
-            stopTrial = str2double(get(handles.edit_StopAfterTrial,'String'));
-            if stopTrial > 0 && metadata.cam.trialnum > stopTrial
-                set(handles.toggle_continuous,'Value',0);
-                set(handles.toggle_continuous,'String','Start Continuous');
-            end
-                
-            etime1=round(1000*etime(clock,t1))/1000;
-            if etime1>metadata.stim.c.ITI,
-                eyeok=checkeye(handles,eyedata);
-                if eyeok
-                    TriggerArduino(handles)
-                    t1=clock;
-                end
-            end
-        end
-        
-        t=round(1000*etime(clock,t2))/1000;
-        % -- pause in the left time -----
-        d=updaterate-t;
-        if d>0
-            pause(d)        %   java.lang.Thread.sleep(d*1000);     %     drawnow
-        else
-            if get(handles.checkbox_verbose,'Value') == 1
-                disp(sprintf('%s: Unable to sustain requested stream rate! Loop required %f seconds.',datestr(now,'HH:MM:SS'),t))
-            end
-        end
+persistent timeSinceLastTrial
 
-        % Try to deal with dropped frames silently
-        % if strcmp(src.FrameStartTriggerSource,'Freerun') & strcmp(vidobj.Previewing,'off')
-        %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-        %     preview(vidobj,handles.pwin);
-        % end
+if isempty(timeSinceLastTrial)
+    timeSinceLastTrial=clock;
+end
 
-        % if strcmp(src.FrameStartTriggerSource,'Line1') & strcmp(vidobj.Running,'off')
-        %     start(vidobj);
-        % end
+persistent eyedata
 
+if isempty(eyedata)
+    eyedata=NaN*ones(500,2);  
+end
+
+plt_range=-2100;
+
+persistent eyeTrace
+
+if isempty(eyeTrace)
+    set(0,'currentfigure',ghandles.maingui)
+%     set(ghandles.maingui,'CurrentAxes',handles.axes_eye)
+%     cla
+    eyeTrace=plot(handles.axes_eye,[plt_range 0],[1 1]*0,'k-'); hold on
+    set(handles.axes_eye,'color',[240 240 240]/255,'YAxisLocation','right');
+    set(handles.axes_eye,'xlim',[plt_range 0],'ylim',[-0.1 1.1])
+    set(handles.axes_eye,'xtick',[-3000:500:0],'box','off')
+    set(handles.axes_eye,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
+end
+
+
+% --- eye trace ---
+wholeframe = event.Data;
+roi=wholeframe.*uint8(metadata.cam.mask);
+eyelidpos=sum(roi(:)>=256*metadata.cam.thresh);
+
+% --- eye trace buffer ---
+eyedata(1:end-1,:)=eyedata(2:end,:);
+timeSinceStreamStartMS=round(1000*etime(clock,timeOfStreamStart));
+eyedata(end,1)=timeSinceStreamStartMS;
+eyedata(end,2)=(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale; % eyelid pos
+
+set(eyeTrace,'XData',eyedata(:,1)-timeSinceStreamStartMS,'YData',eyedata(:,2))
+set(himage,'CData',event.Data)
+        
+        
+% --- Check if new trial should be triggered ----
+
+if get(handles.toggle_continuous,'Value') == 1
+        
+    stopTrial = str2double(get(handles.edit_StopAfterTrial,'String'));
+    if stopTrial > 0 && metadata.cam.trialnum > stopTrial
+        set(handles.toggle_continuous,'Value',0);
+        set(handles.toggle_continuous,'String','Start Continuous');
     end
-% catch
+        
+    elapsedTimeSinceLastTrial=etime(clock,timeSinceLastTrial);
+    timeLeft = metadata.stim.c.ITI - elapsedTimeSinceLastTrial;
+    
+    set(handles.trialtimecounter,'String',num2str(round(timeLeft)))
+    
+    if timeLeft <= 0,
+        eyeok=checkeye(handles,eyedata);
+        if eyeok
+            TriggerArduino(handles)
+            timeSinceLastTrial=clock;
+        end
+    end
+end
 
-    % try % If it's a dropped frame, see if we can recover
-    %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-    %     preview(vidobj,handles.pwin);
-    %     guidata(handles.cameraAx,handles)
-    %     stream(handles)
-    %     disp('Caught camera error')
-    % catch   
-    %     disp('Aborted eye streaming.')
-    %     set(handles.togglebutton_stream,'Value',0);
-    %     set(handles.pushbutton_StartStopPreview,'String','Start Preview')
-    %     closepreview(vidobj);
-    %     return
-    % end
-% end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
@@ -903,26 +920,13 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function edit_SessionName_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_SessionName (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_SessionName as text
-%        str2double(get(hObject,'String')) returns contents of edit_SessionName as a double
-
-
 % --- Executes during object creation, after setting all properties.
-function edit_SessionName_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_SessionName (see GCBO)
+function text_SessionName_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text_SessionName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+
 
 
 

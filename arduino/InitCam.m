@@ -3,10 +3,9 @@ function InitCam(ch,recdur)
 % First delete any existing image acquisition objects
 imaqreset
 
-disp('creating video object ...')
+disp('Creating video object ...')
 % vidobj = videoinput('gentl', ch, 'Mono8');
 vidobj = videoinput('gige', ch, 'Mono8');
-disp('video settings ....')
 
 metadata=getappdata(0,'metadata');
 src = getselectedsource(vidobj);

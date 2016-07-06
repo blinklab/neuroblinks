@@ -26,9 +26,13 @@ else
     [9,  200,1,200, 20,3,0,0,0,1,10;...
      1,  200,1,200, 0, 3,0,0,0,1,0;...
      ];
- end
+end
+ 
+paramtable.randomize=1;
 
+trialtable=makeTrialTable(paramtable.data,paramtable.randomize);
 
 setappdata(0,'paramtable',paramtable);
+setappdata(0,'trialtable',trialtable);
 setappdata(0,'metadata',metadata);
 pause(0.3);
