@@ -19,6 +19,7 @@ metadata.cam.trialnum=1;	% Normally this whole struct, which contains many field
 setappdata(0,'hf',hf);
 setappdata(0,'ha',ha);
 setappdata(0,'h_preview',h_preview);
+setappdata(h_preview,'StreamFileHandle',0);
 setappdata(0,'metadata',metadata);
 setappdata(0,'STREAM',0);
 setappdata(0,'PREVIEWING',0);
@@ -33,22 +34,19 @@ set(hf,'KeyPressFcn',@processKey)
 set(hf,'Name',getappdata(0,'defaultTitle'))
 
 
-
-
-
-
-
-
 function InitCam(ch)
 % See Image Acquisition Toolbox documentation for details. Some settings depend on particular camera driver
 % Use Universal Library adaptor GIGE in Matlab for best results.
+% Alternatively, gentl with Vimba works with Matlab >= 2016a
+
+ADAPTER = 'gentl';
 
 % First delete any existing image acquisition objects
 imaqreset
 
 % We use the GenTL driver (camera connected to computer over gigabit ethernet)
 disp('creating video object ...')
-vidobj = videoinput('gige', ch, 'Mono8');
+vidobj = videoinput(ADAPTER, ch, 'Mono8');
 disp('video settings ....')
 src = getselectedsource(vidobj);
 
@@ -62,8 +60,12 @@ else
     src.GainRaw=12;
 end	
 
-src.PacketSize = 9014;		% Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
-src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion
+if strcmpi(ADAPTER,'gige')
+    src.PacketSize = 9014;        % Use Jumbo packets (ethernet card must support them) -- apparently not supported in VIMBA
+    src.PacketDelay = 2000;     % Calculated based on frame rate and image size using Mathworks helper function
+end
+
+src.StreamBytesPerSecond=80e6; % Set based on AVT's suggestion
 src.AcquisitionFrameRateAbs=200;	% Our camera can sustain 200 FPS at full resolution (640x480) but can go up to 500 FPS if you reduce ROI or do vertical binning of frames
 
 vidobj.LoggingMode = 'memory'; 	% Can log straight to disk as well but older versions of Matlab are weird about compression because of licensing of codecs. 
@@ -141,6 +143,38 @@ catch exception
     return
 end
 
+function extractEyelidTrace(obj,event,himage)
+
+% Load objects from root app data
+TDT = getappdata(0,'tdt');
+% vidobj=getappdata(0,'vidobj');
+metadata = getappdata(0,'metadata');
+
+wholeframe = event.Data;
+
+roi = wholeframe.*uint8(metadata.cam.mask);
+eyelidpos = sum(roi(:)>=30);
+timestamp = event.Timestamp;
+
+fid = getappdata(himage,'StreamFileHandle');
+fprintf(fid,'%s, %d\n',timestamp,eyelidpos);
+
+
+function toggleStream()
+
+h_preview=getappdata(0,'h_preview');
+
+if getappdata(0,'STREAM') == 0
+	setappdata(0,'STREAM',1)
+    fid = fopen('eyelid.csv','w');
+    setappdata(h_preview,'StreamFileHandle',fid);
+    setappdata(h_preview,'UpdatePreviewWindowFcn',@extractEyelidTrace);
+else
+	setappdata(0,'STREAM',0)
+    setappdata(h_preview,'UpdatePreviewWindowFcn',[]);
+    fid = getappdata(h_preview,'StreamFileHandle');
+    fclose(fid);
+end
 
 
 function togglePreview()
@@ -240,7 +274,8 @@ switch event.Key
 	case 'r'
 		setROI()
 	case 's'
-		streamEyelid()
+% 		streamEyelid()
+		toggleStream()
 	case 't'
 		startTrial()
 	case 'q'

@@ -315,7 +315,12 @@ vidobj.StopFcn=@CalbEye;   % this will be executed after timer stop
 flushdata(vidobj);         % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
-src.FrameStartTriggerSource = 'Line1';
+if isprop(src,'FrameStartTriggerMode')
+    src.FrameStartTriggerSource = 'Line1';
+else
+    src.TriggerSource = 'Line1';
+end
+
 
 start(vidobj)
 
@@ -370,30 +375,6 @@ setappdata(0,'src',src);
 setappdata(0,'metadata',metadata);
 
 
-
-
-
-% vidobj=getappdata(0,'vidobj');
-% src=getappdata(0,'src');
-% metadata=getappdata(0,'metadata');
-% 
-% if get(hObject,'Value')
-%     % Turn on high frame rate mode
-%     vidobj.ROIposition=metadata.cam.winpos;
-% %     metadata.cam.fps=500;
-%     src.ExposureTimeAbs = 1900;
-% %     src.AllGainRaw=round(12*4900/1900);
-% else
-%     % Turn off high frame rate mode
-%     vidobj.ROIposition=metadata.cam.fullsize;
-% %     metadata.cam.fps=200;
-%     src.ExposureTimeAbs = 4900;
-% %     src.AllGainRaw=12;
-% end
-% 
-% setappdata(0,'vidobj',vidobj);
-% setappdata(0,'src',src);
-% setappdata(0,'metadata',metadata);
 
 
 
@@ -663,7 +644,12 @@ vidobj.StopFcn=@endOfTrial;
 flushdata(vidobj); % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
-src.FrameStartTriggerSource = 'Line1';
+if isprop(src,'FrameStartTriggerMode')
+    src.FrameStartTriggerSource = 'Line1';
+else
+    src.TriggerSource = 'Line1';
+end
+
 vidobj.FramesPerTrigger=metadata.cam.fps*(sum(metadata.cam.time)/1e3);
 
 % Now get camera ready for acquisition -- shouldn't start yet
@@ -1045,8 +1031,11 @@ src = getappdata(0,'src');
 stop(vidobj);
 flushdata(vidobj);
 
-src.FrameStartTriggerSource = 'Freerun';
-
+if isprop(src,'FrameStartTriggerMode')
+    src.FrameStartTriggerSource = 'Freerun';
+else
+    src.TriggerSource = 'Freerun';
+end
 
 
 
