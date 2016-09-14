@@ -255,7 +255,7 @@ guidata(hObject,handles)
 % take note of ROI set
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'ROI set';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -333,7 +333,7 @@ fwrite(arduino,1,'int8');
 % take note of calibration trial
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Puff';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -440,7 +440,7 @@ end
 % take note of toggling continuous session
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Toggle trial mode';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -458,7 +458,7 @@ TriggerArduino(handles)
 % take note of stimulus delivered
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Puff';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum + 1;
@@ -517,7 +517,7 @@ function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 %         % take note of new seesion pushed
 %         notedata = getappdata(0, 'notedata');
 %         notedata.note{1,2} = 'Session';
-%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+%         notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 %         try
 %             nextTrial = metadata.eye.trialnum1;
 %         catch ME
@@ -537,7 +537,7 @@ function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 %         % take note of new seesion pushed
 %         notedata = getappdata(0, 'notedata');
 %         notedata.note{1,2} = 'Session';
-%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+%         notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 %         try
 %             nextTrial = metadata.eye.trialnum1;
 %         catch ME
@@ -615,6 +615,8 @@ switch lower(metadata.stim.type)
         metadata.stim.l.delay = trialvars(7);
         metadata.stim.l.dur = trialvars(8);
         metadata.stim.l.amp = trialvars(9);
+        metadata.stim.l.freq = trialvars(10);
+        metadata.stim.l.cyconpd = trialvars(11);
     otherwise
         metadata.stim.totaltime=0;
         warning('Unknown stimulation mode set.');
@@ -660,6 +662,8 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(12)=metadata.stim.l.dur;
     datatoarduino(13)=metadata.stim.l.amp;
     datatoarduino(14)=metadata.stim.c.csint;
+    datatoarduino(15)=metadata.stim.l.freq;
+    datatoarduino(16)=metadata.stim.l.cyconpd;
 end
 
 % ---- send data to arduino ----
@@ -750,7 +754,7 @@ if get(handles.togglebutton_stream,'Value')
     set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
 end
 
-% try
+try
     while get(handles.togglebutton_stream,'Value') == 1
         t2=clock;
         metadata=getappdata(0,'metadata');  % get updated metadata within this loop, otherwise we'll be using stale data
@@ -809,22 +813,25 @@ end
         % end
 
     end
-% catch
+catch
 
-    % try % If it's a dropped frame, see if we can recover
-    %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-    %     preview(vidobj,handles.pwin);
+    try % If it's a dropped frame, see if we can recover
+        handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
+        pause(0.5)
+        closepreview(vidobj);
+        pause(0.2)
+        preview(vidobj,handles.pwin);
     %     guidata(handles.cameraAx,handles)
-    %     stream(handles)
-    %     disp('Caught camera error')
-    % catch   
-    %     disp('Aborted eye streaming.')
-    %     set(handles.togglebutton_stream,'Value',0);
+        stream(handles)
+        disp('Caught camera error')
+    catch   
+        disp('Aborted eye streaming.')
+        set(handles.togglebutton_stream,'Value',0);
     %     set(handles.pushbutton_StartStopPreview,'String','Start Preview')
     %     closepreview(vidobj);
-    %     return
-    % end
-% end
+        return
+    end
+end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
@@ -1067,11 +1074,7 @@ src = getappdata(0,'src');
 stop(vidobj);
 flushdata(vidobj);
 
-if isprop(src, 'FrameStartTriggerSource')
-    src.FrameStartTriggerSource = 'Freerun';
-else
-    src.TriggerSource = 'Freerun';
-end
+src.FrameStartTriggerSource = 'Freerun';
 
 
 
@@ -1180,7 +1183,7 @@ end
 % take note of new seesion pushed
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Session';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -1216,7 +1219,7 @@ end
 % take note of new seesion pushed
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Session';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;

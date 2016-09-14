@@ -22,7 +22,7 @@ function varargout = TrialTable(varargin)
 
 % Edit the above text to modify the response to help TrialTable
 
-% Last Modified by GUIDE v2.5 23-May-2013 12:05:56
+% Last Modified by GUIDE v2.5 14-Sep-2016 14:29:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -87,3 +87,15 @@ function varargout = TrialTable_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
+% --- Executes when entered data in editable cell(s) in uitable_trials.
+function uitable_trials_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to uitable_trials (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
