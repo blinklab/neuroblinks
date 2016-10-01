@@ -1,4 +1,4 @@
-function trialvars=readTrialTable(current_tr)
+   function trialvars=readTrialTable(current_tr)
 % Return current row from trial table, which is stored in the app data for the root figure
 
 trialtable=getappdata(0,'trialtable');

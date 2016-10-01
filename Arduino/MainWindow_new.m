@@ -118,7 +118,7 @@ if strcmp(get(handles.pushbutton_StartStopPreview,'String'),'Start Preview')
     imx=metadata.cam.vidobj_ROIposition(1)+[1:metadata.cam.vidobj_ROIposition(3)];
     imy=metadata.cam.vidobj_ROIposition(2)+[1:metadata.cam.vidobj_ROIposition(4)];
     handles.pwin=image(imx,imy,zeros(metadata.cam.vidobj_ROIposition([4 3])), 'Parent',handles.cameraAx);
-    
+
     preview(vidobj,handles.pwin);
     set(handles.cameraAx,'XLim', 0.5+metadata.cam.fullsize([1 3])),
     set(handles.cameraAx,'YLim', 0.5+metadata.cam.fullsize([2 4])),
@@ -142,11 +142,11 @@ guidata(hObject,handles)
 
 % vidobj=getappdata(0,'vidobj');
 % metadata=getappdata(0,'metadata');
-% 
+%
 % if isfield(metadata.cam,'fullsize')
 %     metadata.cam.fullsize = vidobj.ROIposition;
 % end
-% 
+%
 % if strcmp(get(handles.pushbutton_StartStopPreview,'String'),'Start Preview')
 %     % Camera is off. Change button string and start camera.
 %     set(handles.pushbutton_StartStopPreview,'String','Stop Preview')
@@ -193,7 +193,7 @@ if strcmpi(button,'Yes')
 end
 
 % --- Outputs from this function are returned to the command line.
-function varargout = MainWindow_new_OutputFcn(hObject, eventdata, handles) 
+function varargout = MainWindow_new_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % Get default command line output from handles structure
 varargout{1} = handles.output;
@@ -255,7 +255,7 @@ guidata(hObject,handles)
 % take note of ROI set
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'ROI set';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -285,39 +285,39 @@ appendcell2csv(notedata.filename,notedata.note);
 % h=imellipse(handles.cameraAx,winpos);
 % fcn = makeConstrainToRectFcn('imellipse',get(handles.cameraAx,'XLim'),get(handles.cameraAx,'YLim'));
 % setPositionConstraintFcn(h,fcn);
-% 
+%
 % % metadata.cam.winpos=round(wait(h));
 % XY=round(wait(h));  % only use for imellipse
 % metadata.cam.winpos=getPosition(h);
 % metadata.cam.mask=createMask(h);
-% 
+%
 % wholeframe=getsnapshot(vidobj);
 % binframe=im2bw(wholeframe,metadata.cam.thresh);
 % eyeframe=binframe.*metadata.cam.mask;
 % metadata.cam.pixelpeak=sum(sum(eyeframe));
-% 
+%
 % hp=findobj(handles.cameraAx,'Tag','roipatch');
 % delete(hp)
-% 
+%
 % delete(h);
 % handles.roipatch=patch(XY(:,1),XY(:,2),'g','FaceColor','none','EdgeColor','g','Tag','roipatch');
-% 
+%
 % setappdata(0,'metadata',metadata);
 % guidata(hObject,handles)
 
 
 function pushbutton_CalbEye_Callback(hObject, eventdata, handles)
-metadata=getappdata(0,'metadata'); 
+metadata=getappdata(0,'metadata');
 metadata.cam.cal=1;
 setappdata(0,'metadata',metadata);
 
 refreshPermsA(handles);
 sendto_arduino();
 
-metadata=getappdata(0,'metadata'); 
+metadata=getappdata(0,'metadata');
 vidobj=getappdata(0,'vidobj');
 vidobj.TriggerRepeat = 0;
-vidobj.StopFcn=@CalbEye;   % this will be executed after timer stop 
+vidobj.StopFcn=@CalbEye;   % this will be executed after timer stop
 flushdata(vidobj);         % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
@@ -333,7 +333,7 @@ fwrite(arduino,1,'int8');
 % take note of calibration trial
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Puff';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -395,7 +395,7 @@ setappdata(0,'metadata',metadata);
 % vidobj=getappdata(0,'vidobj');
 % src=getappdata(0,'src');
 % metadata=getappdata(0,'metadata');
-% 
+%
 % if get(hObject,'Value')
 %     % Turn on high frame rate mode
 %     vidobj.ROIposition=metadata.cam.winpos;
@@ -409,7 +409,7 @@ setappdata(0,'metadata',metadata);
 %     src.ExposureTimeAbs = 4900;
 % %     src.AllGainRaw=12;
 % end
-% 
+%
 % setappdata(0,'vidobj',vidobj);
 % setappdata(0,'src',src);
 % setappdata(0,'metadata',metadata);
@@ -440,7 +440,7 @@ end
 % take note of toggling continuous session
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Toggle trial mode';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -458,7 +458,7 @@ TriggerArduino(handles)
 % take note of stimulus delivered
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Puff';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum + 1;
@@ -485,7 +485,7 @@ switch lower(metadata.stim.type)
         set(handles.uipanel_puff,'BackgroundColor',[225 237 248]/255); % light blue
     case 'conditioning'
         set(handles.uipanel_conditioning,'BackgroundColor',[225 237 248]/255); % light blue
-end   
+end
 
 
 function togglebutton_stream_Callback(hObject, eventdata, handles)
@@ -506,7 +506,7 @@ function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 % switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
 %     case 'togglebutton_NewSession'
 %         dlgans = inputdlg({'Enter session name'},'Create');
-%         if isempty(dlgans) 
+%         if isempty(dlgans)
 %             ok=0;
 %         elseif isempty(dlgans{1})
 %             ok=0;
@@ -517,7 +517,7 @@ function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 %         % take note of new seesion pushed
 %         notedata = getappdata(0, 'notedata');
 %         notedata.note{1,2} = 'Session';
-%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+%         notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 %         try
 %             nextTrial = metadata.eye.trialnum1;
 %         catch ME
@@ -537,7 +537,7 @@ function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 %         % take note of new seesion pushed
 %         notedata = getappdata(0, 'notedata');
 %         notedata.note{1,2} = 'Session';
-%         notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+%         notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 %         try
 %             nextTrial = metadata.eye.trialnum1;
 %         catch ME
@@ -551,7 +551,7 @@ function uipanel_TDTMode_SelectionChangeFcn(hObject, eventdata, handles)
 %         warndlg('There is something wrong with the mode selection callback','Mode Select Problem!')
 %         return
 % end
-% 
+%
 % if ok
 %     set(eventdata.NewValue,'Value',1);
 %     set(eventdata.OldValue,'Value',0);
@@ -615,6 +615,8 @@ switch lower(metadata.stim.type)
         metadata.stim.l.delay = trialvars(7);
         metadata.stim.l.dur = trialvars(8);
         metadata.stim.l.amp = trialvars(9);
+        metadata.stim.l.freq = trialvars(10);
+        metadata.stim.l.pulsewidth = trialvars(11);
     otherwise
         metadata.stim.totaltime=0;
         warning('Unknown stimulation mode set.');
@@ -637,6 +639,7 @@ setappdata(0,'trials',trials);
 
 function sendto_arduino()
 metadata=getappdata(0,'metadata');
+config=getappdata(0,'config');
 datatoarduino=zeros(1,10);
 
 datatoarduino(3)=metadata.cam.time(1);
@@ -657,9 +660,13 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     end
     datatoarduino(10)=metadata.stim.c.usnum;
     datatoarduino(11)=metadata.stim.l.delay;
-    datatoarduino(12)=metadata.stim.l.dur;
+    datatoarduino(12)=metadata.stim.l.pulsewidth;
     datatoarduino(13)=metadata.stim.l.amp;
     datatoarduino(14)=metadata.stim.c.csint;
+    datatoarduino(15)=round(1./metadata.stim.l.freq.*1e3);
+    datatoarduino(16)=round(metadata.stim.l.freq .* (metadata.stim.l.dur ./ 1e3));
+    datatoarduino(17)=config.laser.gain;
+    datatoarduino(18)=config.laser.offset;
 end
 
 % ---- send data to arduino ----
@@ -716,19 +723,19 @@ if strcmpi(metadata.stim.type,'conditioning')
     usnum=trialvars(5);
     cstone=str2num(get(handles.edit_tone,'String'));
     if length(cstone)<2, cstone(2)=0; end
-    
+
     str2=[];
-    if ismember(csnum,[5 6]), 
+    if ismember(csnum,[5 6]),
         str2=[' (' num2str(cstone(csnum-4)) ' KHz)'];
     end
-        
+
     str1=sprintf('Next:  No %d,  CS ch %d%s,  ISI %d,  US %d, US ch %d',metadata.eye.trialnum1+1, csnum, str2, isi, usdur, usnum);
     set(handles.text_disp_cond,'String',str1)
 end
 setappdata(0,'metadata',metadata);
 
 function stream(handles)
-ghandles=getappdata(0,'ghandles'); 
+ghandles=getappdata(0,'ghandles');
 vidobj=getappdata(0,'vidobj');
 src=getappdata(0,'src');
 updaterate=0.017;   % ~67 Hz
@@ -736,7 +743,7 @@ updaterate=0.017;   % ~67 Hz
 t1=clock-10;
 t0=clock;
 
-eyedata=NaN*ones(500,2);  
+eyedata=NaN*ones(500,2);
 plt_range=-2100;
 
 if get(handles.togglebutton_stream,'Value')
@@ -750,33 +757,33 @@ if get(handles.togglebutton_stream,'Value')
     set(gca,'ytick',[0:0.5:1],'yticklabel',{'0' '' '1'})
 end
 
-% try
+try
     while get(handles.togglebutton_stream,'Value') == 1
         t2=clock;
         metadata=getappdata(0,'metadata');  % get updated metadata within this loop, otherwise we'll be using stale data
-        
+
         % --- eye trace ---
         wholeframe=getsnapshot(vidobj);
         roi=wholeframe.*uint8(metadata.cam.mask); % multiply the frame by the mask --> everything outside of the ROI becomes 0 and everything inside the ROI remains the same (is multiplied by 1)
         eyelidpos=sum(roi(:)>=256*metadata.cam.thresh); % find everywhere in roi that is > your threshold value converted into 8-bit-integer units
-        
+
         % --- eye trace buffer ---
         etime0=round(1000*etime(clock,t0));
         eyedata(1:end-1,:)=eyedata(2:end,:);
         eyedata(end,1)=etime0;
         eyedata(end,2)=(eyelidpos-metadata.cam.calib_offset)/metadata.cam.calib_scale; % eyelid pos
-        
+
         set(pl1,'XData',eyedata(:,1)-etime0,'YData',eyedata(:,2))
-        
+
         % --- Trigger ----
         if get(handles.toggle_continuous,'Value') == 1
-            
+
             stopTrial = str2double(get(handles.edit_StopAfterTrial,'String'));
             if stopTrial > 0 && metadata.cam.trialnum > stopTrial
                 set(handles.toggle_continuous,'Value',0);
                 set(handles.toggle_continuous,'String','Start Continuous');
             end
-                
+
             etime1=round(1000*etime(clock,t1))/1000;
             if etime1>metadata.stim.c.ITI,
                 eyeok=checkeye(handles,eyedata);
@@ -786,7 +793,7 @@ end
                 end
             end
         end
-        
+
         t=round(1000*etime(clock,t2))/1000;
         % -- pause in the left time -----
         d=updaterate-t;
@@ -809,26 +816,29 @@ end
         % end
 
     end
-% catch
+catch
 
-    % try % If it's a dropped frame, see if we can recover
-    %     handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
-    %     preview(vidobj,handles.pwin);
+    try % If it's a dropped frame, see if we can recover
+        handles.pwin=image(zeros(480,640),'Parent',handles.cameraAx);
+        pause(0.5)
+        closepreview(vidobj);
+        pause(0.2)
+        preview(vidobj,handles.pwin);
     %     guidata(handles.cameraAx,handles)
-    %     stream(handles)
-    %     disp('Caught camera error')
-    % catch   
-    %     disp('Aborted eye streaming.')
-    %     set(handles.togglebutton_stream,'Value',0);
+        stream(handles)
+        disp('Caught camera error')
+    catch
+        disp('Aborted eye streaming.')
+        set(handles.togglebutton_stream,'Value',0);
     %     set(handles.pushbutton_StartStopPreview,'String','Start Preview')
     %     closepreview(vidobj);
-    %     return
-    % end
-% end
+        return
+    end
+end
 
 function eyeok=checkeye(handles,eyedata)
 eyethrok = (eyedata(end,2)<str2double(get(handles.edit_eyethr,'String')));
-eyedata(:,1)=eyedata(:,1)-eyedata(end,1);  
+eyedata(:,1)=eyedata(:,1)-eyedata(end,1);
 recenteye=eyedata(eyedata(:,1)>-1000*str2double(get(handles.edit_stabletime,'String')), 2);
 eyestableok = ((max(recenteye)-min(recenteye))<str2double(get(handles.edit_stableeye,'String')));
 eyeok = eyethrok && eyestableok;
@@ -1133,7 +1143,7 @@ function pushbutton_takeNote_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 NoteWindow
- 
+
 %% Other GUI STUFF
 
 function edit_tone_Callback(hObject, eventdata, handles)
@@ -1176,7 +1186,7 @@ end
 % take note of new seesion pushed
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Session';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -1212,7 +1222,7 @@ end
 % take note of new seesion pushed
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Session';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 trials=getappdata(0,'trials');
 try
     notedata.note{1,4} = trials.stimnum;
@@ -1243,4 +1253,3 @@ setappdata(0,'ghandles',ghandles);
 
 set(ghandles.onetrialanagui,'units','pixels')
 %set(ghandles.onetrialanagui,'position',[ghandles.pos_oneanawin ghandles.size_oneanawin])
-

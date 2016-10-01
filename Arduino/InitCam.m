@@ -76,9 +76,9 @@ end
 
 disp('video settings ....')
 if isprop(src, 'AllGainRaw')
-    src.AllGainRaw=12;  % Tweak this based on IR light illumination (lower values preferred due to less noise)
+    src.AllGainRaw=8;  % Tweak this based on IR light illumination (lower values preferred due to less noise)
 else
-    src.GainRaw = 12;
+    src.GainRaw = 8;
 end
 % src.StreamBytesPerSecond=124e6; % Set based on AVT's suggestion
 %src.StreamBytesPerSecond=115e6; % Set based on AVT's suggestion

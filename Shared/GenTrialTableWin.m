@@ -98,7 +98,7 @@ movegui(trialtablegui,[ghandles.pos_mainwin(1)+ghandles.size_mainwin(1)+20 ghand
 % take note of trial table generation
 notedata = getappdata(0, 'notedata');
 notedata.note{1,2} = 'Trial table';
-notedata.note{1,3} = datestr(now, 'hh:mm:ss');
+notedata.note{1,3} = datestr(now, 'hh:MM:ss');
 try
     nextTrial = metadata.eye.trialnum1;
 catch ME

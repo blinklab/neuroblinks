@@ -2,6 +2,8 @@ function savetrial()
 % Load objects from root app data
 vidobj=getappdata(0,'vidobj');
 
+counts2deg = @(count) count ./ 4096; 
+
 pause(1e-3)
 % data=getdata(vidobj,vidobj.TriggerRepeat+1);
 data=getdata(vidobj,vidobj.FramesPerTrigger*(vidobj.TriggerRepeat + 1));
@@ -15,6 +17,30 @@ pause(1e-3)
 setappdata(0,'lastdata',data);
 setappdata(0,'lastmetadata',metadata);
 
+% Get encoder data from Arduino
+if isappdata(0,'arduino')
+  arduino = getappdata(0,'arduino');
+
+  if arduino.BytesAvailable > 0
+    fread(arduino, arduino.BytesAvailable); % Clear input buffer
+  end
+
+  fwrite(arduino,2,'uint8');  % Tell Arduino we're ready for it to send the data
+
+  data_header=(fread(arduino,1,'uint8'));
+  if data_header == 100
+    encoder.counts=counts2deg((fread(arduino,200,'int32')));
+    encoder.counts=encoder.counts-encoder.counts(1);
+  end
+
+  time_header=(fread(arduino,1,'uint8'));
+  if time_header == 101
+    encoder.time=(fread(arduino,200,'uint32'));
+    encoder.time=encoder.time-encoder.time(1);
+  end
+
+end
+
 % --- saved in HDD ---
 trials=getappdata(0,'trials');
 t0=clock;
@@ -22,11 +48,10 @@ t0=clock;
 videoname=sprintf('%s\\%s_%03d',metadata.folder,metadata.TDTblockname,metadata.cam.trialnum);
 if trials.savematadata
     save(videoname,'metadata')
-    pause(0.3-metadata.stim.totaltime/1000) % wait for serial buffer of TDT
+elseif exist('encoder','var')
+    save(videoname,'data','metadata','encoder','-v6')
 else
-%     save(videoname,'data','metadata')
     save(videoname,'data','metadata','-v6')
-    pause(0.3-metadata.stim.totaltime/1000) % wait for serial buffer of TDT
 end
 
 fprintf('Data from trial %03d successfully written to disk.\n',metadata.cam.trialnum)
@@ -39,14 +64,9 @@ if strcmpi(metadata.stim.type,'conditioning') | strcmpi(metadata.stim.type,'elec
 end
 metadata.eye.trialnum2=metadata.eye.trialnum2+1;
 setappdata(0,'metadata',metadata);
-% 
+%
 % % --- online spike saving, executed by timer ---
 % etime1=round(1000*etime(clock,t0))/1000;
 % tm1 = timer('TimerFcn',@online_savespk_to_memory, 'startdelay', max(0, 4-etime1));
 % start(tm1);
-% 
-
-
-
-
-
+%

@@ -4,7 +4,13 @@ function Launch(rig)
 % Should be somewhere in path but not "neuroblinks" directory or subdirectory
 neuroblinks_config;	% Per user settings
 
+<<<<<<< HEAD
 beep off  % turns off beeping at error -- should help keep mice calm during dropped frame days/not interfere with tone CS
+=======
+config.laser=laser(rig);
+
+setappdata(0, 'config', config)
+>>>>>>> origin/dipo
 
 % If Neuroblinks is launched from the root directory of the mouse, make a new directory for the session, otherwise leave that up to the user
 cwd=regexp(pwd,'\\','split');
@@ -50,7 +56,8 @@ if isempty(com_ports{rig}),
 	error('No Arduino found for requested rig (%d)', rig);
 end
 
-arduino=serial(com_ports{rig},'BaudRate',9600);
+arduino=serial(com_ports{rig},'BaudRate',115200);
+arduino.InputBufferSize = 512*8;
 % arduino.DataTerminalReady='off';	% to prevent resetting Arduino on connect
 fopen(arduino);
 setappdata(0,'arduino',arduino);
