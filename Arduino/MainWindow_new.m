@@ -639,6 +639,7 @@ setappdata(0,'trials',trials);
 
 function sendto_arduino()
 metadata=getappdata(0,'metadata');
+config=getappdata(0,'config');
 datatoarduino=zeros(1,10);
 
 datatoarduino(3)=metadata.cam.time(1);
@@ -664,6 +665,8 @@ elseif  strcmpi(metadata.stim.type, 'conditioning')
     datatoarduino(14)=metadata.stim.c.csint;
     datatoarduino(15)=round(1./metadata.stim.l.freq.*1e3);
     datatoarduino(16)=round(metadata.stim.l.freq .* (metadata.stim.l.dur ./ 1e3));
+    datatoarduino(17)=config.laser.gain;
+    datatoarduino(18)=config.laser.offset;
 end
 
 % ---- send data to arduino ----

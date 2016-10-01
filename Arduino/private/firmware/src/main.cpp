@@ -218,6 +218,13 @@ void checkVars() {
       case 16:
         param_lasernumpulses = value;
         break;
+      case 17:
+        param_lasergain = value;
+        break;
+      case 18:
+        param_laseroffset = value;
+        break;
+
     }
     // We might be able to remove this delay if Matlab sends the parameters fast enough to buffer
     delay(1); // Delay enough to allow next 3 bytes into buffer (24 bits/115200 bps = ~200 us, so delay 1 ms to be safe).
@@ -347,8 +354,8 @@ void laserOff(int dummy) { // Function signature requires int but we don't need 
 void takeEncoderReading(timems_t &time, int32_t &reading) {
 
     time = millis();
-    // reading = cylEnc.read();
-    reading = 5000-random(10000);  // for testing
+    reading = cylEnc.read();
+    // reading = 5000-random(10000);  // for testing
 
 }
 

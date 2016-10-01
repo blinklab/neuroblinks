@@ -2,6 +2,8 @@ function savetrial()
 % Load objects from root app data
 vidobj=getappdata(0,'vidobj');
 
+counts2deg = @(count) count ./ 4096; 
+
 pause(1e-3)
 % data=getdata(vidobj,vidobj.TriggerRepeat+1);
 data=getdata(vidobj,vidobj.FramesPerTrigger*(vidobj.TriggerRepeat + 1));
@@ -19,18 +21,22 @@ setappdata(0,'lastmetadata',metadata);
 if isappdata(0,'arduino')
   arduino = getappdata(0,'arduino');
 
-  fread(arduino, arduino.BytesAvailable); % Clear input buffer
+  if arduino.BytesAvailable > 0
+    fread(arduino, arduino.BytesAvailable); % Clear input buffer
+  end
 
   fwrite(arduino,2,'uint8');  % Tell Arduino we're ready for it to send the data
 
   data_header=(fread(arduino,1,'uint8'));
   if data_header == 100
-    encoder.counts=(fread(arduino,200,'int32'));
+    encoder.counts=counts2deg((fread(arduino,200,'int32')));
+    encoder.counts=encoder.counts-encoder.counts(1);
   end
 
   time_header=(fread(arduino,1,'uint8'));
   if time_header == 101
     encoder.time=(fread(arduino,200,'uint32'));
+    encoder.time=encoder.time-encoder.time(1);
   end
 
 end
