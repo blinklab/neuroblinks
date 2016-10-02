@@ -2,7 +2,8 @@ function savetrial()
 % Load objects from root app data
 vidobj=getappdata(0,'vidobj');
 
-counts2deg = @(count) count ./ 4096; 
+% 4096 counts = 1 revolution = 15.24*pi cm for 6 inch diameter cylinder
+counts2cm = @(count) double(count) ./ 4096 .* 15.24 .* pi; 
 
 pause(1e-3)
 % data=getdata(vidobj,vidobj.TriggerRepeat+1);
@@ -29,8 +30,8 @@ if isappdata(0,'arduino')
 
   data_header=(fread(arduino,1,'uint8'));
   if data_header == 100
-    encoder.counts=counts2deg((fread(arduino,200,'int32')));
-    encoder.counts=encoder.counts-encoder.counts(1);
+    encoder.counts=(fread(arduino,200,'int32'));
+    encoder.displacement=counts2cm(encoder.counts-encoder.counts(1));
   end
 
   time_header=(fread(arduino,1,'uint8'));
