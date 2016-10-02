@@ -1,6 +1,7 @@
 // TODO: Put Arduino to sleep when not running neuroblinks (e.g. pmc_enable_sleepmode())
 // TODO: Deal with overflow of millisecond/microsecond timers
 // TODO: Non-blocking Serial IO and better serial communication generally (consider Serial.SerialEvent())
+//       For instance https://github.com/siggiorn/arduino-buffered-serial
 
 #include "main.hpp"
 #include <Encoder.h>
