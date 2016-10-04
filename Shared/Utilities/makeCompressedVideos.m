@@ -1,7 +1,7 @@
 function makeCompressedVideos(varargin)
 % makeCompressedVideos({folder,verbose})
 % Compress videos from raw data array in MAT files, putting them in subdirectory called "compressed" and writing metadata as "[BASE]_meta.mat" file,
-% where BASE is the base file name of the video file. Videos are written using WriteStimVideo() function so that the color coded boxes are 
+% where BASE is the base file name of the video file. Videos are written using WriteStimVideo() function so that the color coded boxes are
 % displayed during stimulation. Optionally, include the name of the folder containing the original MAT files; current directory is used by default.
 % If verbose flag is set (second argument set to 1), message is displayed each time a video is written to disk.
 
@@ -30,7 +30,7 @@ mkdir([folder '/compressed'])
 fprintf('Compressing %d video files...\n',length(fnames));
 
 parfor i=1:length(fnames)
-	loadAndWrite([folder '/' fnames{i}],VERBOSE)	
+	loadAndWrite([folder '/' fnames{i}],VERBOSE)
 	% testLoop();
 end
 
@@ -45,14 +45,33 @@ fprintf('Done compressing video files\n');
 function loadAndWrite(fullfname,VERBOSE)
 load(fullfname);
 
-if ~exist('data','var') || ~exist('metadata','var')	
+if ~exist('data','var') || ~exist('metadata','var')	|| ~exist('vid','var')
 	return	% Not a normal video file so skip this one
 end
 
 [p,basename,ext]=fileparts(fullfname);
 
-writeStimVideo(data,metadata,sprintf('%s/compressed/%s',p,basename));
-save(sprintf('%s/compressed/%s_meta',p,basename),'metadata');
+writeObj=VideoWriter(sprintf('%s/compressed/%s',p,basename),'MPEG-4');
+set(writeObj,'FrameRate',20);
+open(writeObj);
+
+% Newer versions of Neuroblinks write videos as 'vid' rather than 'data'
+% This function is compatible with both for now.
+if exist('vid','var')
+    writeVideo(writeObj,vid);
+elseif exist('data','var')
+    writeVideo(writeObj,data);
+end
+
+close(writeObj);
+
+if  exist('metadata','var')
+	save(sprintf('%s/compressed/%s_meta',p,basename),'metadata');
+end
+
+if exist('encoder','var')
+	save(sprintf('%s/compressed/%s_encoder',p,basename),'encoder');
+end
 
 if VERBOSE
 	fprintf('Compressed file %s written to disk.\n',basename)
@@ -70,9 +89,3 @@ function fnames=getFileNames(fn)
     for i=1:lg,
         fnames{i}=fn(i).name;
     end
-    
-    
-    
-        
-        
-        
