@@ -45,7 +45,7 @@ fprintf('Done compressing video files\n');
 function loadAndWrite(fullfname,VERBOSE)
 load(fullfname);
 
-if ~exist('data','var') || ~exist('metadata','var')	|| ~exist('vid','var')
+if (~exist('data','var') && ~exist('vid','var')) || ~exist('metadata','var')
 	return	% Not a normal video file so skip this one
 end
 
