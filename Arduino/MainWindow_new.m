@@ -593,6 +593,8 @@ metadata.stim.c.cstone=[0 0];
 metadata.stim.l.delay=0;
 metadata.stim.l.dur=0;
 metadata.stim.l.amp=0;
+metadata.stim.l.freq = 0;
+metadata.stim.l.pulsewidth = 0;
 
 metadata.stim.p.puffdur=str2double(get(handles.edit_puffdur,'String'));
 
