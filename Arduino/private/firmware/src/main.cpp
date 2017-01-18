@@ -15,6 +15,7 @@ const int ch_brightled = 7;
 
 // Outputs
 const int pin_ss = 4;  // slave select Pin. need one for each external chip you are going to control.
+const int pin_backgroundled = 6;
 const int pin_brightled = 7;
 const int pin_camera = 8;
 const int pin_led = 9;
@@ -36,7 +37,7 @@ const int stim2pinMapping[10] {
     0,
     pin_brightled,
     0,
-    0
+    pin_backgroundled
 };
 
 // Task variables (time in ms, freq in hz) - can be updated from Matlab
@@ -51,6 +52,7 @@ int param_csch = ch_led;   // default to LED
 int param_usch = ch_puffer_eye;   // default to ipsi corneal puff
 int param_tonefreq = 10000;
 int param_csintensity = 256; // default to max intensity
+int param_backgroundlaserintensity = 0;   // This is for an optional LED that provides background illumination in the behavior box
 
 // For laser stim during trials, time values in ms
 int param_laserdelay = 0; // delay from CS onset until laser onset
@@ -87,6 +89,7 @@ Encoder cylEnc(2, 3); // pins used should have interrupts, e.g. 2 and 3
 // The setup routine runs once when you press reset or get reset from Serial port
 void setup() {
   // Initialize the digital pin as an output.
+  pinMode(pin_backgroundled, OUTPUT);
   pinMode(pin_camera, OUTPUT);
   pinMode(pin_led, OUTPUT);
   pinMode(pin_eye_puff, OUTPUT);
@@ -97,6 +100,7 @@ void setup() {
   pinMode(pin_ss, OUTPUT);
 
   // Default all output pins to LOW - for some reason they were floating high on the Due before I (Shane) added this
+  digitalWrite(pin_backgroundled, LOW);
   digitalWrite(pin_camera, LOW);
   digitalWrite(pin_led, LOW);
   digitalWrite(pin_eye_puff, LOW);
@@ -209,8 +213,10 @@ void checkVars() {
         param_laserpower = value;
         break;
       case 14:
-        param_csintensity = value;
-        setDiPoValue(param_csintensity);
+        // The Matlab code stores intensity values up to 256 because it's nicer to deal with
+        // multiples of 2 but we can only pass at most 255 so we have to correct that here.
+        // Zero is a special case because when the user specifies 0 they want it to mean "off"
+        param_csintensity = value==0 ? value : value-1;
         break;
       case 15:
         param_laserperiod = value;
@@ -223,6 +229,11 @@ void checkVars() {
         break;
       case 18:
         param_laseroffset = value;
+        break;
+
+      case 101:
+        param_backgroundlaserintensity = value;
+        setBackgroundIllumination();
         break;
 
     }
@@ -247,6 +258,17 @@ void configureTrial() {
     laser.setDuration(param_laserdur);
     laser.setPeriod(param_laserperiod);
     laser.setNumRepeats(param_lasernumpulses);
+
+    // Do some error checking for required bounds
+    // CS intensity can be at most 255 (=2^8-1) because PWM with analogWrite uses 8 bit value
+    // CS intensity for tone can have at most a value of 127 because the digital potentiometer is 7 bits
+    // but we don't have to worry about it because most significant bit will be truncated so 255 will look like 127
+    if (param_csintensity < 0) { param_csintensity = 0;}
+    if (param_csintensity > 255) { param_csintensity = 255;}
+
+    if (param_csch == ch_tone) {
+      setDiPoValue(param_csintensity);
+    }
 
 }
 
@@ -316,13 +338,25 @@ void setDiPoValue(int value)
 }
 
 // Tone is a special case of digitalWrite because it uses a timer to cycle at requested frequency
+// We also have a special case if CS is LED to use CS intensity to regulate brightness
 void digitalOn(int pin) {
-    if (pin == pin_tone) {
+    switch (pin) {
+      case pin_tone:
         toneOn(pin);
-    }
-    else {
+        break;
+      case pin_led:
+        analogWrite(pin, param_csintensity);
+        break;
+      default:
         digitalWrite(pin, HIGH);
     }
+
+    // if (pin == pin_tone) {
+    //     toneOn(pin);
+    // }
+    // else {
+    //     digitalWrite(pin, HIGH);
+    // }
 }
 
 void digitalOff(int pin) {
@@ -330,6 +364,7 @@ void digitalOff(int pin) {
         toneOff(pin);
     }
     else {
+        // We can turn it off with digitalWrite even if we turned it on with analogWrite
         digitalWrite(pin, LOW);
     }
 }
@@ -400,4 +435,15 @@ void flushReceiveBuffer() {
     while(Serial.available()) {
         Serial.read();
     }
+}
+
+void setBackgroundIllumination() {
+
+  int brightness = param_backgroundlaserintensity;
+
+  if (brightness) < 0 { brightness = 0;}
+  if (brightness) > 255 { brightness = 255;}
+
+  digitalWrite(pin_backgroundled, brightness);
+
 }

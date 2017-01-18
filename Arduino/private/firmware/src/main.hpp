@@ -45,3 +45,5 @@ void writeLong(uint32_t);
 void writeLong(int32_t);
 
 void flushReceiveBuffer();
+
+void setBackgroundIllumination();
