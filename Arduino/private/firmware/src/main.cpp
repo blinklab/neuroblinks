@@ -232,7 +232,7 @@ void checkVars() {
         break;
 
       case 101:
-        param_backgroundlaserintensity = value;
+        param_backgroundlaserintensity = value==0 ? value : value-1;
         setBackgroundIllumination();
         break;
 
@@ -441,9 +441,9 @@ void setBackgroundIllumination() {
 
   int brightness = param_backgroundlaserintensity;
 
-  if (brightness) < 0 { brightness = 0;}
-  if (brightness) > 255 { brightness = 255;}
+  if (brightness < 0) { brightness = 0;}
+  if (brightness > 255) { brightness = 255;}
 
-  digitalWrite(pin_backgroundled, brightness);
+  analogWrite(pin_backgroundled, brightness);
 
 }
