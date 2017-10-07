@@ -321,7 +321,7 @@ vidobj.StopFcn=@CalbEye;   % this will be executed after timer stop
 flushdata(vidobj);         % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
-src.FrameStartTriggerSource = 'Line1';
+src.FrameStartTriggerSource = 'FixedRate';
 start(vidobj)
 
 metadata.cam.cal=0;
@@ -698,9 +698,9 @@ flushdata(vidobj); % Remove any data from buffer before triggering
 
 % Set camera to hardware trigger mode
 if isprop(src, 'FrameStartTriggerSource')
-    src.FrameStartTriggerSource = 'Line1';
+    src.FrameStartTriggerSource = 'FixedRate';
 else
-    src.TriggerSource = 'Line1';
+    src.TriggerSource = 'FixedRate';
 end
 vidobj.FramesPerTrigger=metadata.cam.fps*(sum(metadata.cam.time)/1e3);
 
