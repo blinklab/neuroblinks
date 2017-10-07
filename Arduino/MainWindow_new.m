@@ -585,6 +585,7 @@ if metadata.cam.cal, metadata.stim.type='Puff'; end % for Cal
 
 metadata.stim.c.csdur=0;
 metadata.stim.c.csnum=0;
+metadata.stim.c.csint=0;
 metadata.stim.c.isi=0;
 metadata.stim.c.usdur=0;
 metadata.stim.c.usnum=0;

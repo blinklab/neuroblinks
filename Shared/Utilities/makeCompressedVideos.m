@@ -29,7 +29,9 @@ mkdir([folder '/compressed'])
 
 fprintf('Compressing %d video files...\n',length(fnames));
 
-parfor i=1:length(fnames)
+% parfor giving me trouble - Olivia Kim 7/12/17 on Hodgkin
+%parfor i=1:length(fnames)
+for i=1:length(fnames)
 	loadAndWrite([folder '/' fnames{i}],VERBOSE)
 	% testLoop();
 end
@@ -69,9 +71,9 @@ if  exist('metadata','var')
 	save(sprintf('%s/compressed/%s_meta',p,basename),'metadata');
 end
 
-if exist('encoder','var')
-	save(sprintf('%s/compressed/%s_encoder',p,basename),'encoder');
-end
+% if exist('encoder','var')
+% 	save(sprintf('%s/compressed/%s_encoder',p,basename),'encoder');
+% end
 
 if VERBOSE
 	fprintf('Compressed file %s written to disk.\n',basename)
